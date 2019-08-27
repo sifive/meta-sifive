@@ -1,0 +1,60 @@
+From e6fef846c254f32efe83e59024ed8f4e07010d54 Mon Sep 17 00:00:00 2001
+From: Anup Patel <Anup.Patel@wdc.com>
+Date: Mon, 22 Jul 2019 07:38:18 +0000
+Subject: [PATCH] riscv: sifive: fu540: Sync-up config header with RISC-V QEMU
+ support
+
+We typically use same set of distro images (yocto, debian, fedora, etc.)
+on both QEMU RISC-V virt machine and SiFive Unleashed board.
+
+With growing kernel and ramdisk images, we need to re-adjust default
+U-Boot environment variables. The config header for QEMU RISC-V virt
+machine has been already updated to handle bigger kernel and ramdisk
+images hence this patch updates SiFive FU540 config header accordingly.
+
+Signed-off-by: Anup Patel <anup.patel@wdc.com>
+
+---
+ include/configs/sifive-fu540.h | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
+
+diff --git a/include/configs/sifive-fu540.h b/include/configs/sifive-fu540.h
+index f28f0d7..736ceb1 100644
+--- a/include/configs/sifive-fu540.h
++++ b/include/configs/sifive-fu540.h
+@@ -18,12 +18,12 @@
+ 
+ #define CONFIG_SYS_MALLOC_LEN		SZ_8M
+ 
+-#define CONFIG_SYS_BOOTM_LEN		SZ_16M
++#define CONFIG_SYS_BOOTM_LEN		SZ_64M
+ 
+ #define CONFIG_STANDALONE_LOAD_ADDR	0x80200000
+ 
+ /* Environment options */
+-#define CONFIG_ENV_SIZE			SZ_4K
++#define CONFIG_ENV_SIZE			SZ_128K
+ 
+ #define BOOT_TARGET_DEVICES(func) \
+ 	func(MMC, mmc, 0) \
+@@ -34,11 +34,15 @@
+ #define CONFIG_EXTRA_ENV_SETTINGS \
+ 	"fdt_high=0xffffffffffffffff\0" \
+ 	"initrd_high=0xffffffffffffffff\0" \
+-	"kernel_addr_r=0x80600000\0" \
+-	"fdt_addr_r=0x82200000\0" \
+-	"scriptaddr=0x82300000\0" \
+-	"pxefile_addr_r=0x82400000\0" \
+-	"ramdisk_addr_r=0x82500000\0" \
++	"kernel_addr_r=0x84000000\0" \
++	"fdt_addr_r=0x88000000\0" \
++	"scriptaddr=0x88100000\0" \
++	"pxefile_addr_r=0x88200000\0" \
++	"ramdisk_addr_r=0x88300000\0" \
+ 	BOOTENV
+ 
++#define CONFIG_PREBOOT \
++	"setenv fdt_addr ${fdtcontroladdr};" \
++	"fdt addr ${fdtcontroladdr};"
++
+ #endif /* __CONFIG_H */

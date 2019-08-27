@@ -1,0 +1,20 @@
+# This is the  MMC u-boot boot script
+#  3. MMC load a uEnv.txt
+#  4. MMC load a fitImage
+#  6. MMC load a uImage
+
+# See if we have a MMC uEnv.txt file
+if fatload ${devtype} ${devnum}:${distro_bootpart} ${scriptaddr} /uEnv.txt; then
+    env import -t ${scriptaddr} ${filesize}
+    run bootcmd
+fi;
+
+# Try to boot a fitImage from the MMC
+if load ${devtype} ${devnum}:${distro_bootpart} ${ramdisk_addr_r} fitImage; then
+  bootm ${ramdisk_addr_r}
+fi;
+
+# Finally fallback to a MMC uImage
+if load ${devtype} ${devnum}:${distro_bootpart} ${kernel_addr_r} uImage; then
+  bootm ${kernel_addr_r} - ${fdt_addr_r}
+fi;
