@@ -4,7 +4,6 @@
   <remote name="openembedded" fetch="git://github.com/openembedded/" />
   <remote name="riscv" fetch="git://github.com/riscv/" />
   <remote name="sifive" fetch="git://github.com/sifive/" />
-  <remote name="yocto" fetch="git://git.yoctoproject.org/" />
   <default remote="openembedded" revision="master" />
 
   <project name="meta-sifive" remote="sifive" path="meta-sifive" revision="master" />
