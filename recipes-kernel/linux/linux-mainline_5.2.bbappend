@@ -9,4 +9,6 @@ SRC_URI_append_freedom-u540 = " file://defconfig"
 
 # TLB flush fixes
 SRC_URI_append = " file://riscv-fix-flush_tlb_range-end-address-for-flush_tlb_page.patch \
-                   file://v2-riscv-optimize-tlb-flush-path.patch"
+                   file://v2-riscv-optimize-tlb-flush-path.patch \
+                   file://fu540-cpufreq.patch \
+                   file://fu540-l2-cache-enable.patch"
