@@ -18,7 +18,7 @@ For advanced OE usage we advice to look into the following third-party manuals:
 
 - [BitBake User Manual 2.7.1 by Yocto](https://www.yoctoproject.org/docs/2.7.1/bitbake-user-manual/bitbake-user-manual.html)
 
-- [Yocto Project Reference Maual 2.7.1 by Yocto](https://www.yoctoproject.org/docs/2.7.1/ref-manual/ref-manual.html)
+- [Yocto Project Reference Manual 2.7.1 by Yocto](https://www.yoctoproject.org/docs/2.7.1/ref-manual/ref-manual.html)
 
 - [Yocto Project Complete Documentation \(MegaManual\) Set 2.7.1 by Yocto](https://www.yoctoproject.org/docs/2.7.1/mega-manual/mega-manual.html)
 
