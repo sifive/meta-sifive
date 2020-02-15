@@ -135,7 +135,7 @@ You will need to modify MSEL to allow using FSBL and OpenSBI + U-Boot bootloader
  |                                                         |
 ```
 
-You can login with `root` account. There is no password set for `root` account thus you should set one before continuing.  SSH daemon is started automatically.
+After booting, a SSH daemon is started and an IP address is obtained via DHCP (assuming connection via Ethernet to a DHCP server). You can login from another machine on the same network with `ssh root@W.X.Y.Z` (no password). You can also connect via USB by running `screen /dev/ttyUSB<X> 115200`, where the correct choice of `<X>` = 0,1,2,..., will depend on your machine (you may have to experiment). Again, use login `root` with no password (you can set one). Once logged in, you can run `ip addr` to learn your IP address. 
 
 ## Contributions & Feedback
 
