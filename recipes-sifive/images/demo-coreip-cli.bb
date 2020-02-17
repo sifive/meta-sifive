@@ -23,7 +23,6 @@ IMAGE_INSTALL = "\
     whetstone \
     iperf3 \
     iperf2 \
-    fio \
     tinymembench \
     sysbench \
     memtester \
@@ -51,7 +50,29 @@ IMAGE_INSTALL = "\
     stress-ng \
     dhcp-client \
     nbd-client \
+    mpfr-dev \
+    gmp-dev \
+    libmpc-dev \
+    zlib-dev \
+    flex \
+    bison \
+    dejagnu \
+    gettext \
+    texinfo \
+    procps \
+    glibc-dev \
+    elfutils \
+    elfutils-dev \
+    pciutils \
+    usbutils \
+    devmem2 \
+    mtd-utils \
+    sysfsutils \
+    unleashed-udev-rules \
+    htop \
     ${CORE_IMAGE_EXTRA_INSTALL} \
     "
 
-inherit core-image
+inherit core-image extrausers
+
+EXTRA_USERS_PARAMS = "usermod -P sifive root;"

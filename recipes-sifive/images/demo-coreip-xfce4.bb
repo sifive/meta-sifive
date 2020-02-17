@@ -24,7 +24,6 @@ IMAGE_INSTALL = "\
     whetstone \
     iperf3 \
     iperf2 \
-    fio \
     tinymembench \
     sysbench \
     memtester \
@@ -76,11 +75,33 @@ IMAGE_INSTALL = "\
     quake2 \
     dhcp-client \
     nbd-client \
+    mpfr-dev \
+    gmp-dev \
+    libmpc-dev \
+    zlib-dev \
+    flex \
+    bison \
+    dejagnu \
+    gettext \
+    texinfo \
+    procps \
+    glibc-dev \
+    elfutils \
+    elfutils-dev \
+    pciutils \
+    usbutils \
+    devmem2 \
+    mtd-utils \
+    sysfsutils \
+    unleashed-udev-rules \
+    htop \
     ${CORE_IMAGE_EXTRA_INSTALL} \
     "
 
-inherit core-image distro_features_check
+inherit core-image features_check extrausers
 
 REQUIRED_DISTRO_FEATURES = "\
     x11 \
     systemd"
+
+EXTRA_USERS_PARAMS = "usermod -P sifive root;"

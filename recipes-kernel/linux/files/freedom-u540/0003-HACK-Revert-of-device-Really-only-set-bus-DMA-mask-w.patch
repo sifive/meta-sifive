@@ -1,0 +1,43 @@
+From cd5fc9ea8c8b019c71e4bef5c4e124182d732fa9 Mon Sep 17 00:00:00 2001
+From: David Abdurachmanov <david.abdurachmanov@sifive.com>
+Date: Tue, 28 Jan 2020 02:52:35 -0800
+Subject: [PATCH 3/7] HACK: Revert "of/device: Really only set bus DMA mask
+ when appropriate"
+
+This reverts commit 6778be4e520959659b27a441c06a84c9cb009085.
+
+Reverting the commit fixes these error messages and an non-functioning
+USB bus when attaching a USB to PCIe card to a RISC-V board:
+    xhci_hcd 0000:03:00.0: Host took too long to start, waited 16000 microseconds.
+    xhci_hcd 0000:03:00.0: startup error -19
+    xhci_hcd 0000:03:00.0: USB bus 2 deregistered
+    xhci_hcd 0000:03:00.0: WARNING: Host System Error
+    xhci_hcd 0000:03:00.0: remove, state 1
+
+Signed-off-by: Alistair Francis <alistair.francis@wdc.com>
+Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>
+Upstream-Status: Denied
+---
+ drivers/of/device.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/drivers/of/device.c b/drivers/of/device.c
+index e9127db..d21b01b 100644
+--- a/drivers/of/device.c
++++ b/drivers/of/device.c
+@@ -150,11 +150,9 @@ int of_dma_configure(struct device *dev, struct device_node *np, bool force_dma)
+ 	 */
+ 	end = dma_addr + size - 1;
+ 	mask = DMA_BIT_MASK(ilog2(end) + 1);
++	dev->bus_dma_mask = mask;
+ 	dev->coherent_dma_mask &= mask;
+ 	*dev->dma_mask &= mask;
+-	/* ...but only set bus limit if we found valid dma-ranges earlier */
+-	if (!ret)
+-		dev->bus_dma_limit = end;
+ 
+ 	coherent = of_dma_is_coherent(np);
+ 	dev_dbg(dev, "device is%sdma coherent\n",
+-- 
+2.7.4
+

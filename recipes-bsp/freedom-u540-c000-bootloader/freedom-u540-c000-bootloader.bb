@@ -20,7 +20,9 @@ SRC_URI = "git://github.com/sifive/freedom-u540-c000-bootloader.git;branch=${BRA
            file://import-detect-null.patch \
            file://use-oe-default-cmd.patch \
            file://drop-gnu-build-id.patch \
-           file://gcc-nopie.patch"
+           file://gcc-nopie.patch \
+           file://enable-entire-L2-cache.patch \
+           "
 
 S = "${WORKDIR}/git"
 
