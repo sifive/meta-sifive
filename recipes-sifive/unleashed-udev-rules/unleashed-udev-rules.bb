@@ -18,3 +18,4 @@ do_install() {
 FILES_${PN} += "/etc/udev/rules.d/99-eth0-pwm-led.rules"
 
 COMPATIBLE_HOST = "riscv64.*"
+COMPATIBLE_MACHINE = "freedom-u540"

@@ -68,9 +68,12 @@ IMAGE_INSTALL = "\
     devmem2 \
     mtd-utils \
     sysfsutils \
-    unleashed-udev-rules \
     htop \
     ${CORE_IMAGE_EXTRA_INSTALL} \
+    "
+
+IMAGE_INSTALL_append_freedom-u540 = "\
+    unleashed-udev-rules \
     "
 
 inherit core-image extrausers
