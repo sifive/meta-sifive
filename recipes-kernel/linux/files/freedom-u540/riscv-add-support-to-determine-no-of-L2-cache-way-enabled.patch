@@ -1,29 +1,29 @@
-From patchwork Fri Jan 17 07:43:37 2020
+From patchwork Thu Feb 20 05:15:18 2020
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 X-Patchwork-Submitter: Yash Shah <yash.shah@sifive.com>
-X-Patchwork-Id: 11338465
+X-Patchwork-Id: 11393357
 Return-Path: 
- <SRS0=TDwZ=3G=lists.infradead.org=linux-riscv-bounces+patchwork-linux-riscv=patchwork.kernel.org@kernel.org>
+ <SRS0=HN/F=4I=lists.infradead.org=linux-riscv-bounces+patchwork-linux-riscv=patchwork.kernel.org@kernel.org>
 Received: from mail.kernel.org (pdx-korg-mail-1.web.codeaurora.org
  [172.30.200.123])
-	by pdx-korg-patchwork-2.web.codeaurora.org (Postfix) with ESMTP id 59B72109A
+	by pdx-korg-patchwork-2.web.codeaurora.org (Postfix) with ESMTP id 6E57B138D
 	for <patchwork-linux-riscv@patchwork.kernel.org>;
- Fri, 17 Jan 2020 07:44:18 +0000 (UTC)
+ Thu, 20 Feb 2020 05:15:56 +0000 (UTC)
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [198.137.202.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 338A520748
+	by mail.kernel.org (Postfix) with ESMTPS id 4C1792467A
 	for <patchwork-linux-riscv@patchwork.kernel.org>;
- Fri, 17 Jan 2020 07:44:18 +0000 (UTC)
+ Thu, 20 Feb 2020 05:15:56 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
 	dkim=pass (2048-bit key) header.d=lists.infradead.org
- header.i=@lists.infradead.org header.b="WNaM6C9k";
+ header.i=@lists.infradead.org header.b="hdEuTKDi";
 	dkim=pass (1024-bit key) header.d=sifive.com header.i=@sifive.com
- header.b="mW6lK9ue"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 338A520748
+ header.b="EQsjBlzz"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4C1792467A
 Authentication-Results: mail.kernel.org;
  dmarc=none (p=none dis=none) header.from=sifive.com
 Authentication-Results: mail.kernel.org;
@@ -35,27 +35,27 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	Content-Type:References:In-Reply-To:Message-Id:Date:Subject:To:From:Reply-To:
 	Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
 	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Owner;
-	 bh=yY7dT9Uu4EIpwCcoMVNkJiqk6krljwcG6BPRo9t5UC4=; b=WNaM6C9keX1UFd4AKos2MoBFj
-	qWcc8/CeK8eaOBSl8uxPjMY480zD9EerBDYm64vir+9aUru8fEJSBVXgBylo4ljJQFVwX9/HCQx7a
-	CfH69tpI2xkcvfGJ47kw+RS0P6NmlOYySOVsWCw1bO/7zhTHNLhMSDq8Xxh07kF0pdp2FD4qPQK3U
-	sHTiEVdd+uoe8KoJWKl+ZEPyq6ugTVyj/u9xafApuFd5UHCqs0Kx4NO4LsZDzJUw2XXdDP2p3p50j
-	xqiTBZuXSyBfjj0fQdJLPMQrEEdNVKQwbey+2KOM0DZV98xaXONzZn4DQxR6B6UVohJuZsY0Hq5N2
-	fvbOEDmkw==;
+	 bh=yY7dT9Uu4EIpwCcoMVNkJiqk6krljwcG6BPRo9t5UC4=; b=hdEuTKDiB1kY7dpo66mNYr1XO
+	67AcrgoJL0/WWh4V0p+8SBcV0ZfjXyxKPvM+XhPShPRHdeVQ5AqngOf97oOuKNUKNQSOmMvJhqhKH
+	pe4RQnlS4kYoXQbmAASBWIdyLL0lFbDW/Q+Bgm7X4f2QLDQdP92NOh/1D4bF+1/GsnjqjnoKG/oAX
+	L/zGCySXDkK2Ewq9Zq5EX0W0B2+0MKPcf/QMCrc3qt9DoGDRh5sj5YhQ+gerbh9B4fcY7x264mCB3
+	M4XzBcxU+whzxyiw0tYJUBlZiMWLCMvu8TZDYFnuakHnekZB70u7Oiuw9rNl8KQHL1S+bqARtcIu7
+	CFx41uJkA==;
 Received: from localhost ([127.0.0.1] helo=bombadil.infradead.org)
 	by bombadil.infradead.org with esmtp (Exim 4.92.3 #3 (Red Hat Linux))
-	id 1isMIh-0008JW-J0; Fri, 17 Jan 2020 07:44:15 +0000
-Received: from mail-dm6nam11on2046.outbound.protection.outlook.com
- ([40.107.223.46] helo=NAM11-DM6-obe.outbound.protection.outlook.com)
+	id 1j4eBk-0006nq-B0; Thu, 20 Feb 2020 05:15:52 +0000
+Received: from mail-bn8nam11on2052.outbound.protection.outlook.com
+ ([40.107.236.52] helo=NAM11-BN8-obe.outbound.protection.outlook.com)
  by bombadil.infradead.org with esmtps (Exim 4.92.3 #3 (Red Hat Linux))
- id 1isMIe-0008Gw-PX
- for linux-riscv@lists.infradead.org; Fri, 17 Jan 2020 07:44:14 +0000
+ id 1j4eBh-0006lQ-66
+ for linux-riscv@lists.infradead.org; Thu, 20 Feb 2020 05:15:50 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Hn/GXslAc/iyvvOXk1DFl6FX+mp42fXmtHQbwK+BiCia+2ztuIdpC/SCeG8wp1wgADQy9zKTWwk88j64I6bEaKcSfMoVXuiBGYkgklYP32Ewl5syPk5cwCemcumFc4v1Slbe9vuAAn8XKN6X5hxlPUiIr8ATssCslMnSnfmAixbdzZMIKftLLgdh4jr/nqoZRO2dfaoVQH8dcDNE1pg1R+KnmUPRA+DSgf103f05J2SWBy8qsBttgrDSg+VRDbGpXMeWo3Z8MxwtAG6p7lk8xNdMHm2YC6XgA/GiHoU3dmoXvToz96wE47fpCYiI9/FENFG3nMweR79BtgbxJx9wKw==
+ b=BYNJj9Iw9dDPyPKU2cJAS7zYFB6C99N6M90rokzQ+e33QYWCkJslwejtsfzveATOmwLVJlsPBF3beeEV3kLTXb9OF/DUh87B/lVcv3DvMQZLLAvYI7IOqiZk61Ix4wQs+iknYQwUI6NTUBrBASUb9i5k47YzPi55DYuZxtOgTTeyvTAtd201Qk19RNCrzH/8KXCArRqr037C8ewqGdAe+navg+9mUGev03SDEBO7BW9OvVEnbj4CbiHVGwoKOTw+MQY4zBIWaHmxb4bMt+dVnp1WEpekv819phtv5LhxAg4bYgFndYaMUjo780+Rm1lvkfSQEowuEZM3YXFUNjQ3aQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
  bh=yY7dT9Uu4EIpwCcoMVNkJiqk6krljwcG6BPRo9t5UC4=;
- b=nCPrludUZhAqOWdsJaqakflSgAm4pW86Mk3sz1LRYrn7osbkO1FlyocCNq2pycApPIMiN2CKajNSoubXpZo6eYVTCS3oEbxaJ3vGvukZ4YYK/nwj1lQ/B/Q41T+ynJ/sQfpiNdRA6NVovTuypnJYkHTMsUUgWXUqECH2zL+I9NhPDbJoCu9MBDFXFwnpOGBjIbY3lotPJwIUibR14A5jpf6xcgNVnfPJ8zdEiIXPeFx8mTRLtOjrK6QCZnAi3JFMswR51ErHPjIY0C32HOw/BFo5cMnNsxYuKMTp7ndivtGMJGdb464RZ7nYMPIy2W8av2njHKe/JHvgMsJRlqTslw==
+ b=geAeDBDNFdh+GvSD9P5j7p4uGJgowXN6IFdinP9imBqyynWMAX2meOMisDvlsii9kTeICgsCk/ipXdI0JVRgR69SylibX5rRJi0n/7Sd7cPS2upaHwU2ltj/JdNhDGEoO3UOGYivcArKQmsuySAhTOHD/RM+4+KjR8l+hhuWcdcX8s2i7SWdwdYuYCABFMXV6K/BBgdX2oLjvemluyPUlI+TItMv2QxkJs9jsgYIuYNLHyquaIcGKVDO9L3FOPwzatIaiCpIatCJYzHShhzNkk8aBxXJuNlurau+UigfAAv3ufG1/rOnSSroApQH8cVDSyVuVU4PrQGPRh0qgNmZ4g==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=sifive.com; dmarc=pass action=none header.from=sifive.com;
  dkim=pass header.d=sifive.com; arc=none
@@ -63,90 +63,92 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sifive.com;
  s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
  bh=yY7dT9Uu4EIpwCcoMVNkJiqk6krljwcG6BPRo9t5UC4=;
- b=mW6lK9uejF2pz0n6Q+WOGYkT53ZmV7XpGj9PgP7aWJqNsMXOTzs1NsdqfMaBlI5eD9XaG6wKZJkd+YKPO6Thz4aUEE5yZDoEqavTolHQQr3lKvtPZggBOj5D+y4K6AmmeZLeFP0iwEj27lHaWffjXehZw7Xyk2Nju7RAQg6R+NY=
+ b=EQsjBlzziV+F4GeQRJXST24o5K3SwG+AvQfO+NGZU3NHt//9ja5uoMDSMgAwQG5h5KZtlI/SdNIsR+pBmjD0NG/Wx+cniPGLxQ89lDSCwIAd6Ziv6jMJIywbqOQCeKL7acO4aq/VnuS9/TiBZwn00ZWpNup86D3cY28F9NG9CzI=
 Authentication-Results: spf=none (sender IP is )
  smtp.mailfrom=yash.shah@sifive.com;
 Received: from CH2PR13MB3368.namprd13.prod.outlook.com (52.132.246.90) by
- CH2PR13MB3765.namprd13.prod.outlook.com (20.180.15.150) with Microsoft SMTP
+ CH2PR13MB3495.namprd13.prod.outlook.com (52.132.247.74) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2644.6; Fri, 17 Jan 2020 07:44:08 +0000
+ 15.20.2750.9; Thu, 20 Feb 2020 05:15:47 +0000
 Received: from CH2PR13MB3368.namprd13.prod.outlook.com
- ([fe80::eccb:16ac:e897:85d5]) by CH2PR13MB3368.namprd13.prod.outlook.com
- ([fe80::eccb:16ac:e897:85d5%3]) with mapi id 15.20.2644.021; Fri, 17 Jan 2020
- 07:44:08 +0000
+ ([fe80::55a5:5dab:67de:b5d8]) by CH2PR13MB3368.namprd13.prod.outlook.com
+ ([fe80::55a5:5dab:67de:b5d8%5]) with mapi id 15.20.2750.016; Thu, 20 Feb 2020
+ 05:15:47 +0000
 From: Yash Shah <yash.shah@sifive.com>
-To: paul.walmsley@sifive.com,
-	palmer@dabbelt.com
-Subject: [PATCH v4 1/2] riscv: cacheinfo: Implement cache_get_priv_group with
+To: palmer@dabbelt.com,
+	paul.walmsley@sifive.com
+Subject: [PATCH v5 1/2] riscv: cacheinfo: Implement cache_get_priv_group with
  a generic ops structure
-Date: Fri, 17 Jan 2020 13:13:37 +0530
-Message-Id: <1579247018-6720-2-git-send-email-yash.shah@sifive.com>
+Date: Thu, 20 Feb 2020 10:45:18 +0530
+Message-Id: <1582175719-7401-2-git-send-email-yash.shah@sifive.com>
 X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1579247018-6720-1-git-send-email-yash.shah@sifive.com>
-References: <1579247018-6720-1-git-send-email-yash.shah@sifive.com>
-X-ClientProxiedBy: BM1PR0101CA0056.INDPRD01.PROD.OUTLOOK.COM
- (2603:1096:b00:19::18) To CH2PR13MB3368.namprd13.prod.outlook.com
+In-Reply-To: <1582175719-7401-1-git-send-email-yash.shah@sifive.com>
+References: <1582175719-7401-1-git-send-email-yash.shah@sifive.com>
+X-ClientProxiedBy: PN1PR01CA0086.INDPRD01.PROD.OUTLOOK.COM
+ (2603:1096:c00:1::26) To CH2PR13MB3368.namprd13.prod.outlook.com
  (2603:10b6:610:2c::26)
 MIME-Version: 1.0
-Received: from dhananjayk-PowerEdge-R620.open-silicon.com (114.143.65.226) by
- BM1PR0101CA0056.INDPRD01.PROD.OUTLOOK.COM (2603:1096:b00:19::18) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id 15.20.2644.19 via Frontend
- Transport; Fri, 17 Jan 2020 07:44:04 +0000
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from osubuntu003.open-silicon.com (159.117.144.156) by
+ PN1PR01CA0086.INDPRD01.PROD.OUTLOOK.COM (2603:1096:c00:1::26) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
+ 15.20.2750.17 via Frontend Transport; Thu, 20 Feb 2020 05:15:43 +0000
 X-Mailer: git-send-email 2.7.4
-X-Originating-IP: [114.143.65.226]
+X-Originating-IP: [159.117.144.156]
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 77398771-fe30-42b8-2c80-08d79b2108ca
-X-MS-TrafficTypeDiagnostic: CH2PR13MB3765:
+X-MS-Office365-Filtering-Correlation-Id: 6203326d-4c45-4095-b898-08d7b5c3f183
+X-MS-TrafficTypeDiagnostic: CH2PR13MB3495:
 X-LD-Processed: 22f88e9d-ae0d-4ed9-b984-cdc9be1529f1,ExtAddr
 X-MS-Exchange-Transport-Forked: True
 X-Microsoft-Antispam-PRVS: 
- <CH2PR13MB3765F002E5F7321D3EE1F5BB8C310@CH2PR13MB3765.namprd13.prod.outlook.com>
+ <CH2PR13MB3495F3FBE3EA3190BFE19F428C130@CH2PR13MB3495.namprd13.prod.outlook.com>
 X-MS-Oob-TLC-OOBClassifiers: OLM:6430;
-X-Forefront-PRVS: 0285201563
+X-Forefront-PRVS: 031996B7EF
 X-Forefront-Antispam-Report: SFV:NSPM;
- SFS:(10009020)(346002)(136003)(39850400004)(366004)(396003)(376002)(189003)(199004)(6512007)(2616005)(107886003)(316002)(956004)(5660300002)(52116002)(36756003)(16526019)(1006002)(6666004)(26005)(66476007)(66946007)(66556008)(186003)(6486002)(86362001)(8936002)(6506007)(44832011)(8676002)(81156014)(81166006)(4326008)(478600001)(7416002)(2906002)(41533002);
- DIR:OUT; SFP:1101; SCL:1; SRVR:CH2PR13MB3765;
+ SFS:(10009020)(346002)(39830400003)(136003)(396003)(376002)(366004)(199004)(189003)(4326008)(8936002)(316002)(81166006)(8676002)(5660300002)(6486002)(81156014)(52116002)(107886003)(6506007)(66946007)(2616005)(16526019)(6512007)(956004)(478600001)(2906002)(6636002)(66556008)(86362001)(186003)(6666004)(36756003)(66476007)(44832011)(26005)(41533002);
+ DIR:OUT; SFP:1101; SCL:1; SRVR:CH2PR13MB3495;
  H:CH2PR13MB3368.namprd13.prod.outlook.com; FPR:; SPF:None; LANG:en;
- PTR:InfoNoRecords; MX:1; A:1;
+ PTR:InfoNoRecords; A:1; MX:1;
 Received-SPF: None (protection.outlook.com: sifive.com does not designate
  permitted sender hosts)
 X-MS-Exchange-SenderADCheck: 1
 X-Microsoft-Antispam: BCL:0;
 X-Microsoft-Antispam-Message-Info: 
- QczVaYO2FIVaPbRRINN0oxy1XhfhN5JYMejIbDTkKDCZTW0vtOnifvUSNX4kYe1YAO+NXSbLeYRIko1q2XAVqw8C/x6wNoI6SVCcOb9+bi3ISji3KGs48weK10fVdtqOS02pmTrRjTsUHRrCCAFmIN/Nm0aEtlNDAvyHxD5hWtrsYdCEt0x3rAJGuzgP8CoPPsIsVJdVRjIZaloGcQlD4w95pP4bHmLC4zDFOxN2UvLEpeeyFCPHtrhrRZiQw3AvByo4klc0c6NqIgFr7mFpyOycPlRaUwS7wadPHav2PjpUOWZoN7gTxdUWjnGUYqUQM8bhuZb1qDq1DPWxrN6NLFL9tZWbveMNX6nzayeia4sX56HmiV7RfZTGcD9tU4iM2Xu7a9vkgHRvR9d1y9cy3EUlHbuFNtd164ssgjLZZy/QPU32Tv4TtNRdRnw794dICC7z8DkmyGKikoqy0FjJrBaSHMVThHhNky9iKYn2OTI=
+ b8LeWa31iW0UYbvg6T4XGoekbPIDu66xper9yQjY2QRpj1Dqg9KUPFhFKKj4RLN8o4FwXLbiYxJwT7CvlKO5eJCzVVphovvdEpFHIhHYtQvxot4IaJ9CluI8zEuYZjbkWk+fzMmuJVqgpW29mJkwsK1mdTA+WZZaIOUo4wxVgoSyA2aAZcTSbZscKMTjZIm7cn8Rm7oM/AFu8kg3j4PZ26Q16iUKNiGYP8QmXB5KqGUaLY8+uX82CBemIl8jcWhRHmk1tUXA1I+rok5X7yBpg6GCZmusOaUby5DMKmmGPXn6eIaKkH5LMfTf9Gl3hnulLdvzeoMj3CMzLRhwMTMdlq3TvHoPcLyoIF58qlqmt4R5YwVlE1tz37tDjQwQLmJQpkHhanMrQoeTNwpMZ8yc5PM4EsYo3ru78Wls+QQe8HsKwo4B9+k9uq2l7xZrLIRfyJ1UxyAcjsXxBfbusfxq4gGMNIDE+TAqJU9JbblWXzc=
+X-MS-Exchange-AntiSpam-MessageData: 
+ 6yr1W+aVLGVZX/Fh48kij4YXRwUlIexVzIMdHH/LtqDubK4hpNAMW5HnTM0JH2T8NMSLoyf5Sdj2oh//LaZfyQ4wxL8WR8wMQjcLO20QEmZKxGmWldbEaV0UNOqbi4d67IuYc8Hy+UGaLUBoMC8dbQ==
 X-OriginatorOrg: sifive.com
 X-MS-Exchange-CrossTenant-Network-Message-Id: 
- 77398771-fe30-42b8-2c80-08d79b2108ca
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Jan 2020 07:44:08.1557 (UTC)
+ 6203326d-4c45-4095-b898-08d7b5c3f183
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Feb 2020 05:15:47.3555 (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 22f88e9d-ae0d-4ed9-b984-cdc9be1529f1
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
 X-MS-Exchange-CrossTenant-UserPrincipalName: 
- ywxWHEW4GKCSgyWSsVW1wo0p7C91cjGap/iPI1QeSZLzp2i0Mvi9wdu7OpIv9GAEIO0hU3bd7qj9KO2P3DPBYQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2PR13MB3765
+ cCr22S9gRiEqlkadTeKXZcsMtvEG4q2NkV07Egcvmzac4T3mv8VntU5OGXio3sFr/Xg0IYSFi+8tDBM5jXebDg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2PR13MB3495
 X-CRM114-Version: 20100106-BlameMichelson ( TRE 0.8.0 (BSD) ) MR-646709E3 
-X-CRM114-CacheID: sfid-20200116_234412_835838_351BA48D 
-X-CRM114-Status: UNSURE (   9.24  )
+X-CRM114-CacheID: sfid-20200219_211549_225977_FEAFF7A9 
+X-CRM114-Status: UNSURE (   8.52  )
 X-CRM114-Notice: Please train this message.
 X-Spam-Score: -0.2 (/)
-X-Spam-Report: SpamAssassin version 3.4.2 on bombadil.infradead.org summary:
+X-Spam-Report: SpamAssassin version 3.4.3 on bombadil.infradead.org summary:
  Content analysis details:   (-0.2 points)
  pts rule name              description
  ---- ----------------------
  --------------------------------------------------
  -0.0 RCVD_IN_DNSWL_NONE     RBL: Sender listed at https://www.dnswl.org/,
- no trust [40.107.223.46 listed in list.dnswl.org]
- -0.0 SPF_HELO_PASS          SPF: HELO matches SPF record
+ no trust [40.107.236.52 listed in list.dnswl.org]
  -0.0 SPF_PASS               SPF: sender matches SPF record
- -0.1 DKIM_VALID_AU          Message has a valid DKIM or DK signature from
- author's domain
+ -0.0 SPF_HELO_PASS          SPF: HELO matches SPF record
  0.1 DKIM_SIGNED            Message has a DKIM or DK signature,
  not necessarily
  valid
- -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
  -0.1 DKIM_VALID_EF          Message has a valid DKIM or DK signature from
  envelope-from domain
+ -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+ -0.1 DKIM_VALID_AU          Message has a valid DKIM or DK signature from
+ author's domain
  0.0 MSGID_FROM_MTA_HEADER  Message-Id was added by a relay
 X-BeenThere: linux-riscv@lists.infradead.org
 X-Mailman-Version: 2.1.29
@@ -159,11 +161,10 @@ List-Post: <mailto:linux-riscv@lists.infradead.org>
 List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
 List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
  <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
-Cc: aou@eecs.berkeley.edu, sachin.ghadi@sifive.com,
- gregkh@linuxfoundation.org,
+Cc: aou@eecs.berkeley.edu, sachin.ghadi@sifive.com, anup@brainfault.org,
  linux-kernel@vger.kernel.org, alexios.zavras@intel.com,
- Yash Shah <yash.shah@sifive.com>, anup@brainfault.org, tglx@linutronix.de,
- bp@suse.de, linux-riscv@lists.infradead.org, allison@lohutok.net
+ Yash Shah <yash.shah@sifive.com>, gregkh@linuxfoundation.org,
+ tglx@linutronix.de, bp@suse.de, linux-riscv@lists.infradead.org
 Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
 Errors-To: 
  linux-riscv-bounces+patchwork-linux-riscv=patchwork.kernel.org@lists.infradead.org
@@ -233,32 +234,32 @@ index 4c90c07..bd0f122 100644
  static void ci_leaf_init(struct cacheinfo *this_leaf,
  			 struct device_node *node,
 
-From patchwork Fri Jan 17 07:43:38 2020
+From patchwork Thu Feb 20 05:15:19 2020
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 X-Patchwork-Submitter: Yash Shah <yash.shah@sifive.com>
-X-Patchwork-Id: 11338467
+X-Patchwork-Id: 11393361
 Return-Path: 
- <SRS0=TDwZ=3G=lists.infradead.org=linux-riscv-bounces+patchwork-linux-riscv=patchwork.kernel.org@kernel.org>
+ <SRS0=HN/F=4I=lists.infradead.org=linux-riscv-bounces+patchwork-linux-riscv=patchwork.kernel.org@kernel.org>
 Received: from mail.kernel.org (pdx-korg-mail-1.web.codeaurora.org
  [172.30.200.123])
-	by pdx-korg-patchwork-2.web.codeaurora.org (Postfix) with ESMTP id D65F7109A
+	by pdx-korg-patchwork-2.web.codeaurora.org (Postfix) with ESMTP id 39D8A159A
 	for <patchwork-linux-riscv@patchwork.kernel.org>;
- Fri, 17 Jan 2020 07:44:25 +0000 (UTC)
+ Thu, 20 Feb 2020 05:16:01 +0000 (UTC)
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [198.137.202.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B447D20728
+	by mail.kernel.org (Postfix) with ESMTPS id 179A324654
 	for <patchwork-linux-riscv@patchwork.kernel.org>;
- Fri, 17 Jan 2020 07:44:25 +0000 (UTC)
+ Thu, 20 Feb 2020 05:16:01 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
 	dkim=pass (2048-bit key) header.d=lists.infradead.org
- header.i=@lists.infradead.org header.b="SYLC8CMQ";
+ header.i=@lists.infradead.org header.b="H2AwM3ed";
 	dkim=pass (1024-bit key) header.d=sifive.com header.i=@sifive.com
- header.b="oRpWP73u"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B447D20728
+ header.b="GHDiX1rc"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 179A324654
 Authentication-Results: mail.kernel.org;
  dmarc=none (p=none dis=none) header.from=sifive.com
 Authentication-Results: mail.kernel.org;
@@ -270,118 +271,120 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	Content-Type:References:In-Reply-To:Message-Id:Date:Subject:To:From:Reply-To:
 	Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
 	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Owner;
-	 bh=bjMruP9mh9FL9b0giCY/DE0kxv3dZI+2RI3EWWCYlic=; b=SYLC8CMQaVdaQmWsBlSuBtaHL
-	swdr80+En6W+y++IV5Sd8fhHFACspoupXieSQuFZ8HYVmM98AePnMjKVkIXYURlgfE9BZ7yUo2ghL
-	Ir+JcFtylg9Kgpm/l/RB94us8xm4Bv5Kf22t6YsqzXJ2shckdMGxIFfjYZB2E6Aq/FvxI08CrWIOK
-	Lw8MnbNPHGH4i3DzstuDhR86CjQzuPw8PhoVCCJfqqp40KtJV52pSZE4lYGNkI6PL2y9BMpV8vWCb
-	j4+R00IqfKjVIEL8tP6bXIfR+bA1fOMNyBvrpRW/p/Gf5+DurWxfKimIkJHQzMaNxHWwFZ3pkax6X
-	8TpSiSwtg==;
+	 bh=8xOvjZiGP6zoQ1MkHQtQAZWh2nhYYRoTfyln8AZbqL0=; b=H2AwM3edQvicqIvZprSOFFmAj
+	9mb3qoK5DKayMeri63d3FtuzWhdQHSRXbNC1YPH8e2f7JkwfXoPgrRGTME31eOi7R2xCo6DGODKvl
+	qe2Wf8AGtU7XUtB8oemdzwRDfu2oP/ab+vUfe0Fxr3iPk4DCtxd6WodRFBgHfUR6y6MenzZD8gJWD
+	WQPAauR9/zC97sudVapeTIb9IsOkFkEH605osHCGvqhOARH3eQBY/6GDx0nFrT7VyEIbszU08HLHH
+	CRRlmoLmON0bqXyTDe8bW7uTLvzCXdwmxu+Z7xEO2ZaPi2+nZ313CjW8kyNk3KsI8QiuBezJLTEcG
+	c5tbxIsAQ==;
 Received: from localhost ([127.0.0.1] helo=bombadil.infradead.org)
 	by bombadil.infradead.org with esmtp (Exim 4.92.3 #3 (Red Hat Linux))
-	id 1isMIp-0008PD-K3; Fri, 17 Jan 2020 07:44:23 +0000
-Received: from mail-bn8nam11on2042.outbound.protection.outlook.com
- ([40.107.236.42] helo=NAM11-BN8-obe.outbound.protection.outlook.com)
+	id 1j4eBp-0006t3-8e; Thu, 20 Feb 2020 05:15:57 +0000
+Received: from mail-bn8nam11on2054.outbound.protection.outlook.com
+ ([40.107.236.54] helo=NAM11-BN8-obe.outbound.protection.outlook.com)
  by bombadil.infradead.org with esmtps (Exim 4.92.3 #3 (Red Hat Linux))
- id 1isMIm-0008MN-OU
- for linux-riscv@lists.infradead.org; Fri, 17 Jan 2020 07:44:22 +0000
+ id 1j4eBm-0006p5-81
+ for linux-riscv@lists.infradead.org; Thu, 20 Feb 2020 05:15:55 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=m5sr2tnAJ1/t5dcvqpOr8WUZLvJUmXLH/aDU+wzLwLwSI2Q8etjS/8tlg6ozdjL2n8f+uAKRXfBMs9LR1W3i0WDQQ3WHdvgPPjvm7E9LfgMMOBta0wuD6GQtYvS4CgPxf/FWwuukQIgsDh08Ltxx8v2j4WydD8nhqNsnuCDjbhC2I5/2TWz+jzF+WJPeRTWbsg8FMCQkgHe6MNw4s1sMKZkPY3+rEjUzb4YRrbnWJBb0bgygCjlZmRSwE/3vclZQIS0zKwgLrqVy9fYBPuJSbUgvG8JltWF9uEo8EFkMYDPJjL0jAYeZYVaiLi05d8RjEmtdbmkCgxxw7ufQztaCZw==
+ b=V/ubmjYucYfsR7YIss+uswxuDNo+RbEAcolnEm6AK2soJ+5vb5hLWFnlxYWS82AcFgZ70q3vwBjtxqCuEINpHPEgkjNlO50xlnsimCM8DeKv2zRI3dB3JVbQ56n64VW5X+GKZM8ONQ5APB/abTXqZGeYkMw2FiKFjytmYyPdihwEu28n3l3T53z3YxMDwlT+Z3MiaQ7o2eDdEr1yPbMrXrt7Dw7wK98G1cdt2v1kIkItJRFv/xVsYrafnOKOTA07Km/N0Ff0vICYFKLzDBXZIQPJgDOjlnOQ5cNhjTpVvKby8cESH6YlFH3STzdxpkEY3pRDiUkSuxTUZACH7ndCLw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=bjMruP9mh9FL9b0giCY/DE0kxv3dZI+2RI3EWWCYlic=;
- b=B4l3WGZCb1JGrtl/X1FwjrK/p9PRM1RemHfGD5Z71dMsFQf0SNFZhr9Xm0d/6SJ82vRc/xGWgB8VegQcnmei0D8RC7PB5elxk+G9FjCdxGdLXTFhg+agK8ljC2d4doofYO+hF3DrA9cZOW77lLmmmsMDemKtk5OcjZnIZGH3f14Z1ji1Z5fuTv49kDRfCRSm9Dn/VCR7WQeo0WtkyKw8dtKayC1C6vQwU5Sh431yTIo4y3yvizbbePXMLwa2PVd+FFyPIONGebRA7RC9wRGg6hr8F4Ze5xVySfipWsVatZOvXhV7nk5qndhfay/VdviI7V8kCKkEdyo4Jp7cJ5B+KA==
+ bh=8xOvjZiGP6zoQ1MkHQtQAZWh2nhYYRoTfyln8AZbqL0=;
+ b=O9BrcNtCCYq58tj0l8oo1UB9wGP8ZHiH27wvv1WYyvEMDpbf9+2SC3KBr5n7A0jSjgYkcPUbDdcYZWN5HK9jxoqhp/1AgOjtrM7MHMi1WHWEea0dTl5w/iBFzDmVOA9iTBYOc9Yyd/t5OQHda+WVoIv4Cdk6g34iAWSwzl0bSq3CQnyy7oSD4+8DR9G2UoG3L+/LaIx5GC+SA8ZDeoe6iMDafV9LIPLyOZdEjrLrWG30b7mgzEEiPzddUGV4OZOiWwY8sqWzfA2f9/9nTCGE0pub/v/lUisc9Qqdv6RuLCOfZXBy13fvJzBNjfiHA6pVDzgoUyNwTY6CfuNWRfqxDQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=sifive.com; dmarc=pass action=none header.from=sifive.com;
  dkim=pass header.d=sifive.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sifive.com;
  s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=bjMruP9mh9FL9b0giCY/DE0kxv3dZI+2RI3EWWCYlic=;
- b=oRpWP73uxpsZ8Rf6K6mS0oeh53y+brmQdP/DfLffGjz3pAPRRYZ8GiG0s3oKrtOBHirMDTKO1LNaLv/iclUcEHzXdtDmSlrztvX11F3KlpL1J3pTUWy0zz/dSBtAPIV8SJa5p/ZtuwW7U9rVWGrlDIyw6ID1alSej6I2euNeLhA=
+ bh=8xOvjZiGP6zoQ1MkHQtQAZWh2nhYYRoTfyln8AZbqL0=;
+ b=GHDiX1rcSoS8R2NobD9L4ZwERoJcFxXk+0Oc77bX5wDt3VGHxugPrB2tGHbq3hktqzuKHHmC5s1K6xEHto5eFHfpdNNOceybuGZJhnsdkfU0zL/xi2yRW/DxP1eB18n0p2o5boeEbNeaUiRVOTYsMUhpdDjZ+V9b8UBQDUgeQd0=
 Authentication-Results: spf=none (sender IP is )
  smtp.mailfrom=yash.shah@sifive.com;
 Received: from CH2PR13MB3368.namprd13.prod.outlook.com (52.132.246.90) by
- CH2PR13MB3765.namprd13.prod.outlook.com (20.180.15.150) with Microsoft SMTP
+ CH2PR13MB3495.namprd13.prod.outlook.com (52.132.247.74) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2644.6; Fri, 17 Jan 2020 07:44:13 +0000
+ 15.20.2750.9; Thu, 20 Feb 2020 05:15:52 +0000
 Received: from CH2PR13MB3368.namprd13.prod.outlook.com
- ([fe80::eccb:16ac:e897:85d5]) by CH2PR13MB3368.namprd13.prod.outlook.com
- ([fe80::eccb:16ac:e897:85d5%3]) with mapi id 15.20.2644.021; Fri, 17 Jan 2020
- 07:44:13 +0000
+ ([fe80::55a5:5dab:67de:b5d8]) by CH2PR13MB3368.namprd13.prod.outlook.com
+ ([fe80::55a5:5dab:67de:b5d8%5]) with mapi id 15.20.2750.016; Thu, 20 Feb 2020
+ 05:15:52 +0000
 From: Yash Shah <yash.shah@sifive.com>
-To: paul.walmsley@sifive.com,
-	palmer@dabbelt.com
-Subject: [PATCH v4 2/2] riscv: Add support to determine no. of L2 cache way
+To: palmer@dabbelt.com,
+	paul.walmsley@sifive.com
+Subject: [PATCH v5 2/2] riscv: Add support to determine no. of L2 cache way
  enabled
-Date: Fri, 17 Jan 2020 13:13:38 +0530
-Message-Id: <1579247018-6720-3-git-send-email-yash.shah@sifive.com>
+Date: Thu, 20 Feb 2020 10:45:19 +0530
+Message-Id: <1582175719-7401-3-git-send-email-yash.shah@sifive.com>
 X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1579247018-6720-1-git-send-email-yash.shah@sifive.com>
-References: <1579247018-6720-1-git-send-email-yash.shah@sifive.com>
-X-ClientProxiedBy: BM1PR0101CA0056.INDPRD01.PROD.OUTLOOK.COM
- (2603:1096:b00:19::18) To CH2PR13MB3368.namprd13.prod.outlook.com
+In-Reply-To: <1582175719-7401-1-git-send-email-yash.shah@sifive.com>
+References: <1582175719-7401-1-git-send-email-yash.shah@sifive.com>
+X-ClientProxiedBy: PN1PR01CA0086.INDPRD01.PROD.OUTLOOK.COM
+ (2603:1096:c00:1::26) To CH2PR13MB3368.namprd13.prod.outlook.com
  (2603:10b6:610:2c::26)
 MIME-Version: 1.0
-Received: from dhananjayk-PowerEdge-R620.open-silicon.com (114.143.65.226) by
- BM1PR0101CA0056.INDPRD01.PROD.OUTLOOK.COM (2603:1096:b00:19::18) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id 15.20.2644.19 via Frontend
- Transport; Fri, 17 Jan 2020 07:44:09 +0000
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from osubuntu003.open-silicon.com (159.117.144.156) by
+ PN1PR01CA0086.INDPRD01.PROD.OUTLOOK.COM (2603:1096:c00:1::26) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
+ 15.20.2750.17 via Frontend Transport; Thu, 20 Feb 2020 05:15:48 +0000
 X-Mailer: git-send-email 2.7.4
-X-Originating-IP: [114.143.65.226]
+X-Originating-IP: [159.117.144.156]
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 61429218-f104-4329-9d40-08d79b210b8f
-X-MS-TrafficTypeDiagnostic: CH2PR13MB3765:
+X-MS-Office365-Filtering-Correlation-Id: c6404fcf-f9f9-48c6-e091-08d7b5c3f47a
+X-MS-TrafficTypeDiagnostic: CH2PR13MB3495:
 X-LD-Processed: 22f88e9d-ae0d-4ed9-b984-cdc9be1529f1,ExtAddr
 X-MS-Exchange-Transport-Forked: True
 X-Microsoft-Antispam-PRVS: 
- <CH2PR13MB376514BE5BE9D38FAAF23CE28C310@CH2PR13MB3765.namprd13.prod.outlook.com>
+ <CH2PR13MB349560C5A7FEE3E8BD07171E8C130@CH2PR13MB3495.namprd13.prod.outlook.com>
 X-MS-Oob-TLC-OOBClassifiers: OLM:3513;
-X-Forefront-PRVS: 0285201563
+X-Forefront-PRVS: 031996B7EF
 X-Forefront-Antispam-Report: SFV:NSPM;
- SFS:(10009020)(346002)(136003)(39850400004)(366004)(396003)(376002)(189003)(199004)(6512007)(2616005)(107886003)(316002)(956004)(5660300002)(52116002)(36756003)(16526019)(1006002)(6666004)(26005)(66476007)(66946007)(66556008)(186003)(6486002)(86362001)(8936002)(6506007)(44832011)(8676002)(81156014)(81166006)(4326008)(478600001)(7416002)(2906002);
- DIR:OUT; SFP:1101; SCL:1; SRVR:CH2PR13MB3765;
+ SFS:(10009020)(346002)(39830400003)(136003)(396003)(376002)(366004)(199004)(189003)(4326008)(8936002)(316002)(81166006)(8676002)(5660300002)(6486002)(81156014)(52116002)(107886003)(6506007)(66946007)(2616005)(16526019)(6512007)(956004)(478600001)(2906002)(6636002)(66556008)(86362001)(186003)(6666004)(36756003)(66476007)(44832011)(26005);
+ DIR:OUT; SFP:1101; SCL:1; SRVR:CH2PR13MB3495;
  H:CH2PR13MB3368.namprd13.prod.outlook.com; FPR:; SPF:None; LANG:en;
- PTR:InfoNoRecords; MX:1; A:1;
+ PTR:InfoNoRecords; A:1; MX:1;
 Received-SPF: None (protection.outlook.com: sifive.com does not designate
  permitted sender hosts)
 X-MS-Exchange-SenderADCheck: 1
 X-Microsoft-Antispam: BCL:0;
 X-Microsoft-Antispam-Message-Info: 
- GpuJ1TSqzDt53M8nYr9xWnNV7c2vPwpgB1Pf8+i75TyyU+2+08E30gTi6+KyCBMu4+xGkUId89LeowCrAxl5AaIRjQc0txijs6klhcufWK1NnxV/vsWSai6y6XvZ5Tl8qjg1HKbAsvARWjt4mhL2waGEi5LeCbkuko67z5xPbOFPmj/+6Yc2t2Tm/DRTb6QCAwjVIZn4oCI4khOHUQ2LyDDgRwGcPqP/mQ+bsEGLocFiG2k2mVipicgkv52hq374Jgi2Thy8sTg7QNmEkxrNGzCWWH6SLK2eal12DyZTOV+gye1CGuYKxv4bonM739AevJ+bKd3W0lTOoBtfzSFua/fve0Xwt1W2HhwAwErJTUlLd51GqXxmZX6YM2fszXpJ8n43A/CCAqT6Q2zBd1PLqlQJ7IwEP58J0O0uUxD68T9rldm9sn+wXE9UFvaSAHhm
+ KtYDzZ+TxBsXMEDw3nr/MShbAqzzkXhvYg9h3hKgXfx2yuswgr/Kin4MAhOa8pjWdmyzJ+BIvPQo90G2NIZsCGuDaxqvJqOu3y73sFlfV7zPDaYhTM3wcLLxsKTXaNkzaf8XHKnzJHGru2YRftuqfAueW4S27J+/sfcN6sWzM5vNtVtWNTkF5GcncQT2eu8XqaRs3rjVVjDenyE5/yuOohyzt016YfbSEla4lGLul3xw3rmKLIwe1j2pF0BYETfoj+Vm4yi2yZt214wjBpJh6RQeXx+3080QLekxZSvngHU0c0B7v9KVp7zbS4NcCVXIeJT0bH1DADvUmNXBhOwPKHvkmfOHU7GB58JslIV9nkdBVGMUCskupSbX54yCHDyj6mV6sXdrmceWLQop/1anf9PL+u9U84qylia12U3LWvgEJl6LLcxwELb5CN0zhLSW
+X-MS-Exchange-AntiSpam-MessageData: 
+ nhfeVx8tQ94RVhqv40N0j8aGodAO8YxT7Ojq0iOZg1ZsIUIzVk3mlpCoE9nlec3zLpgfNz71xuJUyjQ1oCX3kNRkla5YfVOeDkFHvUMqP7fFIHC9ueXuYuxp25CnbOMZyycfD8qOdqrAgden6SeqsA==
 X-OriginatorOrg: sifive.com
 X-MS-Exchange-CrossTenant-Network-Message-Id: 
- 61429218-f104-4329-9d40-08d79b210b8f
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Jan 2020 07:44:13.0489 (UTC)
+ c6404fcf-f9f9-48c6-e091-08d7b5c3f47a
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Feb 2020 05:15:52.3077 (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 22f88e9d-ae0d-4ed9-b984-cdc9be1529f1
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
 X-MS-Exchange-CrossTenant-UserPrincipalName: 
- lDzSpSQ3hFeiZiiCP6D+CNP+2fNu0zBd9FfOrGMZs0XR6b6EWUI+J/xSkz9ErYbvl/29RU2q6Yf8JxiUOAeIuw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2PR13MB3765
+ vqO0H684z/kqUyaUL+Z1N8t47Mn2yGICnI6zbiRGgON61LeVOOHWmes4sBF/ejVl2FvDcs3KxC9Uezuqm/cmhg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2PR13MB3495
 X-CRM114-Version: 20100106-BlameMichelson ( TRE 0.8.0 (BSD) ) MR-646709E3 
-X-CRM114-CacheID: sfid-20200116_234420_812091_54856D98 
-X-CRM114-Status: UNSURE (   9.62  )
+X-CRM114-CacheID: sfid-20200219_211554_311696_B0D66AF7 
+X-CRM114-Status: UNSURE (   8.90  )
 X-CRM114-Notice: Please train this message.
 X-Spam-Score: -0.2 (/)
-X-Spam-Report: SpamAssassin version 3.4.2 on bombadil.infradead.org summary:
+X-Spam-Report: SpamAssassin version 3.4.3 on bombadil.infradead.org summary:
  Content analysis details:   (-0.2 points)
  pts rule name              description
  ---- ----------------------
  --------------------------------------------------
  -0.0 RCVD_IN_DNSWL_NONE     RBL: Sender listed at https://www.dnswl.org/,
- no trust [40.107.236.42 listed in list.dnswl.org]
- -0.0 SPF_HELO_PASS          SPF: HELO matches SPF record
+ no trust [40.107.236.54 listed in list.dnswl.org]
  -0.0 SPF_PASS               SPF: sender matches SPF record
- -0.1 DKIM_VALID_AU          Message has a valid DKIM or DK signature from
- author's domain
+ -0.0 SPF_HELO_PASS          SPF: HELO matches SPF record
  0.1 DKIM_SIGNED            Message has a DKIM or DK signature,
  not necessarily
  valid
- -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
  -0.1 DKIM_VALID_EF          Message has a valid DKIM or DK signature from
  envelope-from domain
+ -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+ -0.1 DKIM_VALID_AU          Message has a valid DKIM or DK signature from
+ author's domain
  0.0 MSGID_FROM_MTA_HEADER  Message-Id was added by a relay
 X-BeenThere: linux-riscv@lists.infradead.org
 X-Mailman-Version: 2.1.29
@@ -394,11 +397,10 @@ List-Post: <mailto:linux-riscv@lists.infradead.org>
 List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
 List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
  <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
-Cc: aou@eecs.berkeley.edu, sachin.ghadi@sifive.com,
- gregkh@linuxfoundation.org,
+Cc: aou@eecs.berkeley.edu, sachin.ghadi@sifive.com, anup@brainfault.org,
  linux-kernel@vger.kernel.org, alexios.zavras@intel.com,
- Yash Shah <yash.shah@sifive.com>, anup@brainfault.org, tglx@linutronix.de,
- bp@suse.de, linux-riscv@lists.infradead.org, allison@lohutok.net
+ Yash Shah <yash.shah@sifive.com>, gregkh@linuxfoundation.org,
+ tglx@linutronix.de, bp@suse.de, linux-riscv@lists.infradead.org
 Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
 Errors-To: 
  linux-riscv-bounces+patchwork-linux-riscv=patchwork.kernel.org@lists.infradead.org
@@ -418,7 +420,7 @@ Reviewed-by: Anup Patel <anup@brainfault.org>
  1 file changed, 38 insertions(+)
 
 diff --git a/drivers/soc/sifive/sifive_l2_cache.c b/drivers/soc/sifive/sifive_l2_cache.c
-index a506939..3fb6404 100644
+index a506939..d5f2665 100644
 --- a/drivers/soc/sifive/sifive_l2_cache.c
 +++ b/drivers/soc/sifive/sifive_l2_cache.c
 @@ -9,6 +9,8 @@
@@ -444,7 +446,7 @@ index a506939..3fb6404 100644
  
 +static int l2_largest_wayenabled(void)
 +{
-+	return readl(l2_base + SIFIVE_L2_WAYENABLE);
++	return readl(l2_base + SIFIVE_L2_WAYENABLE) & 0xFF;
 +}
 +
 +static ssize_t number_of_ways_enabled_show(struct device *dev,

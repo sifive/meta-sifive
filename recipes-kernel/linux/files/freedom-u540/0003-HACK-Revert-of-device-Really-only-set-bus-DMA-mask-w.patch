@@ -29,7 +29,7 @@ index e9127db..d21b01b 100644
  	 */
  	end = dma_addr + size - 1;
  	mask = DMA_BIT_MASK(ilog2(end) + 1);
-+	dev->bus_dma_mask = mask;
++	dev->bus_dma_limit = mask;
  	dev->coherent_dma_mask &= mask;
  	*dev->dma_mask &= mask;
 -	/* ...but only set bus limit if we found valid dma-ranges earlier */
