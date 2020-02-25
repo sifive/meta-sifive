@@ -94,6 +94,11 @@ IMAGE_INSTALL = "\
     mtd-utils \
     sysfsutils \
     htop \
+    nvme-cli \
+    python3 \
+    cmake \
+    ninja \
+    python3-scons \
     ${CORE_IMAGE_EXTRA_INSTALL} \
     "
 
