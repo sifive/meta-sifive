@@ -7,7 +7,7 @@ require opensbi-payloads.inc
 
 inherit autotools-brokensep deploy
 
-SRCREV = "c2bfa2bff30312679cfee986bbed9b974c6760bb"
+SRCREV = "f8b3bb826d488847009f74409b1898d88b5a6cc7"
 SRC_URI = "git://github.com/riscv/opensbi.git \
            file://0001-Makefile-Don-t-specify-mabi-or-march.patch \
           "
