@@ -1,56 +1,42 @@
-From e8daba64727b6d3c66b67a40488bbb515bd2eaee Mon Sep 17 00:00:00 2001
-From: David Abdurachmanov <david.abdurachmanov@sifive.com>
-Date: Tue, 28 Jan 2020 03:47:31 -0800
-Subject: [PATCH 7/7] Add PWM LEDs (D1, D2, D3, D4)
-
-The old DTS has D4 LED set as panic, but that does not seem to work.
-The configuration in this patch was tested and verified to be working
-as expected.
-
-Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>
-Upstream-Status: Not posted for a review
----
- .../riscv/boot/dts/sifive/hifive-unleashed-a00.dts | 27 ++++++++++++++++++++++
- 1 file changed, 27 insertions(+)
-
 diff --git a/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts b/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts
-index ea089f4..a1911d7 100644
+index ea089f4..37d5b93 100644
 --- a/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts
 +++ b/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts
-@@ -26,6 +26,33 @@
+@@ -26,6 +26,37 @@
  	};
  
  	soc {
 +		pwmleds {
 +			compatible = "pwm-leds";
-+			heartbeat {
++			d1 {
 +				label = "green:d1";
-+				pwms = <&pwm0 0 2000000 0>;
++				pwms = <&pwm0 0 7812500 0>;
++				active-low = <1>;
 +				max-brightness = <255>;
-+				linux,default-trigger = "heartbeat";
++				linux,default-trigger = "none";
 +			};
-+			mtd {
++			d2 {
 +				label = "green:d2";
-+				pwms = <&pwm0 1 2000000 0>;
++				pwms = <&pwm0 1 7812500 0>;
++				active-low = <1>;
 +				max-brightness = <255>;
-+				linux,default-trigger = "mtd";
++				linux,default-trigger = "none";
 +			};
-+			netdev {
++			d3 {
 +				label = "green:d3";
-+				pwms = <&pwm0 2 2000000 0>;
++				pwms = <&pwm0 2 7812500 0>;
++				active-low = <1>;
 +				max-brightness = <255>;
-+				linux,default-trigger = "netdev";
++				linux,default-trigger = "none";
 +			};
-+			mmc0 {
++			d4 {
 +				label = "green:d4";
-+				pwms = <&pwm0 3 2000000 0>;
++				pwms = <&pwm0 3 7812500 0>;
++				active-low = <1>;
 +				max-brightness = <255>;
-+				linux,default-trigger = "mmc0";
++				linux,default-trigger = "none";
 +			};
 +		};
  	};
  
  	hfclk: hfclk {
--- 
-2.7.4
-
