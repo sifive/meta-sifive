@@ -149,7 +149,7 @@ The above commands might vary depending on your exact setup.
 
 `-L` command will log all output to `screenlog.0` in your current working directory.
 
-To quit screen, hit `Ctrl - A` followed by `\` symbol. Finally agree with to terminate all windows by typing `y`.
+To quit screen, hit `Ctrl - A` followed by `\` symbol. Finally agree to terminate all windows by typing `y`.
 
 ### Connecting using SSH
 
