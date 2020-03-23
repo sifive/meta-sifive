@@ -480,7 +480,7 @@ echo "---------------------------------------------------"
 echo ""
 echo "Buildable machine info"
 echo "---------------------------------------------------"
-echo "* freedom-u540: The SiFive HiFive Unleased board"
+echo "* freedom-u540: The SiFive HiFive Unleashed board"
 echo "* qemuriscv64: The 64-bit RISC-V machine"
 echo "---------------------------------------------------"
 
