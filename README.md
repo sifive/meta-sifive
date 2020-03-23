@@ -86,7 +86,7 @@ There are two machine targets currently tested:
 > 
 > Building disk images is CPU intensive, requires <10GB of sources downloaded over the Internet and <110GB of local storage.
 
-Building disk image takes a single command which my take anything from 30 minutes to several hours depending on your hardware. Examples:
+Building disk image takes a single command which may take anything from 30 minutes to several hours depending on your hardware. Examples:
 
 ```bash
 MACHINE=qemuriscv64 bitbake demo-coreip-cli
@@ -175,4 +175,4 @@ You are also welcome to join [SiFive Forums ](https://forums.sifive.com/) there 
 
 1. Avoid overclocking SOC using CPUFreq if you are using HiFive Unleashed Expansion Board from Microsemi as this will hang the board. Hard reset will be required.
 
-2. You might notice sluggish Xfce4 performance on the first boot if you are using HiFive Unleashed Expansion Board from Microsemi with GPU. Rebooting seems to resolve the issue.
+2. If Xfce4 desktop disk image is used with HiFive Unleashed Expansion Board and GPU then rebooting is required after the 1st boot.
