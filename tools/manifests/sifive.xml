@@ -6,7 +6,7 @@
   <remote name="sifive" fetch="git://github.com/sifive/" />
   <default remote="openembedded" revision="master" />
 
-  <project name="meta-sifive" remote="sifive" path="meta-sifive" revision="master" />
+  <project name="meta-sifive" remote="sifive" path="meta-sifive" revision="af1eac34a5a92e10bf3f4496fe69cfbc19ca3c73" />
   <project name="meta-riscv" remote="riscv" path="meta-riscv" revision="2fb467c8f89b962d908b889d5bd8b1c9ec8e0da3" />
   <project name="openembedded-core" remote="openembedded" path="openembedded-core" revision="d6fc0081f53ebc5b12ffff917cf3c04c270a69f1" />
   <project name="bitbake" remote="openembedded" path="openembedded-core/bitbake" revision="6a0b6dd17c6d842960d448114b252e92c55dea33" />
