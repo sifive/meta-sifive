@@ -23,6 +23,7 @@ IMAGE_INSTALL = "\
     whetstone \
     iperf3 \
     iperf2 \
+    fio \
     tinymembench \
     sysbench \
     memtester \
