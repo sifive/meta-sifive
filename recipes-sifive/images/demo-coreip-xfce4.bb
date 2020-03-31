@@ -72,6 +72,7 @@ IMAGE_INSTALL = "\
     xserver-xorg-extension-record \
     python3-ctypes \
     xf86-video-ati \
+    xf86-video-amdgpu \
     linux-firmware \
     quake2 \
     dhcp-client \
