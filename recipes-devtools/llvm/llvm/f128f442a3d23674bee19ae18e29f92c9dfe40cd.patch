@@ -1,0 +1,27 @@
+From f128f442a3d23674bee19ae18e29f92c9dfe40cd Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Lu=C3=ADs=20Marques?= <luismarques@lowrisc.org>
+Date: Mon, 17 Feb 2020 15:21:41 +0000
+Subject: [PATCH] [CMake] Fix setting result of libatomic check for MSVC
+
+We were skipping the libatomic requirement check for MSVC, but not setting
+the corresponding variable, HAVE_CXX_ATOMICS_WITHOUT_LIB. D69869 seems to
+have to failed to build on ARM MSVC because of that, and was reverted. This
+should probably fix the issue. The plan is to check the result of the build
+bots and then submit a more thoroughly refactored version for review.
+---
+ llvm/cmake/modules/CheckAtomic.cmake | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/llvm/cmake/modules/CheckAtomic.cmake b/llvm/cmake/modules/CheckAtomic.cmake
+index 29f3bdd57f03..af925f5bf9ec 100644
+--- a/llvm/cmake/modules/CheckAtomic.cmake
++++ b/llvm/cmake/modules/CheckAtomic.cmake
+@@ -53,6 +53,8 @@ if (LLVM_COMPILER_IS_GCC_COMPATIBLE)
+       message(FATAL_ERROR "Host compiler appears to require libatomic, but cannot find it.")
+     endif()
+   endif()
++elseif(MSVC)
++  set(HAVE_CXX_ATOMICS_WITHOUT_LIB True)
+ endif()
+ 
+ # Check for 64 bit atomic operations.

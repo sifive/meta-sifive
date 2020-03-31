@@ -1,0 +1,49 @@
+From cef85193b2cc1817ca43199a0ae9c6f25723997d Mon Sep 17 00:00:00 2001
+From: Gokturk Yuksek <gokturk@binghamton.edu>
+Date: Mon, 17 Feb 2020 18:36:18 +0000
+Subject: [PATCH] [CMake] CheckAtomic.cmake: catch false positives in RISC-V
+
+The check for 'HAVE_CXX_ATOMICS_WITHOUT_LIB' may create false
+positives in RISC-V. This is reproducible when compiling LLVM natively
+using GCC on a rv64gc (rv64imafdgc) host. Due to the 'A' (atomic)
+extension, g++ replaces calls to libatomic operations on the
+std::atomic<int> type with the native hardware instructions. As a
+result, the compilation succeeds and the build system thinks it
+doesn't need to pass '-latomic'.
+
+Improve the reliability of the 'HAVE_CXX_ATOMICS_WITHOUT_LIB' test in
+two steps:
+
+1. Force a pre-increment on x (++x), which should force a call to a
+libatomic function;
+
+2. Because step 1 would resolve the increment to 'amoadd.w.aq' under
+the 'A' extension, force the same operation on sub-word types, for
+which there is no hardware support.
+
+Reviewers: jfb, hintonda, smeenai, mgorny, JDevlieghere, jyknight
+Reviewed By: jfb
+Tags: #llvm
+Differential Revision: https://reviews.llvm.org/D68964
+---
+ llvm/cmake/modules/CheckAtomic.cmake | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/llvm/cmake/modules/CheckAtomic.cmake b/llvm/cmake/modules/CheckAtomic.cmake
+index af925f5bf9ec..5d22a131e5cb 100644
+--- a/llvm/cmake/modules/CheckAtomic.cmake
++++ b/llvm/cmake/modules/CheckAtomic.cmake
+@@ -12,8 +12,12 @@ function(check_working_cxx_atomics varname)
+   CHECK_CXX_SOURCE_COMPILES("
+ #include <atomic>
+ std::atomic<int> x;
++std::atomic<short> y;
++std::atomic<char> z;
+ int main() {
+-  return x;
++  ++z;
++  ++y;
++  return ++x;
+ }
+ " ${varname})
+   set(CMAKE_REQUIRED_FLAGS ${OLD_CMAKE_REQUIRED_FLAGS})

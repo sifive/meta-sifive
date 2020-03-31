@@ -1,0 +1,32 @@
+From d4a4a32cd94eccbaaa4608b0daac8b820e041214 Mon Sep 17 00:00:00 2001
+From: Gokturk Yuksek <gokturk@binghamton.edu>
+Date: Tue, 18 Feb 2020 07:52:29 +0000
+Subject: [PATCH] [Support] Check for atomics64 when deciding if '-latomic'  is
+ needed
+
+The CheckAtomic module performs two tests to determine if passing
+'-latomic' to the linker is required: one for 64-bit atomics, and
+another for non-64-bit atomics. Include the missing check for 64-bit
+atomics.
+
+Reviewers: beanz, compnerd
+Reviewed By: beanz, compnerd
+Tags: #llvm
+Differential Revision: https://reviews.llvm.org/D69444
+---
+ llvm/lib/Support/CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/llvm/lib/Support/CMakeLists.txt b/llvm/lib/Support/CMakeLists.txt
+index 26332d4f539c..41c5258d0b2b 100644
+--- a/llvm/lib/Support/CMakeLists.txt
++++ b/llvm/lib/Support/CMakeLists.txt
+@@ -26,7 +26,7 @@ elseif( CMAKE_HOST_UNIX )
+       set(system_libs ${system_libs} ${TERMINFO_LIBS})
+     endif()
+   endif()
+-  if( LLVM_ENABLE_THREADS AND HAVE_LIBATOMIC )
++  if( LLVM_ENABLE_THREADS AND (HAVE_LIBATOMIC OR HAVE_CXX_LIBATOMICS64) )
+     set(system_libs ${system_libs} atomic)
+   endif()
+   set(system_libs ${system_libs} ${LLVM_PTHREAD_LIB})
