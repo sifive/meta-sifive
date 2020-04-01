@@ -66,6 +66,8 @@ IMAGE_INSTALL = "\
     read-edid \
     xscreensaver \
     mesa-megadriver \
+    mesa-vulkan-drivers \
+    vulkan-tools \
     xserver-xorg-utils \
     xserver-xorg-xvfb \
     xserver-xorg-extension-dbe \
