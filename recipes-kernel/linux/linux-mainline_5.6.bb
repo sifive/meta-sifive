@@ -18,6 +18,7 @@ SRC_URI_append_freedom-u540 = " \
     file://0004-SiFive-Unleashed-CPUFreq.patch \
     file://0007-Add-PWM-LEDs-D1-D2-D3-D4.patch \
     file://riscv-add-support-to-determine-no-of-L2-cache-way-enabled.patch \
+    file://0001-perf-fix-Clang-version-check-for-OE.patch \
 "
 
 # For freedom-u540 use out-of-tree defconfig
