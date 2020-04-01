@@ -83,7 +83,7 @@ require conf/distro/include/security_flags.inc
 
 INHERIT += "uninative"
 
-DISTRO_FEATURES_append = " largefile opengl ptest multiarch wayland pam  systemd "
+DISTRO_FEATURES_append = " largefile opengl ptest multiarch wayland pam systemd vulkan "
 DISTRO_FEATURES_BACKFILL_CONSIDERED += "sysvinit"
 VIRTUAL-RUNTIME_init_manager = "systemd"
 HOSTTOOLS_NONFATAL_append = " ssh"
