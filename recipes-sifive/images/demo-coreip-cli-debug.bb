@@ -8,6 +8,7 @@ IMAGE_FEATURES += "\
     tools-profile \
     doc-pkgs \
     dev-pkgs \
+    dbg-pkgs \
     nfs-client \
     nfs-server"
 

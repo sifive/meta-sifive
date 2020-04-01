@@ -8,8 +8,10 @@ IMAGE_FEATURES += "\
     tools-profile \
     doc-pkgs \
     dev-pkgs \
+    dbg-pkgs \
     nfs-client \
-    nfs-server"
+    nfs-server \
+    x11-base"
 
 IMAGE_INSTALL = "\
     packagegroup-core-boot \
@@ -57,6 +59,27 @@ IMAGE_INSTALL = "\
     screen \
     tmux \
     stress-ng \
+    packagegroup-core-x11 \
+    packagegroup-xfce-base \
+    packagegroup-xfce-extended \
+    xrandr \
+    mesa-demos \
+    read-edid \
+    xscreensaver \
+    mesa-megadriver \
+    xserver-xorg-utils \
+    xserver-xorg-xvfb \
+    xserver-xorg-extension-dbe \
+    xserver-xorg-extension-dri \
+    xserver-xorg-extension-dri2 \
+    xserver-xorg-extension-extmod \
+    xserver-xorg-extension-glx \
+    xserver-xorg-extension-record \
+    python3-ctypes \
+    xf86-video-ati \
+    xf86-video-amdgpu \
+    linux-firmware \
+    quake2 \
     dhcp-client \
     nbd-client \
     mpfr-dev \
@@ -100,10 +123,14 @@ IMAGE_INSTALL = "\
     ${CORE_IMAGE_EXTRA_INSTALL} \
     "
 
-IMAGE_INSTALL_append_freedom-u540 = "\
+IMAGE_INSTALL_append_freedom-u540 = " \
     unleashed-udev-rules \
     "
 
-inherit core-image extrausers
+inherit core-image features_check extrausers
+
+REQUIRED_DISTRO_FEATURES = "\
+    x11 \
+    systemd"
 
 EXTRA_USERS_PARAMS = "usermod -P sifive root;"
