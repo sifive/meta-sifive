@@ -36,6 +36,15 @@ IMAGE_INSTALL = "\
     wget \
     git \
     bind-utils \
+    hexedit \
+    pv \
+    lsof \
+    libgpiod \
+    libgpiod-tools \
+    libgpiod-dev \
+    i2c-tools \
+    i2c-tools-misc \
+    spitools \
     networkmanager \
     networkmanager-nmtui \
     networkmanager-nmtui-doc \
@@ -61,9 +70,17 @@ IMAGE_INSTALL = "\
     gettext \
     texinfo \
     procps \
+    sln \
     glibc-dev \
+    glibc-utils \
+    glibc-staticdev \
     elfutils \
     elfutils-dev \
+    elfutils-binutils \
+    elfutils-staticdev \
+    libasm \
+    libdw \
+    libelf \
     pciutils \
     usbutils \
     devmem2 \
@@ -75,6 +92,12 @@ IMAGE_INSTALL = "\
     cmake \
     ninja \
     python3-scons \
+    libatomic-dev \
+    libatomic-staticdev \
+    libgomp-dev \
+    libgomp-staticdev \
+    libstdc++-dev \
+    libstdc++-staticdev \
     ${CORE_IMAGE_EXTRA_INSTALL} \
     "
 
