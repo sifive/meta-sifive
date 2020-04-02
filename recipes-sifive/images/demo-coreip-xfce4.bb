@@ -68,6 +68,9 @@ IMAGE_INSTALL = "\
     mesa-megadriver \
     mesa-vulkan-drivers \
     vulkan-tools \
+    vulkan-loader \
+    vulkan-headers \
+    vulkan-demos \
     xserver-xorg-utils \
     xserver-xorg-xvfb \
     xserver-xorg-extension-dbe \
