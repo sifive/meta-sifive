@@ -89,7 +89,7 @@ VIRTUAL-RUNTIME_init_manager = "systemd"
 HOSTTOOLS_NONFATAL_append = " ssh"
 
 # Disable broken bbappend in meta-riscv layer
-BBMASK += "openssl_1.1.1d.bbappend"
+BBMASK += "openssl_1.1.1e.bbappend"
 
 # We use NetworkManager instead
 PACKAGECONFIG_remove_pn-systemd = "networkd"
