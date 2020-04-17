@@ -173,7 +173,9 @@ ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no -o StrictHos
 
 ### Supported GPUs
 
-Currently on CAICOS family of GPUs from AMD are supported. In particular **Radeon HD 6450** is the most widely used and is highly recommended today. Other GPUs from the same family might also work. That could be: HD64xxM, HD7450, HD8450, R5 230, R5 235, R5 235X
+CAICOS family of GPUs from AMD were supported from the beginning and thus are the most tested. In particular **Radeon HD 6450** is the most widely used and is highly recommended today. Other GPUs from the same family might also work. That could be: HD64xxM, HD7450, HD8450, R5 230, R5 235, R5 235X
+
+This was extend to support newer AMD GPUs, but only POLARIS12 based RX 550 was tested so far.
 
 ### Online Resizing of rootfs (Root File Partition)
 
