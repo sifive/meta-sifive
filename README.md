@@ -86,6 +86,8 @@ There are two disk image targets added by meta-sifive layer:
 
 - `demo-coreip-xfce4` - basic graphical disk image with [Xfce 4](https://www.xfce.org/) desktop environment (requires HiFive Unleashed Expansion Board with supported GPUs, for example, **Radeon HD 6450** or Radeon HD 5450).
 
+By default disk images do not include debug packages. If you want to produce disk images with debug packages append `-debug` (e.g. `demo-coreip-cli-debug`) to the disk image target.
+
 There are two machine targets currently tested:
 
 - `qemuriscv64` - RISC-V 64-bit (RV64GC) for QEMU virt machine;
