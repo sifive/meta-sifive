@@ -97,6 +97,8 @@ IMAGE_INSTALL = "\
     libgomp-staticdev \
     libstdc++-dev \
     libstdc++-staticdev \
+    dtc \
+    pcimem \
     ${CORE_IMAGE_EXTRA_INSTALL} \
     "
 
