@@ -62,6 +62,22 @@ repo sync
 repo rebase
 ```
 
+### Installing Build Tools
+
+OpenEmbedded-Core requires GCC 6 or newer to be available on the host system. Your host system might have an older version of GCC if you use LTS (Long Term Support) Linux distribution (e.g. Ubuntu 16.04.6 has GCC 5.4.0). You could solve this issue by installing build tools (pokysdk). This requires less than 400MB of disk space.
+
+```bash
+./openembedded-core/scripts/install-buildtools
+```
+
+The SDK will be installed under `./openembedded-core/buildtools` prefix.
+
+Finally you should be able to use build tools.
+
+```bash
+. ./openembedded-core/buildtools/environment-setup-x86_64-pokysdk-linux
+```
+
 ### Setting up Build Environment
 
 ```bash
