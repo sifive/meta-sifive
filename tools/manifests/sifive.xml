@@ -8,8 +8,8 @@
 
   <project name="meta-sifive" remote="sifive" path="meta-sifive" revision="master" />
   <project name="meta-riscv" remote="riscv" path="meta-riscv" revision="6f495435ed9269030e16b9051b9012ce42038c04" />
-  <project name="openembedded-core" remote="openembedded" path="openembedded-core" revision="e496605ea197414b58025293e73dec099a8976c6" />
+  <project name="openembedded-core" remote="openembedded" path="openembedded-core" revision="cd3f766ae1875dfa1f63b68e2ae5b6a950ce67ae" />
   <project name="bitbake" remote="openembedded" path="openembedded-core/bitbake" revision="5dbee3628972d521d44bdfb282ecc44fc956bdb1" />
-  <project name="meta-openembedded" remote="openembedded" path="meta-openembedded" revision="129efc7fa0c04ee812a972fc5b63990fe74288ea" />
+  <project name="meta-openembedded" remote="openembedded" path="meta-openembedded" revision="2120240646b81a0df1523f51854c03722aede513" />
 </manifest>
 
