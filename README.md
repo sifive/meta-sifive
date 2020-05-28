@@ -88,7 +88,9 @@ Finally you should be able to use build tools:
 
 #### Option 2: Building Your Own Build Tools
 
-Your host needs to have GCC 6 (or newer) or build tools installed from Option 1.
+> Your host needs to have GCC 6 (or newer) or build tools installed from Option 1.
+
+> You can find pre-built tools from the same release source in GitHub release assets.
 
 To build your own build tools execute the command below:
 
