@@ -1,7 +1,8 @@
-From 7c97710bfc44d895b7111bef9c55866f00a3589c Mon Sep 17 00:00:00 2001
+From 7d3f9e19079ea0f6373c7d486e5ecd062a7a3fa8 Mon Sep 17 00:00:00 2001
 From: Khem Raj <raj.khem@gmail.com>
 Date: Mon, 13 Aug 2018 11:54:27 -0700
 Subject: [PATCH] Revert "Makefile: force sync after build in case reboot loses
+
  executable"
 
 This reverts commit ae6322b1baea56a589207c96e358daae8edd0a8f.
@@ -10,22 +11,20 @@ Not needed for cross-builds
 
 Upstream-Status: Inappropriate [Cross compile specific]
 Signed-off-by: Khem Raj <raj.khem@gmail.com>
+
 ---
  Makefile | 1 -
  1 file changed, 1 deletion(-)
 
 diff --git a/Makefile b/Makefile
-index c0db72c0..5781dda6 100644
+index 093d9c8..f876e0f 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -348,7 +348,6 @@ endif
+@@ -371,7 +371,6 @@ OBJS += $(CONFIG_OBJS)
  stress-ng: $(OBJS)
  	@echo "LD $@"
  	@$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm $(LDFLAGS) -o $@
 -	@sync
  
  makeconfig:
- 	@if [ ! -s config ]; then \
--- 
-2.17.0
-
+ 	@if [ ! -e config ]; then \

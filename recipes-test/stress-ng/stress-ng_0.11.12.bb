@@ -9,7 +9,7 @@ SRC_URI = "http://kernel.ubuntu.com/~cking/tarballs/${BPN}/${BP}.tar.xz \
            file://0001-Revert-Makefile-force-sync-after-build-in-case-reboo.patch \
            "
 
-SRC_URI[md5sum] = "99b536580de758891a7a7dbb470d8374"
+SRC_URI[md5sum] = "c0fb1967cb0c7f4b48e03242a4816c3e"
 
 UPSTREAM_CHECK_URI ?= "http://kernel.ubuntu.com/~cking/tarballs/${BPN}/"
 UPSTREAM_CHECK_REGEX ?= "(?P<pver>\d+(\.\d+)+)\.tar"
