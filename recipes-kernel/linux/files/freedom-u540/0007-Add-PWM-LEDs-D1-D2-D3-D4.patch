@@ -1,8 +1,29 @@
+From c1c831af223931219b7bf9158b1306b500116167 Mon Sep 17 00:00:00 2001
+From: David Abdurachmanov <david.abdurachmanov@sifive.com>
+Date: Fri, 5 Jun 2020 07:02:10 +0000
+Subject: [PATCH] SiFive HiFive Unleashed: Add PWM LEDs (D1, D2, D3, D4)
+
+By default no functions are assigned to LEDs. It's up to user/distribution
+to provide udev rules to configure them.
+
+Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>
+---
+ .../riscv/boot/dts/sifive/hifive-unleashed-a00.dts | 32 ++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
+
 diff --git a/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts b/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts
-index ea089f4..37d5b93 100644
+index 6dd6fa4..c8a47bf 100644
 --- a/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts
 +++ b/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts
-@@ -26,6 +26,37 @@
+@@ -3,6 +3,7 @@
+ 
+ #include "fu540-c000.dtsi"
+ #include <dt-bindings/gpio/gpio.h>
++#include <dt-bindings/pwm/pwm.h>
+ 
+ /* Clock frequency (in Hz) of the PCB crystal for rtcclk */
+ #define RTCCLK_FREQ		1000000
+@@ -27,6 +28,37 @@
  	};
  
  	soc {
@@ -10,28 +31,28 @@ index ea089f4..37d5b93 100644
 +			compatible = "pwm-leds";
 +			d1 {
 +				label = "green:d1";
-+				pwms = <&pwm0 0 7812500 0>;
++				pwms = <&pwm0 0 7812500 PWM_POLARITY_INVERTED>;
 +				active-low = <1>;
 +				max-brightness = <255>;
 +				linux,default-trigger = "none";
 +			};
 +			d2 {
 +				label = "green:d2";
-+				pwms = <&pwm0 1 7812500 0>;
++				pwms = <&pwm0 1 7812500 PWM_POLARITY_INVERTED>;
 +				active-low = <1>;
 +				max-brightness = <255>;
 +				linux,default-trigger = "none";
 +			};
 +			d3 {
 +				label = "green:d3";
-+				pwms = <&pwm0 2 7812500 0>;
++				pwms = <&pwm0 2 7812500 PWM_POLARITY_INVERTED>;
 +				active-low = <1>;
 +				max-brightness = <255>;
 +				linux,default-trigger = "none";
 +			};
 +			d4 {
 +				label = "green:d4";
-+				pwms = <&pwm0 3 7812500 0>;
++				pwms = <&pwm0 3 7812500 PWM_POLARITY_INVERTED>;
 +				active-low = <1>;
 +				max-brightness = <255>;
 +				linux,default-trigger = "none";
@@ -40,3 +61,6 @@ index ea089f4..37d5b93 100644
  	};
  
  	hfclk: hfclk {
+-- 
+2.7.4
+
