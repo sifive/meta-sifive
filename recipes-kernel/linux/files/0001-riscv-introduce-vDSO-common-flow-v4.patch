@@ -1,0 +1,523 @@
+From bb1c88f856e88d5654ddb71cd32bc88862eeb03d Mon Sep 17 00:00:00 2001
+From: David Abdurachmanov <david.abdurachmanov@sifive.com>
+Date: Thu, 11 Jun 2020 10:21:20 +0000
+Subject: [PATCH] riscv: introduce vDSO common flow (v4)
+
+Backport of https://patchwork.kernel.org/project/linux-riscv/list/?series=300259
+
+Already merged in for-next branch (11 Jun 2020).
+
+Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>
+---
+ arch/riscv/Kconfig                         |  4 ++
+ arch/riscv/include/asm/clocksource.h       |  7 +++
+ arch/riscv/include/asm/processor.h         | 12 +----
+ arch/riscv/include/asm/vdso.h              |  2 +
+ arch/riscv/include/asm/vdso/clocksource.h  |  8 +++
+ arch/riscv/include/asm/vdso/gettimeofday.h | 79 ++++++++++++++++++++++++++++++
+ arch/riscv/include/asm/vdso/processor.h    | 19 +++++++
+ arch/riscv/include/asm/vdso/vsyscall.h     | 27 ++++++++++
+ arch/riscv/kernel/time.c                   |  9 ++++
+ arch/riscv/kernel/vdso.c                   | 24 +++++++--
+ arch/riscv/kernel/vdso/Makefile            | 12 +++--
+ arch/riscv/kernel/vdso/clock_getres.S      | 18 -------
+ arch/riscv/kernel/vdso/clock_gettime.S     | 18 -------
+ arch/riscv/kernel/vdso/gettimeofday.S      | 18 -------
+ arch/riscv/kernel/vdso/vdso.lds.S          |  2 +
+ arch/riscv/kernel/vdso/vgettimeofday.c     | 25 ++++++++++
+ 16 files changed, 213 insertions(+), 71 deletions(-)
+ create mode 100644 arch/riscv/include/asm/clocksource.h
+ create mode 100644 arch/riscv/include/asm/vdso/clocksource.h
+ create mode 100644 arch/riscv/include/asm/vdso/gettimeofday.h
+ create mode 100644 arch/riscv/include/asm/vdso/processor.h
+ create mode 100644 arch/riscv/include/asm/vdso/vsyscall.h
+ delete mode 100644 arch/riscv/kernel/vdso/clock_getres.S
+ delete mode 100644 arch/riscv/kernel/vdso/clock_gettime.S
+ delete mode 100644 arch/riscv/kernel/vdso/gettimeofday.S
+ create mode 100644 arch/riscv/kernel/vdso/vgettimeofday.c
+
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index 1c8443e..27637dc 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -15,12 +15,14 @@ config RISCV
+ 	select OF
+ 	select OF_EARLY_FLATTREE
+ 	select OF_IRQ
++	select ARCH_CLOCKSOURCE_INIT
+ 	select ARCH_HAS_BINFMT_FLAT
+ 	select ARCH_WANT_FRAME_POINTERS
+ 	select CLONE_BACKWARDS
+ 	select COMMON_CLK
+ 	select GENERIC_CLOCKEVENTS
+ 	select GENERIC_IRQ_SHOW
++	select GENERIC_GETTIMEOFDAY if HAVE_GENERIC_VDSO
+ 	select GENERIC_PCI_IOMAP
+ 	select GENERIC_SCHED_CLOCK
+ 	select GENERIC_STRNCPY_FROM_USER if MMU
+@@ -29,6 +31,7 @@ config RISCV
+ 	select GENERIC_ATOMIC64 if !64BIT
+ 	select GENERIC_IOREMAP
+ 	select GENERIC_PTDUMP if MMU
++	select GENERIC_TIME_VSYSCALL if MMU && 64BIT
+ 	select HAVE_ARCH_AUDITSYSCALL
+ 	select HAVE_ARCH_SECCOMP_FILTER
+ 	select HAVE_ASM_MODVERSIONS
+@@ -43,6 +46,7 @@ config RISCV
+ 	select SPARSE_IRQ
+ 	select SYSCTL_EXCEPTION_TRACE
+ 	select HAVE_ARCH_TRACEHOOK
++	select HAVE_GENERIC_VDSO if MMU && 64BIT
+ 	select HAVE_PCI
+ 	select MODULES_USE_ELF_RELA if MODULES
+ 	select MODULE_SECTIONS if MODULES
+diff --git a/arch/riscv/include/asm/clocksource.h b/arch/riscv/include/asm/clocksource.h
+new file mode 100644
+index 00000000..4821855
+--- /dev/null
++++ b/arch/riscv/include/asm/clocksource.h
+@@ -0,0 +1,7 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _ASM_CLOCKSOURCE_H
++#define _ASM_CLOCKSOURCE_H
++
++#include <asm/vdso/clocksource.h>
++
++#endif
+diff --git a/arch/riscv/include/asm/processor.h b/arch/riscv/include/asm/processor.h
+index 3ddb798..d6117b3 100644
+--- a/arch/riscv/include/asm/processor.h
++++ b/arch/riscv/include/asm/processor.h
+@@ -8,6 +8,8 @@
+ 
+ #include <linux/const.h>
+ 
++#include <vdso/processor.h>
++
+ #include <asm/ptrace.h>
+ 
+ /*
+@@ -58,16 +60,6 @@ static inline void release_thread(struct task_struct *dead_task)
+ extern unsigned long get_wchan(struct task_struct *p);
+ 
+ 
+-static inline void cpu_relax(void)
+-{
+-#ifdef __riscv_muldiv
+-	int dummy;
+-	/* In lieu of a halt instruction, induce a long-latency stall. */
+-	__asm__ __volatile__ ("div %0, %0, zero" : "=r" (dummy));
+-#endif
+-	barrier();
+-}
+-
+ static inline void wait_for_interrupt(void)
+ {
+ 	__asm__ __volatile__ ("wfi");
+diff --git a/arch/riscv/include/asm/vdso.h b/arch/riscv/include/asm/vdso.h
+index 7a7fce6..8454f74 100644
+--- a/arch/riscv/include/asm/vdso.h
++++ b/arch/riscv/include/asm/vdso.h
+@@ -10,8 +10,10 @@
+ 
+ #include <linux/types.h>
+ 
++#ifndef GENERIC_TIME_VSYSCALL
+ struct vdso_data {
+ };
++#endif
+ 
+ /*
+  * The VDSO symbols are mapped into Linux so we can just use regular symbol
+diff --git a/arch/riscv/include/asm/vdso/clocksource.h b/arch/riscv/include/asm/vdso/clocksource.h
+new file mode 100644
+index 00000000..df6ea65
+--- /dev/null
++++ b/arch/riscv/include/asm/vdso/clocksource.h
+@@ -0,0 +1,8 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef __ASM_VDSOCLOCKSOURCE_H
++#define __ASM_VDSOCLOCKSOURCE_H
++
++#define VDSO_ARCH_CLOCKMODES	\
++	VDSO_CLOCKMODE_ARCHTIMER
++
++#endif
+diff --git a/arch/riscv/include/asm/vdso/gettimeofday.h b/arch/riscv/include/asm/vdso/gettimeofday.h
+new file mode 100644
+index 00000000..c8e8186
+--- /dev/null
++++ b/arch/riscv/include/asm/vdso/gettimeofday.h
+@@ -0,0 +1,79 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef __ASM_VDSO_GETTIMEOFDAY_H
++#define __ASM_VDSO_GETTIMEOFDAY_H
++
++#ifndef __ASSEMBLY__
++
++#include <asm/unistd.h>
++#include <asm/csr.h>
++#include <uapi/linux/time.h>
++
++#define VDSO_HAS_CLOCK_GETRES	1
++
++static __always_inline
++int gettimeofday_fallback(struct __kernel_old_timeval *_tv,
++			  struct timezone *_tz)
++{
++	register struct __kernel_old_timeval *tv asm("a0") = _tv;
++	register struct timezone *tz asm("a1") = _tz;
++	register long ret asm("a0");
++	register long nr asm("a7") = __NR_gettimeofday;
++
++	asm volatile ("ecall\n"
++		      : "=r" (ret)
++		      : "r"(tv), "r"(tz), "r"(nr)
++		      : "memory");
++
++	return ret;
++}
++
++static __always_inline
++long clock_gettime_fallback(clockid_t _clkid, struct __kernel_timespec *_ts)
++{
++	register clockid_t clkid asm("a0") = _clkid;
++	register struct __kernel_timespec *ts asm("a1") = _ts;
++	register long ret asm("a0");
++	register long nr asm("a7") = __NR_clock_gettime;
++
++	asm volatile ("ecall\n"
++		      : "=r" (ret)
++		      : "r"(clkid), "r"(ts), "r"(nr)
++		      : "memory");
++
++	return ret;
++}
++
++static __always_inline
++int clock_getres_fallback(clockid_t _clkid, struct __kernel_timespec *_ts)
++{
++	register clockid_t clkid asm("a0") = _clkid;
++	register struct __kernel_timespec *ts asm("a1") = _ts;
++	register long ret asm("a0");
++	register long nr asm("a7") = __NR_clock_getres;
++
++	asm volatile ("ecall\n"
++		      : "=r" (ret)
++		      : "r"(clkid), "r"(ts), "r"(nr)
++		      : "memory");
++
++	return ret;
++}
++
++static __always_inline u64 __arch_get_hw_counter(s32 clock_mode)
++{
++	/*
++	 * The purpose of csr_read(CSR_TIME) is to trap the system into
++	 * M-mode to obtain the value of CSR_TIME. Hence, unlike other
++	 * architecture, no fence instructions surround the csr_read()
++	 */
++	return csr_read(CSR_TIME);
++}
++
++static __always_inline const struct vdso_data *__arch_get_vdso_data(void)
++{
++	return _vdso_data;
++}
++
++#endif /* !__ASSEMBLY__ */
++
++#endif /* __ASM_VDSO_GETTIMEOFDAY_H */
+diff --git a/arch/riscv/include/asm/vdso/processor.h b/arch/riscv/include/asm/vdso/processor.h
+new file mode 100644
+index 00000000..82a5693
+--- /dev/null
++++ b/arch/riscv/include/asm/vdso/processor.h
+@@ -0,0 +1,19 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++#ifndef __ASM_VDSO_PROCESSOR_H
++#define __ASM_VDSO_PROCESSOR_H
++
++#ifndef __ASSEMBLY__
++
++static inline void cpu_relax(void)
++{
++#ifdef __riscv_muldiv
++	int dummy;
++	/* In lieu of a halt instruction, induce a long-latency stall. */
++	__asm__ __volatile__ ("div %0, %0, zero" : "=r" (dummy));
++#endif
++	barrier();
++}
++
++#endif /* __ASSEMBLY__ */
++
++#endif /* __ASM_VDSO_PROCESSOR_H */
+diff --git a/arch/riscv/include/asm/vdso/vsyscall.h b/arch/riscv/include/asm/vdso/vsyscall.h
+new file mode 100644
+index 00000000..82fd5d8
+--- /dev/null
++++ b/arch/riscv/include/asm/vdso/vsyscall.h
+@@ -0,0 +1,27 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef __ASM_VDSO_VSYSCALL_H
++#define __ASM_VDSO_VSYSCALL_H
++
++#ifndef __ASSEMBLY__
++
++#include <linux/timekeeper_internal.h>
++#include <vdso/datapage.h>
++
++extern struct vdso_data *vdso_data;
++
++/*
++ * Update the vDSO data page to keep in sync with kernel timekeeping.
++ */
++static __always_inline struct vdso_data *__riscv_get_k_vdso_data(void)
++{
++	return vdso_data;
++}
++
++#define __arch_get_k_vdso_data __riscv_get_k_vdso_data
++
++/* The asm-generic header needs to be included after the definitions above */
++#include <asm-generic/vdso/vsyscall.h>
++
++#endif /* !__ASSEMBLY__ */
++
++#endif /* __ASM_VDSO_VSYSCALL_H */
+diff --git a/arch/riscv/kernel/time.c b/arch/riscv/kernel/time.c
+index 6a53c02..4d3a104 100644
+--- a/arch/riscv/kernel/time.c
++++ b/arch/riscv/kernel/time.c
+@@ -26,3 +26,12 @@ void __init time_init(void)
+ 	lpj_fine = riscv_timebase / HZ;
+ 	timer_probe();
+ }
++
++void clocksource_arch_init(struct clocksource *cs)
++{
++#ifdef CONFIG_GENERIC_GETTIMEOFDAY
++	cs->vdso_clock_mode = VDSO_CLOCKMODE_ARCHTIMER;
++#else
++	cs->vdso_clock_mode = VDSO_CLOCKMODE_NONE;
++#endif
++}
+diff --git a/arch/riscv/kernel/vdso.c b/arch/riscv/kernel/vdso.c
+index 484d95a..9445033 100644
+--- a/arch/riscv/kernel/vdso.c
++++ b/arch/riscv/kernel/vdso.c
+@@ -11,8 +11,12 @@
+ #include <linux/slab.h>
+ #include <linux/binfmts.h>
+ #include <linux/err.h>
+-
++#include <asm/page.h>
++#ifdef GENERIC_TIME_VSYSCALL
++#include <vdso/datapage.h>
++#else
+ #include <asm/vdso.h>
++#endif
+ 
+ extern char vdso_start[], vdso_end[];
+ 
+@@ -26,7 +30,7 @@ static union {
+ 	struct vdso_data	data;
+ 	u8			page[PAGE_SIZE];
+ } vdso_data_store __page_aligned_data;
+-static struct vdso_data *vdso_data = &vdso_data_store.data;
++struct vdso_data *vdso_data = &vdso_data_store.data;
+ 
+ static int __init vdso_init(void)
+ {
+@@ -75,13 +79,22 @@ int arch_setup_additional_pages(struct linux_binprm *bprm,
+ 	 */
+ 	mm->context.vdso = (void *)vdso_base;
+ 
+-	ret = install_special_mapping(mm, vdso_base, vdso_len,
++	ret =
++	   install_special_mapping(mm, vdso_base, vdso_pages << PAGE_SHIFT,
+ 		(VM_READ | VM_EXEC | VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC),
+ 		vdso_pagelist);
+ 
+-	if (unlikely(ret))
++	if (unlikely(ret)) {
+ 		mm->context.vdso = NULL;
++		goto end;
++	}
+ 
++	vdso_base += (vdso_pages << PAGE_SHIFT);
++	ret = install_special_mapping(mm, vdso_base, PAGE_SIZE,
++		(VM_READ | VM_MAYREAD), &vdso_pagelist[vdso_pages]);
++
++	if (unlikely(ret))
++		mm->context.vdso = NULL;
+ end:
+ 	up_write(&mm->mmap_sem);
+ 	return ret;
+@@ -91,5 +104,8 @@ const char *arch_vma_name(struct vm_area_struct *vma)
+ {
+ 	if (vma->vm_mm && (vma->vm_start == (long)vma->vm_mm->context.vdso))
+ 		return "[vdso]";
++	if (vma->vm_mm && (vma->vm_start ==
++			   (long)vma->vm_mm->context.vdso + PAGE_SIZE))
++		return "[vdso_data]";
+ 	return NULL;
+ }
+diff --git a/arch/riscv/kernel/vdso/Makefile b/arch/riscv/kernel/vdso/Makefile
+index 4c8b2a4..38ba55b 100644
+--- a/arch/riscv/kernel/vdso/Makefile
++++ b/arch/riscv/kernel/vdso/Makefile
+@@ -1,12 +1,14 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ # Copied from arch/tile/kernel/vdso/Makefile
+ 
++# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
++# the inclusion of generic Makefile.
++ARCH_REL_TYPE_ABS := R_RISCV_32|R_RISCV_64|R_RISCV_JUMP_SLOT
++include $(srctree)/lib/vdso/Makefile
+ # Symbols present in the vdso
+ vdso-syms  = rt_sigreturn
+ ifdef CONFIG_64BIT
+-vdso-syms += gettimeofday
+-vdso-syms += clock_gettime
+-vdso-syms += clock_getres
++vdso-syms += vgettimeofday
+ endif
+ vdso-syms += getcpu
+ vdso-syms += flush_icache
+@@ -14,6 +16,10 @@ vdso-syms += flush_icache
+ # Files to link into the vdso
+ obj-vdso = $(patsubst %, %.o, $(vdso-syms)) note.o
+ 
++ifneq ($(c-gettimeofday-y),)
++  CFLAGS_vgettimeofday.o += -include $(c-gettimeofday-y)
++endif
++
+ # Build rules
+ targets := $(obj-vdso) vdso.so vdso.so.dbg vdso.lds vdso-dummy.o
+ obj-vdso := $(addprefix $(obj)/, $(obj-vdso))
+diff --git a/arch/riscv/kernel/vdso/clock_getres.S b/arch/riscv/kernel/vdso/clock_getres.S
+deleted file mode 100644
+index 91378a5..00000000
+--- a/arch/riscv/kernel/vdso/clock_getres.S
++++ /dev/null
+@@ -1,18 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0-only */
+-/*
+- * Copyright (C) 2017 SiFive
+- */
+-
+-#include <linux/linkage.h>
+-#include <asm/unistd.h>
+-
+-	.text
+-/* int __vdso_clock_getres(clockid_t clock_id, struct timespec *res); */
+-ENTRY(__vdso_clock_getres)
+-	.cfi_startproc
+-	/* For now, just do the syscall. */
+-	li a7, __NR_clock_getres
+-	ecall
+-	ret
+-	.cfi_endproc
+-ENDPROC(__vdso_clock_getres)
+diff --git a/arch/riscv/kernel/vdso/clock_gettime.S b/arch/riscv/kernel/vdso/clock_gettime.S
+deleted file mode 100644
+index 5371fd9..00000000
+--- a/arch/riscv/kernel/vdso/clock_gettime.S
++++ /dev/null
+@@ -1,18 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0-only */
+-/*
+- * Copyright (C) 2017 SiFive
+- */
+-
+-#include <linux/linkage.h>
+-#include <asm/unistd.h>
+-
+-	.text
+-/* int __vdso_clock_gettime(clockid_t clock_id, struct timespec *tp); */
+-ENTRY(__vdso_clock_gettime)
+-	.cfi_startproc
+-	/* For now, just do the syscall. */
+-	li a7, __NR_clock_gettime
+-	ecall
+-	ret
+-	.cfi_endproc
+-ENDPROC(__vdso_clock_gettime)
+diff --git a/arch/riscv/kernel/vdso/gettimeofday.S b/arch/riscv/kernel/vdso/gettimeofday.S
+deleted file mode 100644
+index e6fb8af..00000000
+--- a/arch/riscv/kernel/vdso/gettimeofday.S
++++ /dev/null
+@@ -1,18 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0-only */
+-/*
+- * Copyright (C) 2017 SiFive
+- */
+-
+-#include <linux/linkage.h>
+-#include <asm/unistd.h>
+-
+-	.text
+-/* int __vdso_gettimeofday(struct timeval *tv, struct timezone *tz); */
+-ENTRY(__vdso_gettimeofday)
+-	.cfi_startproc
+-	/* For now, just do the syscall. */
+-	li a7, __NR_gettimeofday
+-	ecall
+-	ret
+-	.cfi_endproc
+-ENDPROC(__vdso_gettimeofday)
+diff --git a/arch/riscv/kernel/vdso/vdso.lds.S b/arch/riscv/kernel/vdso/vdso.lds.S
+index f66a091..e6f558b 100644
+--- a/arch/riscv/kernel/vdso/vdso.lds.S
++++ b/arch/riscv/kernel/vdso/vdso.lds.S
+@@ -2,11 +2,13 @@
+ /*
+  * Copyright (C) 2012 Regents of the University of California
+  */
++#include <asm/page.h>
+ 
+ OUTPUT_ARCH(riscv)
+ 
+ SECTIONS
+ {
++	PROVIDE(_vdso_data = . + PAGE_SIZE);
+ 	. = SIZEOF_HEADERS;
+ 
+ 	.hash		: { *(.hash) }			:text
+diff --git a/arch/riscv/kernel/vdso/vgettimeofday.c b/arch/riscv/kernel/vdso/vgettimeofday.c
+new file mode 100644
+index 00000000..d264943
+--- /dev/null
++++ b/arch/riscv/kernel/vdso/vgettimeofday.c
+@@ -0,0 +1,25 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Copied from arch/arm64/kernel/vdso/vgettimeofday.c
++ *
++ * Copyright (C) 2018 ARM Ltd.
++ * Copyright (C) 2020 SiFive
++ */
++
++#include <linux/time.h>
++#include <linux/types.h>
++
++int __vdso_clock_gettime(clockid_t clock, struct __kernel_timespec *ts)
++{
++	return __cvdso_clock_gettime(clock, ts);
++}
++
++int __vdso_gettimeofday(struct __kernel_old_timeval *tv, struct timezone *tz)
++{
++	return __cvdso_gettimeofday(tv, tz);
++}
++
++int __vdso_clock_getres(clockid_t clock_id, struct __kernel_timespec *res)
++{
++	return __cvdso_clock_getres(clock_id, res);
++}
+-- 
+2.7.4
+
