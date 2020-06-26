@@ -127,6 +127,7 @@ IMAGE_INSTALL = "\
     libstdc++-staticdev \
     dtc \
     pcimem \
+    jq \
     ${CORE_IMAGE_EXTRA_INSTALL} \
     "
 
