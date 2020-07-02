@@ -104,9 +104,9 @@ IMAGE_INSTALL = "\
     ${CORE_IMAGE_EXTRA_INSTALL} \
     "
 
-IMAGE_INSTALL_append_freedom-u540 = "\
-    unleashed-udev-rules \
-    "
+#IMAGE_INSTALL_append_freedom-u540 = "\
+#    unleashed-udev-rules \
+#    "
 
 inherit core-image extrausers
 
