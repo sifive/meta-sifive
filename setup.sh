@@ -103,7 +103,7 @@ SECURITY_CFLAGS_pn-opensbi = ""
 SECURITY_LDFLAGS_pn-opensbi = ""
 
 # We need at least 10.0.0 for mesa to support modern AMD GPUs
-LLVMVERSION = "10.0.0"
+LLVMVERSION = "10.0.1"
 
 # Add r600 drivers for AMD GPU
 PACKAGECONFIG_append_pn-mesa = " r600"
