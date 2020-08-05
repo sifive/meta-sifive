@@ -127,6 +127,7 @@ IMAGE_INSTALL = "\
     dtc \
     pcimem \
     jq \
+    hdparm \
     ${CORE_IMAGE_EXTRA_INSTALL} \
     "
 
