@@ -16,13 +16,13 @@ For more information on particular release see `ReleaseNotes` directory in [free
 
 For advanced OE usage we advice to look into the following third-party manuals:
 
-- [BitBake User Manual 3.1 by Yocto](https://www.yoctoproject.org/docs/3.1/bitbake-user-manual/bitbake-user-manual.html)
+- [BitBake User Manual 3.1.2 by Yocto](https://www.yoctoproject.org/docs/3.1.2/bitbake-user-manual/bitbake-user-manual.html)
 
-- [Yocto Project Reference Manual 3.1 by Yocto](https://www.yoctoproject.org/docs/3.1/ref-manual/ref-manual.html)
+- [Yocto Project Reference Manual 3.1.2 by Yocto](https://www.yoctoproject.org/docs/3.1.2/ref-manual/ref-manual.html)
 
-- [Yocto Project Complete Documentation \(MegaManual\) Set 3.1 by Yocto](https://www.yoctoproject.org/docs/3.1/mega-manual/mega-manual.html)
+- [Yocto Project Complete Documentation \(MegaManual\) Set 3.1.2 by Yocto](https://www.yoctoproject.org/docs/3.1.2/mega-manual/mega-manual.html)
 
-- [A practical guide to BitBake by Harald Achitz](https://a4z.bitbucket.io/docs/BitBake/guide.html)
+- [A practical guide to BitBake by Harald Achitz](https://a4z.gitlab.io/docs/BitBake/guide.html)
 
 ## Quick Start
 
