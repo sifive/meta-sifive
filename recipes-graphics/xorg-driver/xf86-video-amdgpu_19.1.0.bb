@@ -12,6 +12,9 @@ DEPENDS += "virtual/libx11 libxvmc drm \
 inherit features_check
 REQUIRED_DISTRO_FEATURES += "opengl"
 
+SRC_URI_append = " file://edcbe5f52ddfceee3d66d69bbcebbceac06b6d0d.patch \
+                   "
+
 SRC_URI[md5sum] = "55ad19b858e186a2cf4e91ed832c05e7"
 SRC_URI[sha256sum] = "4f0ea4e0ae61995ac2b7c72433d31deab63b60c78763020aaa1b28696124fe5d"
 
