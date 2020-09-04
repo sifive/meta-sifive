@@ -103,6 +103,8 @@ do_compile () {
     unset CFLAGS
     unset CPPFLAGS
 
+    export OPENSBI=${DEPLOY_DIR_IMAGE}/fw_dynamic.bin
+
     if [ ! -e ${B}/.scmversion -a ! -e ${S}/.scmversion ]
     then
         echo ${UBOOT_LOCALVERSION} > ${B}/.scmversion

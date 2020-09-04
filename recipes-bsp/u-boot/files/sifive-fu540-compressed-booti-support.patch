@@ -1,0 +1,13 @@
+diff --git a/include/configs/sifive-fu540.h b/include/configs/sifive-fu540.h
+index 72c841e..a6a900d 100644
+--- a/include/configs/sifive-fu540.h
++++ b/include/configs/sifive-fu540.h
+@@ -64,6 +64,8 @@
+ 	"scriptaddr=0x88100000\0" \
+ 	"pxefile_addr_r=0x88200000\0" \
+ 	"ramdisk_addr_r=0x88300000\0" \
++	"kernel_comp_addr_r=0x90000000\0" \
++	"kernel_comp_size=0x4000000\0" \
+ 	"type_guid_gpt_loader1=" TYPE_GUID_LOADER1 "\0" \
+ 	"type_guid_gpt_loader2=" TYPE_GUID_LOADER2 "\0" \
+ 	"type_guid_gpt_system=" TYPE_GUID_SYSTEM "\0" \
