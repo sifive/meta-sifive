@@ -20,8 +20,8 @@ SRC_URI = "git://github.com/yquake2/yquake2.git \
            file://remove-root-protections.patch \
            file://use-pkg-config.patch"
 
-# Tag: QUAKE2_7_41
-SRCREV = "8bcb8f849c76c06d1f9df983d8c0c9bafb65d534"
+# Tag: QUAKE2_7_43
+SRCREV = "d08cf04d2d5d3ffa0b10eee2e300094571423031"
 S = "${WORKDIR}/git"
 
 FILES_${PN} += "${libdir}/games/${PN}/* ${datadir}/icons/hicolor/512x512/apps/${PN}.png"
