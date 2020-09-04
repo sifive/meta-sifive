@@ -88,16 +88,8 @@ DISTRO_FEATURES_BACKFILL_CONSIDERED += "sysvinit"
 VIRTUAL-RUNTIME_init_manager = "systemd"
 HOSTTOOLS_NONFATAL_append = " ssh"
 
-# Disable broken bbappend in meta-riscv layer
-BBMASK += "openssl_1.1.1e.bbappend"
-
 # We use NetworkManager instead
 PACKAGECONFIG_remove_pn-systemd = "networkd"
-
-# Disable security flags for bootloaders
-# Security flags incl. smatch protector which is not supported in these packages
-SECURITY_CFLAGS_pn-freedom-u540-c000-bootloader = ""
-SECURITY_LDFLAGS_pn-freedom-u540-c000-bootloader = ""
 
 SECURITY_CFLAGS_pn-opensbi = ""
 SECURITY_LDFLAGS_pn-opensbi = ""
@@ -109,6 +101,7 @@ PACKAGECONFIG_append_pn-mesa = " r600"
 PACKAGECONFIG_append_pn-mesa = " radeonsi"
 PACKAGECONFIG_append_pn-mesa = " gallium-llvm"
 
+QEMU_TARGETS="riscv64"
 EOF
 fi
 
