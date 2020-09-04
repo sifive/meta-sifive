@@ -10,7 +10,6 @@ IMAGE_FEATURES += "\
     dev-pkgs \
     dbg-pkgs \
     nfs-client \
-    nfs-server \
     x11-base"
 
 IMAGE_INSTALL = "\

@@ -9,8 +9,7 @@ IMAGE_FEATURES += "\
     doc-pkgs \
     dev-pkgs \
     dbg-pkgs \
-    nfs-client \
-    nfs-server"
+    nfs-client"
 
 IMAGE_INSTALL = "\
     packagegroup-core-boot \

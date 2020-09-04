@@ -8,8 +8,7 @@ IMAGE_FEATURES += "\
     tools-profile \
     doc-pkgs \
     dev-pkgs \
-    nfs-client \
-    nfs-server"
+    nfs-client"
 
 IMAGE_INSTALL = "\
     packagegroup-core-boot \
