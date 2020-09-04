@@ -4,7 +4,7 @@ LINUX_VERSION ?= "5.8.x"
 KERNEL_VERSION_SANITY_SKIP="1"
 
 BRANCH = "linux-5.8.y"
-SRCREV = "v5.8.1"
+SRCREV = "v5.8.2"
 SRC_URI = " \
     git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git;branch=${BRANCH} \
 "
