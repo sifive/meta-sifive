@@ -84,7 +84,7 @@ IMAGE_INSTALL = "\
     xf86-video-amdgpu \
     linux-firmware \
     quake2 \
-    dhcp-client \
+    dhcpcd \
     nbd-client \
     mpfr-dev \
     gmp-dev \

@@ -57,7 +57,7 @@ IMAGE_INSTALL = "\
     screen \
     tmux \
     stress-ng \
-    dhcp-client \
+    dhcpcd \
     nbd-client \
     mpfr-dev \
     gmp-dev \
