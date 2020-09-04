@@ -128,6 +128,7 @@ IMAGE_INSTALL = "\
     pcimem \
     jq \
     hdparm \
+    udev-extraconf \
     ${CORE_IMAGE_EXTRA_INSTALL} \
     "
 
