@@ -3,8 +3,6 @@ DESCRIPTION = "OpenSBI aims to provide an open-source and extensible implementat
 LICENSE = "BSD-2-Clause"
 LIC_FILES_CHKSUM = "file://COPYING.BSD;md5=42dd9555eb177f35150cf9aa240b61e5"
 
-require opensbi-payloads.inc
-
 inherit autotools-brokensep deploy
 
 SRCREV = "v0.8"
@@ -15,11 +13,6 @@ SRC_URI = "git://github.com/riscv/opensbi.git \
 S = "${WORKDIR}/git"
 
 EXTRA_OEMAKE += "PLATFORM=${RISCV_SBI_PLAT} I=${D} INSTALL_LIB_PATH=lib"
-# If RISCV_SBI_PAYLOAD is set then include it as a payload
-EXTRA_OEMAKE_append = " ${@riscv_get_extra_oemake_image(d)}"
-
-# Required if specifying a custom payload
-do_compile[depends] += "${@riscv_get_do_compile_depends(d)}"
 
 do_install_append() {
 	# In the future these might be required as a dependency for other packages.
