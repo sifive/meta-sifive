@@ -1,0 +1,1014 @@
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index b0a7a37b2..b28797e4f 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -305,6 +305,13 @@ config RISCV_BASE_PMU
+ 	  feature of perf.  It can run on any RISC-V machines so serves as the
+ 	  fallback, but this option can also be disable to reduce kernel size.
+ 
++config U54_PMU
++    bool "SiFive U54's Performance Monitoring Unit"
++    def_bool n
++    depends on RISCV_SBI
++    help
++      Enable SiFive U54's Performance Monitoring Unit in kernel level
++
+ endmenu
+ 
+ config FPU
+diff --git a/arch/riscv/include/asm/csr.h b/arch/riscv/include/asm/csr.h
+index cec462e19..8f6076374 100644
+--- a/arch/riscv/include/asm/csr.h
++++ b/arch/riscv/include/asm/csr.h
+@@ -111,6 +111,13 @@
+ #define CSR_PMPADDR0		0x3b0
+ #define CSR_MHARTID		0xf14
+ 
++
++#ifdef CONFIG_U54_PMU
++#define CSR_HPMCOUNTER3 0xC03
++#define CSR_HPMCOUNTER4 0xC04
++#endif
++
++
+ #ifdef CONFIG_RISCV_M_MODE
+ # define CSR_STATUS	CSR_MSTATUS
+ # define CSR_IE		CSR_MIE
+diff --git a/arch/riscv/include/asm/perf_event.h b/arch/riscv/include/asm/perf_event.h
+index 062efd3a1..aaffb44f9 100644
+--- a/arch/riscv/include/asm/perf_event.h
++++ b/arch/riscv/include/asm/perf_event.h
+@@ -15,11 +15,18 @@
+ #ifdef CONFIG_RISCV_BASE_PMU
+ #define RISCV_BASE_COUNTERS	2
+ 
++#ifdef CONFIG_U54_PMU
++#define U54_PMU_COUNTERS    2
++#endif
++
+ /*
+  * The RISCV_MAX_COUNTERS parameter should be specified.
+  */
+-
++#ifdef CONFIG_U54_PMU
++#define RISCV_MAX_COUNTERS  4
++#else
+ #define RISCV_MAX_COUNTERS	2
++#endif
+ 
+ /*
+  * These are the indexes of bits in counteren register *minus* 1,
+@@ -42,6 +49,51 @@
+ 
+ #define RISCV_OP_UNSUPP		(-EOPNOTSUPP)
+ 
++#ifdef CONFIG_U54_PMU
++enum u54pmu_attr_groups {
++      U54_PMU_ATTR_GROUP_EVENTS,
++      U54_PMU_ATTR_GROUP_FORMATS,
++      U54_PMU_NR_ATTR_GROUPS
++};
++
++#define                U54_EXCEPTION_TAKEN             ((1<<8) | 0)
++#define                U54_INTEGER_LD                  ((1<<9) | 0)
++#define                U54_INTEGER_ST                  ((1<<10) | 0)
++#define                U54_AMO_INST                    ((1<<11) | 0)
++#define                U54_SYS_INST                    ((1<<12) | 0)
++#define                U54_INTEGER_ARITH               ((1<<13) | 0)
++#define                U54_COND_BRANCH                 ((1<<14) | 0)
++#define                U54_JAL_INST                    ((1<<15) | 0)
++#define                U54_JALR_INST                   ((1<<16) | 0)
++#define                U54_INTEGER_MULTI               ((1<<17) | 0)
++#define                U54_INTEGER_DIV                 ((1<<18) | 0)
++#define                U54_FLOAT_LD                    ((1<<19) | 0)
++#define                U54_FLOAT_ST                    ((1<<20) | 0)
++#define                U54_FLOAT_ADD                   ((1<<21) | 0)
++#define                U54_FLOAT_MULTI                 ((1<<22) | 0)
++#define                U54_FLOAT_MULTI_ADD             ((1<<23) | 0)
++#define                U54_FLOAT_DIV_SQRT              ((1<<24) | 0)
++#define                U54_FLOAT_OTHER                 ((1<<25) | 0)
++
++#define                U54_LD_INTER_LOCK               ((1<<8) | 1)
++#define                U54_LONG_LATENCY_INTER_LOCK     ((1<<9) | 1)
++#define                U54_CSR_RD_INTER_LOCK           ((1<<10) | 1)
++#define                U54_ICACHE_ITIM_BUSY            ((1<<11) | 1)
++#define                U54_DCACHE_DTIM_BUSY            ((1<<12) | 1)
++#define                U54_BRANCH_DIR_MIS              ((1<<13) | 1)
++#define                U54_BRANCH_JMP_TARGET_MIS       ((1<<14) | 1)
++#define                U54_PIPE_FLUSH_CSR_WR           ((1<<15) | 1)
++#define                U54_PIPE_FLUSH_OTHER            ((1<<16) | 1)
++#define                U54_INTEGER_MULTI_INTER_LOCK    ((1<<17) | 1)
++#define                U54_FLOAT_INTER_LOCK            ((1<<18) | 1)
++
++#define                U54_ICACHE_MIS                  ((1<<8) | 2)
++#define                U54_DCACHE_MIS_MMIO             ((1<<9) | 2)
++#define                U54_DCACHE_WB                   ((1<<10) | 2)
++#define                U54_ITLB_MIS                    ((1<<11) | 2)
++#define                U54_DTLB_MIS                    ((1<<12) | 2)
++#endif
++
+ struct cpu_hw_events {
+ 	/* # currently enabled events*/
+ 	int			n_events;
+@@ -63,6 +115,10 @@ struct riscv_pmu {
+ 	int		(*map_hw_event)(u64 config);
+ 	int		(*map_cache_event)(u64 config);
+ 
++#ifdef CONFIG_U54_PMU
++    int     (*map_raw_event)(u64 config);
++#endif
++
+ 	/* max generic hw events in map */
+ 	int		max_events;
+ 	/* number total counters, 2(base) + x(general) */
+diff --git a/arch/riscv/include/asm/sbi.h b/arch/riscv/include/asm/sbi.h
+index 653edb25d..5c2d8956b 100644
+--- a/arch/riscv/include/asm/sbi.h
++++ b/arch/riscv/include/asm/sbi.h
+@@ -21,6 +21,9 @@ enum sbi_ext_id {
+ 	SBI_EXT_0_1_REMOTE_SFENCE_VMA = 0x6,
+ 	SBI_EXT_0_1_REMOTE_SFENCE_VMA_ASID = 0x7,
+ 	SBI_EXT_0_1_SHUTDOWN = 0x8,
++#endif
++#ifdef CONFIG_U54_PMU
++	SBI_EXT_PMU_SET_EVENT = 0x9,
+ #endif
+ 	SBI_EXT_BASE = 0x10,
+ 	SBI_EXT_TIME = 0x54494D45,
+@@ -146,6 +149,13 @@ static inline unsigned long sbi_minor_version(void)
+ }
+ 
+ int sbi_err_map_linux_errno(int err);
++
++#ifdef CONFIG_U54_PMU
++long sbi_set_event_code(u64 idx, u64 type);
++long sbi_start_event_counting(u64 idx, u64 type);
++long sbi_stop_event_counting(u64 idx);
++#endif
++
+ #else /* CONFIG_RISCV_SBI */
+ /* stubs for code that is only reachable under IS_ENABLED(CONFIG_RISCV_SBI): */
+ void sbi_set_timer(uint64_t stime_value);
+diff --git a/arch/riscv/kernel/perf_event.c b/arch/riscv/kernel/perf_event.c
+index c835f0362..602fab8f7 100644
+--- a/arch/riscv/kernel/perf_event.c
++++ b/arch/riscv/kernel/perf_event.c
+@@ -31,6 +31,7 @@
+ #include <linux/atomic.h>
+ #include <linux/of.h>
+ #include <asm/perf_event.h>
++#include <asm/sbi.h>
+ 
+ static const struct riscv_pmu *riscv_pmu __read_mostly;
+ static DEFINE_PER_CPU(struct cpu_hw_events, cpu_hw_events);
+@@ -39,6 +40,17 @@ static DEFINE_PER_CPU(struct cpu_hw_events, cpu_hw_events);
+  * Hardware & cache maps and their methods
+  */
+ 
++#ifdef CONFIG_U54_PMU
++static const int riscv_hw_event_map[] = {
++       [PERF_COUNT_HW_CPU_CYCLES]              = RISCV_PMU_CYCLE,
++       [PERF_COUNT_HW_INSTRUCTIONS]            = RISCV_PMU_INSTRET,
++       [PERF_COUNT_HW_CACHE_REFERENCES]        = U54_DCACHE_DTIM_BUSY,
++       [PERF_COUNT_HW_CACHE_MISSES]            = U54_DCACHE_MIS_MMIO,
++       [PERF_COUNT_HW_BRANCH_INSTRUCTIONS]     = U54_COND_BRANCH | U54_JAL_INST | U54_JALR_INST,
++       [PERF_COUNT_HW_BRANCH_MISSES]           = U54_BRANCH_DIR_MIS | U54_BRANCH_JMP_TARGET_MIS,
++       [PERF_COUNT_HW_BUS_CYCLES]              = RISCV_OP_UNSUPP,
++};
++#else
+ static const int riscv_hw_event_map[] = {
+ 	[PERF_COUNT_HW_CPU_CYCLES]		= RISCV_PMU_CYCLE,
+ 	[PERF_COUNT_HW_INSTRUCTIONS]		= RISCV_PMU_INSTRET,
+@@ -48,8 +60,99 @@ static const int riscv_hw_event_map[] = {
+ 	[PERF_COUNT_HW_BRANCH_MISSES]		= RISCV_OP_UNSUPP,
+ 	[PERF_COUNT_HW_BUS_CYCLES]		= RISCV_OP_UNSUPP,
+ };
++#endif
+ 
+ #define C(x) PERF_COUNT_HW_CACHE_##x
++#ifdef CONFIG_U54_PMU
++static const int riscv_cache_event_map[PERF_COUNT_HW_CACHE_MAX]
++[PERF_COUNT_HW_CACHE_OP_MAX]
++[PERF_COUNT_HW_CACHE_RESULT_MAX] = {
++       [C(L1D)] = {
++               [C(OP_READ)] = {
++                       [C(RESULT_ACCESS)] = U54_DCACHE_DTIM_BUSY,
++                       [C(RESULT_MISS)] = U54_DCACHE_MIS_MMIO,
++               },
++               [C(OP_WRITE)] = {
++                       [C(RESULT_ACCESS)] = U54_DCACHE_DTIM_BUSY,
++                       [C(RESULT_MISS)] = U54_DCACHE_MIS_MMIO,
++               },
++               [C(OP_PREFETCH)] = {
++                       [C(RESULT_ACCESS)] = U54_DCACHE_DTIM_BUSY,
++                       [C(RESULT_MISS)] = U54_DCACHE_MIS_MMIO,
++               },
++       },
++       [C(L1I)] = {
++               [C(OP_READ)] = {
++                       [C(RESULT_ACCESS)] = U54_ICACHE_ITIM_BUSY,
++                       [C(RESULT_MISS)] = U54_ICACHE_MIS,
++               },
++               [C(OP_WRITE)] = {
++                       [C(RESULT_ACCESS)] = U54_ICACHE_ITIM_BUSY,
++                       [C(RESULT_MISS)] = U54_ICACHE_MIS,
++               },
++               [C(OP_PREFETCH)] = {
++                       [C(RESULT_ACCESS)] = U54_ICACHE_ITIM_BUSY,
++                       [C(RESULT_MISS)] = U54_ICACHE_MIS,
++               },
++       },
++       [C(LL)] = {
++               [C(OP_READ)] = {
++                       [C(RESULT_ACCESS)] = RISCV_OP_UNSUPP,
++                       [C(RESULT_MISS)] = RISCV_OP_UNSUPP,
++               },
++               [C(OP_WRITE)] = {
++                       [C(RESULT_ACCESS)] = RISCV_OP_UNSUPP,
++                       [C(RESULT_MISS)] = RISCV_OP_UNSUPP,
++               },
++               [C(OP_PREFETCH)] = {
++                       [C(RESULT_ACCESS)] = RISCV_OP_UNSUPP,
++                       [C(RESULT_MISS)] = RISCV_OP_UNSUPP,
++               },
++       },
++       [C(DTLB)] = {
++               [C(OP_READ)] = {
++                       [C(RESULT_ACCESS)] =  RISCV_OP_UNSUPP,
++                       [C(RESULT_MISS)] =  U54_DTLB_MIS,
++               },
++               [C(OP_WRITE)] = {
++                       [C(RESULT_ACCESS)] = RISCV_OP_UNSUPP,
++                       [C(RESULT_MISS)] = RISCV_OP_UNSUPP,
++               },
++               [C(OP_PREFETCH)] = {
++                       [C(RESULT_ACCESS)] = RISCV_OP_UNSUPP,
++                       [C(RESULT_MISS)] = RISCV_OP_UNSUPP,
++               },
++       },
++       [C(ITLB)] = {
++               [C(OP_READ)] = {
++                       [C(RESULT_ACCESS)] = RISCV_OP_UNSUPP,
++                       [C(RESULT_MISS)] = U54_ITLB_MIS,
++               },
++               [C(OP_WRITE)] = {
++                       [C(RESULT_ACCESS)] = RISCV_OP_UNSUPP,
++                       [C(RESULT_MISS)] = RISCV_OP_UNSUPP,
++               },
++               [C(OP_PREFETCH)] = {
++                       [C(RESULT_ACCESS)] = RISCV_OP_UNSUPP,
++                       [C(RESULT_MISS)] = RISCV_OP_UNSUPP,
++               },
++       },
++       [C(BPU)] = {
++               [C(OP_READ)] = {
++                       [C(RESULT_ACCESS)] = RISCV_OP_UNSUPP,
++                       [C(RESULT_MISS)] = RISCV_OP_UNSUPP,
++               },
++               [C(OP_WRITE)] = {
++                       [C(RESULT_ACCESS)] = RISCV_OP_UNSUPP,
++                       [C(RESULT_MISS)] = RISCV_OP_UNSUPP,
++               },
++               [C(OP_PREFETCH)] = {
++                       [C(RESULT_ACCESS)] = RISCV_OP_UNSUPP,
++                       [C(RESULT_MISS)] = RISCV_OP_UNSUPP,
++               },
++       },
++};
++#else
+ static const int riscv_cache_event_map[PERF_COUNT_HW_CACHE_MAX]
+ [PERF_COUNT_HW_CACHE_OP_MAX]
+ [PERF_COUNT_HW_CACHE_RESULT_MAX] = {
+@@ -138,6 +241,7 @@ static const int riscv_cache_event_map[PERF_COUNT_HW_CACHE_MAX]
+ 		},
+ 	},
+ };
++#endif
+ 
+ static int riscv_map_hw_event(u64 config)
+ {
+@@ -150,7 +254,14 @@ static int riscv_map_hw_event(u64 config)
+ static int riscv_map_cache_decode(u64 config, unsigned int *type,
+ 			   unsigned int *op, unsigned int *result)
+ {
++#ifdef CONFIG_U54_PMU
++	*type = config & 0xFF;
++	*op = (config >> 8) & 0xFF;
++	*result = (config >> 16) & 0xFF;
++	return 0;
++#else
+ 	return -ENOENT;
++#endif
+ }
+ 
+ static int riscv_map_cache_event(u64 config)
+@@ -175,6 +286,108 @@ static int riscv_map_cache_event(u64 config)
+ 	return code;
+ }
+ 
++
++#ifdef CONFIG_U54_PMU
++static u64 u54_config_table[] = {
++         U54_EXCEPTION_TAKEN            ,
++         U54_INTEGER_LD                 ,
++         U54_INTEGER_ST                 ,
++         U54_AMO_INST                   ,
++         U54_SYS_INST                   ,
++         U54_INTEGER_ARITH              ,
++         U54_COND_BRANCH                ,
++         U54_JAL_INST                   ,
++         U54_JALR_INST                  ,
++         U54_INTEGER_MULTI              ,
++         U54_INTEGER_DIV                ,
++         U54_FLOAT_LD                   ,
++         U54_FLOAT_ST                   ,
++         U54_FLOAT_ADD                  ,
++         U54_FLOAT_MULTI                ,
++         U54_FLOAT_MULTI_ADD            ,
++         U54_FLOAT_DIV_SQRT             ,
++         U54_FLOAT_OTHER                ,
++
++         U54_LD_INTER_LOCK              ,
++         U54_LONG_LATENCY_INTER_LOCK    ,
++         U54_CSR_RD_INTER_LOCK          ,
++         U54_ICACHE_ITIM_BUSY           ,
++         U54_DCACHE_DTIM_BUSY           ,
++         U54_BRANCH_DIR_MIS             ,
++         U54_BRANCH_JMP_TARGET_MIS      ,
++         U54_PIPE_FLUSH_CSR_WR          ,
++         U54_PIPE_FLUSH_OTHER           ,
++         U54_INTEGER_MULTI_INTER_LOCK   ,
++         U54_FLOAT_INTER_LOCK           ,
++
++
++         U54_ICACHE_MIS                 ,
++         U54_DCACHE_MIS_MMIO            ,
++         U54_DCACHE_WB                  ,
++         U54_ITLB_MIS                   ,
++         U54_DTLB_MIS                   ,
++
++};
++
++static int riscv_map_u54_pmu_event(u64 config)
++{
++	switch (config & 0xFF) {
++		case 0:
++			if (config & 0xFFFFFFFFFC000000ULL)
++				return RISCV_OP_UNSUPP;
++			if (config & 0x3FFFF00)
++				return config;
++			break;
++		case 1:
++			if (config & 0xFFFFFFFFFFF80000ULL)
++				return RISCV_OP_UNSUPP;
++			if (config & 0x7FF00)
++				return config;
++			break;
++		case 2:
++			if (config & 0xFFFFFFFFFFFFE000ULL)
++				return RISCV_OP_UNSUPP;
++			if (config & 0x1F00)
++				return config;
++			break;
++		default:
++			break;
++
++	}
++
++	return RISCV_OP_UNSUPP;
++}
++
++
++static inline u64 read_counter(int idx)
++{
++       u64 val = 0;
++
++       if (idx < 0 || idx >= RISCV_BASE_COUNTERS + U54_PMU_COUNTERS)
++               return -EINVAL;
++
++       switch (idx) {
++       case RISCV_PMU_CYCLE:
++            val = csr_read(CSR_CYCLE);
++            break;
++       case RISCV_PMU_INSTRET:
++            val = csr_read(CSR_INSTRET);
++            break;
++       case RISCV_PMU_MHPMCOUNTER3:
++			val = csr_read(CSR_HPMCOUNTER3);
++			break;
++       case RISCV_PMU_MHPMCOUNTER4:
++			val = csr_read(CSR_HPMCOUNTER4);
++			break;
++       default:
++            WARN_ON_ONCE(idx < 0 || idx > RISCV_MAX_COUNTERS);
++            return -EINVAL;
++       }
++
++       return val;
++}
++#else
++
+ /*
+  * Low-level functions: reading/writing counters
+  */
+@@ -197,6 +410,7 @@ static inline u64 read_counter(int idx)
+ 
+ 	return val;
+ }
++#endif
+ 
+ static inline void write_counter(int idx, u64 value)
+ {
+@@ -310,10 +524,47 @@ static int riscv_pmu_add(struct perf_event *event, int flags)
+ 	 * contain extra information, but here the only info we have in
+ 	 * hwc->config is the event index.
+ 	 */
++#ifdef CONFIG_U54_PMU
++	if (hwc->config == PERF_COUNT_HW_CPU_CYCLES) {
++		if (cpuc->events[RISCV_PMU_CYCLE] == NULL)
++			hwc->idx = RISCV_PMU_CYCLE;
++		else
++			return -ENOSPC;
++	} else if (hwc->config == PERF_COUNT_HW_INSTRUCTIONS) {
++		if (cpuc->events[RISCV_PMU_INSTRET] == NULL)
++			hwc->idx = RISCV_PMU_INSTRET;
++		else
++			return -ENOSPC;
++	} else {
++		int i;
++		for (i = 2; i < riscv_pmu->num_counters; i++) {
++			if(cpuc->events[i] == NULL)
++				break;
++		}
++		if (i >= riscv_pmu->num_counters)
++			return -ENOSPC;
++		hwc->idx = i;
++	}
++#else
+ 	hwc->idx = hwc->config;
++#endif
+ 	cpuc->events[hwc->idx] = event;
+ 	cpuc->n_events++;
+-
++#ifdef CONFIG_U54_PMU
++	// if (hwc->idx > RISCV_PMU_INSTRET)
++	// 	sbi_set_event_code(hwc->idx, hwc->config);
++	{
++		// u64 ecode = hwc->config;
++		// if ((ecode & 0xFF) == 0) {
++		// 	if (ecode & 0x1C000)	// branch-pred insts
++		// 		ecode |= 0x1C000;
++		// } else ((ecode & 0xFF) == 1) {
++		// 	if (ecode & 0x6000)		// branch-pred-mis
++		// 		ecode |= 0x6000;
++		// }
++		sbi_start_event_counting((u64)hwc->idx, hwc->config);
++	}
++#endif
+ 	hwc->state = PERF_HES_UPTODATE | PERF_HES_STOPPED;
+ 
+ 	if (flags & PERF_EF_START)
+@@ -330,6 +581,9 @@ static void riscv_pmu_del(struct perf_event *event, int flags)
+ 	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
+ 	struct hw_perf_event *hwc = &event->hw;
+ 
++#ifdef CONFIG_U54_PMU
++    sbi_stop_event_counting((u64)hwc->idx);
++#endif
+ 	cpuc->events[hwc->idx] = NULL;
+ 	cpuc->n_events--;
+ 	riscv_pmu->pmu->stop(event, PERF_EF_UPDATE);
+@@ -406,7 +660,12 @@ static int riscv_event_init(struct perf_event *event)
+ 		code = riscv_pmu->map_cache_event(attr->config);
+ 		break;
+ 	case PERF_TYPE_RAW:
++#ifdef CONFIG_U54_PMU
++		code = riscv_pmu->map_raw_event(attr->config);
++		break;
++#else
+ 		return -EOPNOTSUPP;
++#endif
+ 	default:
+ 		return -ENOENT;
+ 	}
+@@ -430,6 +689,152 @@ static int riscv_event_init(struct perf_event *event)
+ 	return 0;
+ }
+ 
++
++#ifdef CONFIG_U54_PMU
++
++static ssize_t
++u54pmu_events_sysfs_show(struct device *dev,
++                           struct device_attribute *attr, char *page)
++{
++        struct perf_pmu_events_attr *pmu_attr;
++
++        pmu_attr = container_of(attr, struct perf_pmu_events_attr, attr);
++
++        return sprintf(page, "event=0x%03llx\n", pmu_attr->id);
++}
++
++#define U54_EVENT_ATTR_RESOLVE(m) #m
++#define U54_EVENT_ATTR(name, config) \
++        PMU_EVENT_ATTR(name, u54_event_attr_##name, \
++                       config, u54pmu_events_sysfs_show)
++
++U54_EVENT_ATTR(cpu_cycles, RISCV_PMU_CYCLE);
++// U54_EVENT_ATTR(pmu_time, RISCV_PMU_TIME);
++U54_EVENT_ATTR(instructions, RISCV_PMU_INSTRET);
++U54_EVENT_ATTR(exccption_taken, U54_EXCEPTION_TAKEN);
++U54_EVENT_ATTR(integer_load, U54_INTEGER_LD);
++U54_EVENT_ATTR(integer_store, U54_INTEGER_ST);
++U54_EVENT_ATTR(amo_instruction, U54_AMO_INST);
++U54_EVENT_ATTR(system_instruction, U54_SYS_INST);
++U54_EVENT_ATTR(integer_arithmetic, U54_INTEGER_ARITH);
++U54_EVENT_ATTR(cond_branch, U54_COND_BRANCH);
++U54_EVENT_ATTR(jal_inst, U54_JAL_INST);
++U54_EVENT_ATTR(jalr_inst, U54_JALR_INST);
++U54_EVENT_ATTR(integer_multiply, U54_INTEGER_MULTI);
++U54_EVENT_ATTR(integer_div, U54_INTEGER_DIV);
++U54_EVENT_ATTR(float_load, U54_FLOAT_LD);
++U54_EVENT_ATTR(float_store, U54_FLOAT_ST);
++U54_EVENT_ATTR(float_add, U54_FLOAT_ADD);
++U54_EVENT_ATTR(float_multiply, U54_FLOAT_MULTI);
++U54_EVENT_ATTR(float_multiply_add, U54_FLOAT_MULTI_ADD);
++U54_EVENT_ATTR(float_div_sqrt, U54_FLOAT_DIV_SQRT);
++U54_EVENT_ATTR(float_other, U54_FLOAT_OTHER);
++
++
++U54_EVENT_ATTR(load_integer_interlock, U54_LD_INTER_LOCK);
++U54_EVENT_ATTR(long_latency_interlock, U54_LONG_LATENCY_INTER_LOCK);
++U54_EVENT_ATTR(csr_read_interlock, U54_CSR_RD_INTER_LOCK);
++U54_EVENT_ATTR(icache_itim_busy, U54_ICACHE_ITIM_BUSY);
++U54_EVENT_ATTR(dcache_dtim_busy, U54_DCACHE_DTIM_BUSY);
++U54_EVENT_ATTR(branch_direction_predict_mis, U54_BRANCH_DIR_MIS);
++U54_EVENT_ATTR(branch_jump_target_predict_mis, U54_BRANCH_JMP_TARGET_MIS);
++U54_EVENT_ATTR(pipeline_flush_from_csr_write, U54_PIPE_FLUSH_CSR_WR);
++U54_EVENT_ATTR(pipeline_flush_from_other, U54_PIPE_FLUSH_OTHER);
++U54_EVENT_ATTR(integer_multiply_interlock, U54_INTEGER_MULTI_INTER_LOCK);
++U54_EVENT_ATTR(float_interlock, U54_FLOAT_INTER_LOCK);
++
++
++U54_EVENT_ATTR(icache_mis, U54_ICACHE_MIS);
++U54_EVENT_ATTR(dcache_mis, U54_DCACHE_MIS_MMIO);
++U54_EVENT_ATTR(dcache_write_back, U54_DCACHE_WB);
++U54_EVENT_ATTR(itlb_mis, U54_ITLB_MIS);
++U54_EVENT_ATTR(dtlb_mis, U54_DTLB_MIS);
++
++static struct attribute *u54_pmuv1_event_attrs[] = {
++        &u54_event_attr_cpu_cycles.attr.attr,
++        // &u54_event_attr_pmu_time.attr.attr,
++        &u54_event_attr_instructions.attr.attr,
++        &u54_event_attr_integer_load.attr.attr,
++        &u54_event_attr_integer_store.attr.attr,
++        &u54_event_attr_amo_instruction.attr.attr,
++        &u54_event_attr_system_instruction.attr.attr,
++        &u54_event_attr_integer_arithmetic.attr.attr,
++        &u54_event_attr_cond_branch.attr.attr,
++        &u54_event_attr_jal_inst.attr.attr,
++        &u54_event_attr_jalr_inst.attr.attr,
++        &u54_event_attr_integer_multiply.attr.attr,
++        &u54_event_attr_integer_div.attr.attr,
++        &u54_event_attr_float_load.attr.attr,
++        &u54_event_attr_float_store.attr.attr,
++        &u54_event_attr_float_add.attr.attr,
++        &u54_event_attr_float_multiply.attr.attr,
++        &u54_event_attr_float_multiply_add.attr.attr,
++        &u54_event_attr_float_div_sqrt.attr.attr,
++        &u54_event_attr_float_other.attr.attr,
++        &u54_event_attr_load_integer_interlock.attr.attr,
++        &u54_event_attr_long_latency_interlock.attr.attr,
++        &u54_event_attr_csr_read_interlock.attr.attr,
++        &u54_event_attr_icache_itim_busy.attr.attr,
++        &u54_event_attr_dcache_dtim_busy.attr.attr,
++        &u54_event_attr_branch_direction_predict_mis.attr.attr,
++        &u54_event_attr_branch_jump_target_predict_mis.attr.attr,
++        &u54_event_attr_pipeline_flush_from_csr_write.attr.attr,
++        &u54_event_attr_pipeline_flush_from_other.attr.attr,
++        &u54_event_attr_integer_multiply_interlock.attr.attr,
++        &u54_event_attr_float_interlock.attr.attr,
++        &u54_event_attr_icache_mis.attr.attr,
++        &u54_event_attr_dcache_mis.attr.attr,
++        &u54_event_attr_dcache_write_back.attr.attr,
++        &u54_event_attr_itlb_mis.attr.attr,
++        &u54_event_attr_dtlb_mis.attr.attr,
++       NULL,
++};
++
++static umode_t
++u54pmuv1_event_attr_is_visible(struct kobject *kobj,
++                               struct attribute *attr, int unused)
++{
++        struct device *dev = kobj_to_dev(kobj);
++        /// struct pmu *pmu = dev_get_drvdata(dev);
++        // struct riscv_pmu *cpu_pmu = container_of(pmu, struct riscv_pmu, pmu);
++        struct perf_pmu_events_attr *pmu_attr;
++
++        pmu_attr = container_of(attr, struct perf_pmu_events_attr, attr.attr);
++
++        if (riscv_map_u54_pmu_event(pmu_attr->id) != RISCV_OP_UNSUPP)
++                return attr->mode;
++
++        return 0;
++}
++
++static struct attribute_group u54_pmuv1_events_attr_group = {
++        .name = "events",
++        .attrs = u54_pmuv1_event_attrs,
++        .is_visible = u54pmuv1_event_attr_is_visible,
++};
++
++PMU_FORMAT_ATTR(event, "config:0-15");
++PMU_FORMAT_ATTR(long, "config1:0");
++
++static struct attribute *u54_pmuv1_format_attrs[] = {
++        &format_attr_event.attr,
++        &format_attr_long.attr,
++        NULL,
++};
++
++static struct attribute_group u54_pmuv1_format_attr_group = {
++        .name = "format",
++        .attrs = u54_pmuv1_format_attrs,
++};
++
++const struct attribute_group *u54_pmu_attr_groups[U54_PMU_NR_ATTR_GROUPS + 1] = {
++       &u54_pmuv1_events_attr_group,
++       &u54_pmuv1_format_attr_group,
++       NULL
++};
++
++#endif
++
+ /*
+  * Initialization
+  */
+@@ -442,6 +847,9 @@ static struct pmu min_pmu = {
+ 	.start		= riscv_pmu_start,
+ 	.stop		= riscv_pmu_stop,
+ 	.read		= riscv_pmu_read,
++#ifdef CONFIG_U54_PMU
++	.attr_groups	= u54_pmu_attr_groups,
++#endif
+ };
+ 
+ static const struct riscv_pmu riscv_base_pmu = {
+@@ -451,8 +859,15 @@ static const struct riscv_pmu riscv_base_pmu = {
+ 	.hw_events = riscv_hw_event_map,
+ 	.map_cache_event = riscv_map_cache_event,
+ 	.cache_events = &riscv_cache_event_map,
++#ifdef CONFIG_U54_PMU
++    .map_raw_event = riscv_map_u54_pmu_event,
++#endif
+ 	.counter_width = 63,
++#ifdef CONFIG_U54_PMU
++    .num_counters = RISCV_BASE_COUNTERS + U54_PMU_COUNTERS,
++#else
+ 	.num_counters = RISCV_BASE_COUNTERS + 0,
++#endif
+ 	.handle_irq = &riscv_base_pmu_handle_irq,
+ 
+ 	/* This means this PMU has no IRQ. */
+diff --git a/arch/riscv/kernel/sbi.c b/arch/riscv/kernel/sbi.c
+index f383ef567..72bfc78fd 100644
+--- a/arch/riscv/kernel/sbi.c
++++ b/arch/riscv/kernel/sbi.c
+@@ -115,6 +115,30 @@ void sbi_clear_ipi(void)
+ }
+ EXPORT_SYMBOL(sbi_clear_ipi);
+ 
++#ifdef CONFIG_U54_PMU
++long sbi_set_event_code(u64 idx, u64 type)
++{	
++	struct sbiret ret;
++
++    ret = sbi_ecall(SBI_EXT_PMU_SET_EVENT, 0, idx, type, 0, 0, 0, 0);
++
++    return ret.error;
++}
++EXPORT_SYMBOL(sbi_set_event_code);
++
++long sbi_start_event_counting(u64 idx, u64 type)
++{
++    return sbi_set_event_code(idx, type);
++}
++EXPORT_SYMBOL(sbi_start_event_counting);
++
++long sbi_stop_event_counting(u64 idx)
++{
++    return sbi_set_event_code(idx, 0);
++}
++EXPORT_SYMBOL(sbi_stop_event_counting);
++
++#endif
+ /**
+  * sbi_set_timer_v01() - Program the timer for next timer event.
+  * @stime_value: The value after which next timer event should fire.
+diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h
+index b4bb32082..c121c118f 100644
+--- a/include/linux/perf_event.h
++++ b/include/linux/perf_event.h
+@@ -975,7 +975,6 @@ int perf_event_read_local(struct perf_event *event, u64 *value,
+ extern u64 perf_event_read_value(struct perf_event *event,
+ 				 u64 *enabled, u64 *running);
+ 
+-
+ struct perf_sample_data {
+ 	/*
+ 	 * Fields set by perf_sample_data_init(), group so as to
+diff --git a/tools/perf/Build b/tools/perf/Build
+index 5f392dbb8..eca5644bb 100644
+--- a/tools/perf/Build
++++ b/tools/perf/Build
+@@ -51,5 +51,6 @@ perf-y += arch/
+ perf-y += ui/
+ perf-y += scripts/
+ perf-$(CONFIG_TRACE) += trace/beauty/
++perf-$(CONFIG_U54_PMU) += pmu-events/
+ 
+ gtk-y += ui/gtk/
+diff --git a/tools/perf/arch/riscv/util/Build b/tools/perf/arch/riscv/util/Build
+index 7d3050134..1e8f4a3e9 100644
+--- a/tools/perf/arch/riscv/util/Build
++++ b/tools/perf/arch/riscv/util/Build
+@@ -1,4 +1,5 @@
+ perf-y += perf_regs.o
++perf-$(CONFIG_U54_PMU) += header-u54.o
+ 
+ perf-$(CONFIG_DWARF) += dwarf-regs.o
+ perf-$(CONFIG_LIBDW_DWARF_UNWIND) += unwind-libdw.o
+diff --git a/tools/perf/arch/riscv/util/header-u54.c b/tools/perf/arch/riscv/util/header-u54.c
+new file mode 100644
+index 000000000..6e2754237
+--- /dev/null
++++ b/tools/perf/arch/riscv/util/header-u54.c
+@@ -0,0 +1,52 @@
++#include <stdio.h>
++#include <stdlib.h>
++#include <api/fs/fs.h>
++#include "header.h"
++
++#define OFIDR "/of_node/compatible"
++#define OFIDR_SIZE 64
++
++char *get_cpuid_str(struct perf_pmu *pmu)
++{
++	char *buf = NULL;
++	// char path[PATH_MAX];
++	// const char *sysfs = sysfs__mountpoint();
++	// FILE *file;
++
++	// if (!sysfs || !pmu)
++	// 	return NULL;
++
++	buf = malloc(OFIDR_SIZE);
++	if (!buf)
++		return NULL;
++
++	// memset(buf, 0, OFIDR_SIZE);
++	// buf[0] = 'd';
++	// buf[1] = 'm';
++	// buf[2] = 'r';
++	// buf[3] = '-';
++	// scnprintf(path, PATH_MAX, "%s/devices/system/cpu/cpu0"OFIDR, sysfs);
++
++	// file = fopen(path, "r");
++	// if (!file) {
++	// 	printf("fopen failed for file %s\n", path);
++	// 	return NULL;
++	// }
++
++	// if (!fgets(&buf[4], OFIDR_SIZE, file)) {
++	// 	fclose(file);
++	// 	return NULL;
++	// }
++	// fclose(file);
++	
++	strcpy(buf, "sifive-u54-mcsifive-rocket0");
++	// printf("PMU: cpuid=%s\n", buf);
++	return buf;
++}
++
++int strcmp_cpuid_str(const char *mapcpuid, const char *cpuid)
++{
++	int i = strcmp(mapcpuid, cpuid);
++	// printf("cmp cpuid: %s(%d) %s %s(%d)\n", mapcpuid, strlen(mapcpuid), i == 0 ? "===" : "=/=", cpuid, strlen(cpuid));
++	return i;
++}
+\ No newline at end of file
+diff --git a/tools/perf/pmu-events/arch/riscv/mapfile.csv b/tools/perf/pmu-events/arch/riscv/mapfile.csv
+new file mode 100644
+index 000000000..3efdf3518
+--- /dev/null
++++ b/tools/perf/pmu-events/arch/riscv/mapfile.csv
+@@ -0,0 +1,15 @@
++# Format:
++#	MIDR,Version,JSON/file/pathname,Type
++#
++# where
++#	MIDR	Processor version
++#		Variant[23:20] and Revision [3:0] should be zero.
++#	Version could be used to track version of of JSON file
++#		but currently unused.
++#	JSON/file/pathname is the path to JSON file, relative
++#		to tools/perf/pmu-events/arch/arm64/.
++#	Type is core, uncore etc
++#
++#
++#Family-model,Version,Filename,EventType
++sifive-u54-mcsifive-rocket0,v1,sifive/u54,core
+diff --git a/tools/perf/pmu-events/arch/riscv/sifive/u54/instruction.json b/tools/perf/pmu-events/arch/riscv/sifive/u54/instruction.json
+new file mode 100644
+index 000000000..4bc62c3c5
+--- /dev/null
++++ b/tools/perf/pmu-events/arch/riscv/sifive/u54/instruction.json
+@@ -0,0 +1,92 @@
++[
++   {
++     "EventCode": "0x100",
++     "EventName": "INST_EXC_TAKEN",
++     "BriefDescription": "Exception taken"
++   },
++   {
++     "EventCode": "0x200",
++     "EventName": "INST_INTEGER_LOAD",
++     "BriefDescription": "Integer load instruction retired"
++   },
++   {
++     "EventCode": "0x400",
++     "EventName": "INST_INTEGER_STORE",
++     "BriefDescription": "Integer store instruction retired"
++   },
++   {
++     "EventCode": "0x800",
++     "EventName": "INST_AMO",
++     "BriefDescription": "Atomic memory operation retired"
++   },
++   {
++     "EventCode": "0x1000",
++     "EventName": "INST_SYS",
++     "BriefDescription": "System instruction retired"
++   },
++   {
++     "EventCode": "0x2000",
++     "EventName": "INST_INTEGER_ARITHMETIC",
++     "BriefDescription": "Integer arithmetic instruction retired"
++   },
++   {
++     "EventCode": "0x4000",
++     "EventName": "INST_COND_BR",
++     "BriefDescription": "Conditional branch retired"
++   },
++   {
++     "EventCode": "0x8000",
++     "EventName": "INST_JAL",
++     "BriefDescription": "JAL instruction retired"
++   },
++   {
++     "EventCode": "0x10000",
++     "EventName": "INST_JALR",
++     "BriefDescription": "JALR instruction retired"
++   },
++   {
++     "EventCode": "0x20000",
++     "EventName": "INST_INTEGER_MULTIPLY",
++     "BriefDescription": "Integer multiplication instruction retired"
++   },
++   {
++     "EventCode": "0x40000",
++     "EventName": "INST_INTEGER_DIV",
++     "BriefDescription": "Integer division instruction retired"
++   },
++   {
++     "EventCode": "0x80000",
++     "EventName": "INST_FLOAT_LOAD",
++     "BriefDescription": "Floating-point load instruction retired"
++   },
++   {
++     "EventCode": "0x100000",
++     "EventName": "INST_FLOAT_STORE",
++     "BriefDescription": "Floating-point store instruction retired"
++   },
++   {
++     "EventCode": "0x200000",
++     "EventName": "INST_FLOAT_ADD",
++     "BriefDescription": "Floating-point addition retired"
++   },
++   {
++     "EventCode": "0x400000",
++     "EventName": "INST_FLOAT_MULTIPLY",
++     "BriefDescription": "Floating-point multiplication retired"
++   },
++   {
++     "EventCode": "0x800000",
++     "EventName": "INST_FLOAT_MULTIPLY_ADD",
++     "BriefDescription": "Floating-point fused multiply-add retired"
++   },
++   {
++     "EventCode": "0x1000000",
++     "EventName": "INST_FLOAT_DIV_OR_SQRT",
++     "BriefDescription": "Floating-point division or square-root retired"
++   },
++   {
++     "EventCode": "0x2000000",
++     "EventName": "INST_FLOAT_OTHER",
++     "BriefDescription": "Other floating-point instruction retired"
++   }
++]
+diff --git a/tools/perf/pmu-events/arch/riscv/sifive/u54/memory.json b/tools/perf/pmu-events/arch/riscv/sifive/u54/memory.json
+new file mode 100644
+index 000000000..18ffc12d6
+--- /dev/null
++++ b/tools/perf/pmu-events/arch/riscv/sifive/u54/memory.json
+@@ -0,0 +1,27 @@
++[
++   {
++     "EventCode": "0x102",
++     "EventName": "MEM_ICACHE_MIS",
++     "BriefDescription": "Instruction cache miss"
++   },
++   {
++     "EventCode": "0x202",
++     "EventName": "MEM_DCACHE_MIS_MMIO",
++     "BriefDescription": "Data cache miss or memory-mapped I/O access"
++   },
++   {
++     "EventCode": "0x402",
++     "EventName": "MEM_DCACHE_WB",
++     "BriefDescription": "Data cache writeback"
++   },
++   {
++     "EventCode": "0x802",
++     "EventName": "MEM_ITLB_MIS",
++     "BriefDescription": "Instruction TLB miss"
++   },
++   {
++     "EventCode": "0x1002",
++     "EventName": "MEM_DTLB_MIS",
++     "BriefDescription": "Data TLB miss"
++   }
++]
+diff --git a/tools/perf/pmu-events/arch/riscv/sifive/u54/microarch.json b/tools/perf/pmu-events/arch/riscv/sifive/u54/microarch.json
+new file mode 100644
+index 000000000..21cca6aa6
+--- /dev/null
++++ b/tools/perf/pmu-events/arch/riscv/sifive/u54/microarch.json
+@@ -0,0 +1,57 @@
++[
++   {
++     "EventCode": "0x101",
++     "EventName": "MARCH_LOAD_LOCK",
++     "BriefDescription": "Load-use interlock"
++   },
++   {
++     "EventCode": "0x201",
++     "EventName": "MARCH_LONG_LATENCY_LOCK",
++     "BriefDescription": "Long-latency interlock"
++   },
++   {
++     "EventCode": "0x401",
++     "EventName": "MARCH_CSR_RD_LOCK",
++     "BriefDescription": "CSR read interlock"
++   },
++   {
++     "EventCode": "0x801",
++     "EventName": "MARCH_ICACHE_ITIM_BUSY",
++     "BriefDescription": "Instruction cache/ITIM busy"
++   },
++   {
++     "EventCode": "0x1001",
++     "EventName": "MARCH_DCACHE_DTIM_BUSY",
++     "BriefDescription": "Data cache/DTIM busy"
++   },
++   {
++     "EventCode": "0x2001",
++     "EventName": "MARCH_BR_DIR_MIS",
++     "BriefDescription": "Branch direction misprediction"
++   },
++   {
++     "EventCode": "0x4001",
++     "EventName": "MARCH_BR_JMP_TARGET_MIS",
++     "BriefDescription": "Branch/jump target misprediction"
++   },
++   {
++     "EventCode": "0x8001",
++     "EventName": "MARCH_PIPELINE_FLUSH_CSR_WR",
++     "BriefDescription": "Pipeline flush from CSR write"
++   },
++   {
++     "EventCode": "0x10001",
++     "EventName": "MARCH_PIPELINE_FLUSH_OTHER",
++     "BriefDescription": "Pipeline flush from other event"
++   },
++   {
++     "EventCode": "0x20001",
++     "EventName": "MARCH_INTEGER_MULTIPLY_LOCK",
++     "BriefDescription": "Integer multiplication interlock"
++   },
++   {
++     "EventCode": "0x40001",
++     "EventName": "MARCH_FLOAT_LOCK",
++     "BriefDescription": "Floating-point interlock"
++   }
++]

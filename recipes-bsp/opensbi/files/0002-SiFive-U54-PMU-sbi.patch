@@ -1,0 +1,117 @@
+diff --git a/.gitignore b/.gitignore
+index 534ad64..4958ced 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -2,6 +2,7 @@
+ *.o
+ *.a
+ *.dep
++*.patch
+ 
+ #Build & install directories
+ build/
+diff --git a/include/sbi/sbi_ecall.h b/include/sbi/sbi_ecall.h
+index 3273ba6..d94a86a 100644
+--- a/include/sbi/sbi_ecall.h
++++ b/include/sbi/sbi_ecall.h
+@@ -32,6 +32,7 @@ struct sbi_ecall_extension {
+ 
+ extern struct sbi_ecall_extension ecall_base;
+ extern struct sbi_ecall_extension ecall_legacy;
++extern struct sbi_ecall_extension ecall_pmu;
+ extern struct sbi_ecall_extension ecall_time;
+ extern struct sbi_ecall_extension ecall_rfence;
+ extern struct sbi_ecall_extension ecall_ipi;
+diff --git a/include/sbi/sbi_ecall_interface.h b/include/sbi/sbi_ecall_interface.h
+index af30500..eabf3d5 100644
+--- a/include/sbi/sbi_ecall_interface.h
++++ b/include/sbi/sbi_ecall_interface.h
+@@ -28,6 +28,11 @@
+ #define SBI_EXT_RFENCE				0x52464E43
+ #define SBI_EXT_HSM				0x48534D
+ 
++#define SBI_PMU_COUNTER3_IDX                   2
++#define SBI_PMU_COUNTER4_IDX                   3
++#define SBI_EXT_PMU_SET_EVENT                  9
++
++
+ /* SBI function IDs for BASE extension*/
+ #define SBI_EXT_BASE_GET_SPEC_VERSION		0x0
+ #define SBI_EXT_BASE_GET_IMP_ID			0x1
+diff --git a/lib/sbi/sbi_ecall.c b/lib/sbi/sbi_ecall.c
+index 64c9933..297b415 100644
+--- a/lib/sbi/sbi_ecall.c
++++ b/lib/sbi/sbi_ecall.c
+@@ -170,6 +170,9 @@ int sbi_ecall_init(void)
+ 	if (ret)
+ 		return ret;
+ 	ret = sbi_ecall_register_extension(&ecall_legacy);
++	if (ret)
++		return ret;
++	ret = sbi_ecall_register_extension(&ecall_pmu);
+ 	if (ret)
+ 		return ret;
+ 	ret = sbi_ecall_register_extension(&ecall_vendor);
+diff --git a/lib/sbi/sbi_ecall_legacy.c b/lib/sbi/sbi_ecall_legacy.c
+index 3bfe749..7abf663 100644
+--- a/lib/sbi/sbi_ecall_legacy.c
++++ b/lib/sbi/sbi_ecall_legacy.c
+@@ -115,3 +115,58 @@ struct sbi_ecall_extension ecall_legacy = {
+ 	.extid_end = SBI_EXT_0_1_SHUTDOWN,
+ 	.handle = sbi_ecall_legacy_handler,
+ };
++
++static int sbi_set_event_code(u64 idx, u64 type)
++{
++	u64 ret = 0;
++
++	switch(idx) {
++	case 0:
++	case 1:
++		break;
++	case SBI_PMU_COUNTER3_IDX:
++	    csr_write(mhpmevent3, type);
++	    break;
++	case SBI_PMU_COUNTER4_IDX:
++      	csr_write(mhpmevent4, type);
++	    break;
++	default:
++	    ret = SBI_ENOTSUPP;
++	    break;
++	}
++
++	if (ret != SBI_ENOTSUPP) {
++		idx = idx > 0 ? idx + 1 : idx;
++		u64 tmp = csr_read(mcounteren);
++		if ((tmp & (1 << idx)) == 0) {
++		   tmp |= 1 << idx;
++		   csr_write(mcounteren, tmp);
++		}
++	}
++
++	return ret;
++}
++
++
++static int sbi_ecall_pmu_handler(unsigned long extid, unsigned long funcid,
++				    unsigned long *args, unsigned long *out_val,
++				    struct sbi_trap_info *out_trap)
++{
++	int ret;
++	switch (extid) {
++    case SBI_EXT_PMU_SET_EVENT:
++        ret = sbi_set_event_code((u64)args[0], (u64)args[1]);
++        break;
++	default:
++		ret = SBI_ENOTSUPP;
++	};
++
++	return ret;
++}
++
++struct sbi_ecall_extension ecall_pmu = {
++	.extid_start = SBI_EXT_PMU_SET_EVENT,
++	.extid_end = SBI_EXT_PMU_SET_EVENT,
++	.handle = sbi_ecall_pmu_handler,
++};
++

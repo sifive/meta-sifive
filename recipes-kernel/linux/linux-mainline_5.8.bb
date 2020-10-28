@@ -17,6 +17,7 @@ SRC_URI_append_freedom-u540 = " \
     file://0003-HACK-Revert-of-device-Really-only-set-bus-DMA-mask-w.patch \
     file://0004-SiFive-Unleashed-CPUFreq.patch \
     file://0007-Add-PWM-LEDs-D1-D2-D3-D4.patch \
+    file://0008-SiFive-U54-PMU.patch \
 "
 
 # For freedom-u540 use out-of-tree defconfig
