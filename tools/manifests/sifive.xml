@@ -4,6 +4,7 @@
   <remote name="openembedded" fetch="git://github.com/openembedded/" />
   <remote name="riscv" fetch="git://github.com/riscv/" />
   <remote name="sifive" fetch="git://github.com/sifive/" />
+  <remote name="kraj" fetch="git://github.com/kraj/" />
   <default remote="openembedded" revision="master" />
 
   <project name="meta-sifive" remote="sifive" path="meta-sifive" revision="master" />
@@ -11,5 +12,6 @@
   <project name="openembedded-core" remote="openembedded" path="openembedded-core" revision="791da075619139fa55751f8013c73d2fbf0cf64c" />
   <project name="bitbake" remote="openembedded" path="openembedded-core/bitbake" revision="14a35f273b579d5cd5fd92765b89c28f870dd577" />
   <project name="meta-openembedded" remote="openembedded" path="meta-openembedded" revision="80efddfabbee4cc18e33e40ec61ad1ff47b47a6c" />
+  <project name="meta-clang" remote="kraj" path="meta-clang" revision="61faae011fb95712064f2c58abe6293f0daeeab5" />
 </manifest>
 
