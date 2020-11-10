@@ -128,6 +128,19 @@ IMAGE_INSTALL = "\
     jq \
     hdparm \
     udev-extraconf \
+    clang \
+    clang-dev \
+    clang-libllvm \
+    clang-staticdev \
+    libclang \
+    compiler-rt \
+    compiler-rt-dev \
+    compiler-rt-staticdev \
+    ldd \
+    libcxx \
+    libcxx-dev \
+    libcxx-staticdev \
+    openmp \
     ${CORE_IMAGE_EXTRA_INSTALL} \
     "
 
