@@ -102,7 +102,9 @@ PACKAGECONFIG_append_pn-mesa = " r600"
 PACKAGECONFIG_append_pn-mesa = " radeonsi"
 PACKAGECONFIG_append_pn-mesa = " gallium-llvm"
 
-QEMU_TARGETS="riscv64"
+QEMU_TARGETS = "riscv64"
+
+GDBVERSION = "10.%"
 EOF
 fi
 
