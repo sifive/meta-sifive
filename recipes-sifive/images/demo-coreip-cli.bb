@@ -114,6 +114,22 @@ IMAGE_INSTALL = "\
     libcxx-dev \
     libcxx-staticdev \
     openmp \
+    wireless-regdb \
+    info \
+    texinfo \
+    gettext \
+    gettext-runtime \
+    gperf \
+    perl-module-locale \
+    perl-modules \
+    iw \
+    gnutls-bin \
+    gnutls-dev \
+    openssl-bin \
+    openssl-dev \
+    net-tools \
+    man-pages \
+    man-db \
     ${CORE_IMAGE_EXTRA_INSTALL} \
     "
 
