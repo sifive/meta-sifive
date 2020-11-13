@@ -130,6 +130,7 @@ IMAGE_INSTALL = "\
     net-tools \
     man-pages \
     man-db \
+    expect \
     ${CORE_IMAGE_EXTRA_INSTALL} \
     "
 
