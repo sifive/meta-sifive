@@ -105,6 +105,8 @@ PACKAGECONFIG_append_pn-mesa = " gallium-llvm"
 QEMU_TARGETS = "riscv64 x86_64"
 
 GDBVERSION = "10.%"
+
+CLANGSDK = "1"
 EOF
 fi
 
