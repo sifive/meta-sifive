@@ -78,7 +78,6 @@ PACKAGECONFIG_append_pn-qemu-native = " sdl"
 PACKAGECONFIG_append_pn-nativesdk-qemu = " sdl"
 USER_CLASSES ?= "buildstats buildhistory buildstats-summary image-mklibs image-prelink"
 
-require conf/distro/include/no-static-libs.inc
 require conf/distro/include/yocto-uninative.inc
 require conf/distro/include/security_flags.inc
 
