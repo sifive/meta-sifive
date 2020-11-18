@@ -106,6 +106,8 @@ QEMU_TARGETS = "riscv64 x86_64"
 GDBVERSION = "10.%"
 
 CLANGSDK = "1"
+
+FORTRAN_forcevariable = ",fortran"
 EOF
 fi
 
