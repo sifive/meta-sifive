@@ -158,6 +158,18 @@ IMAGE_INSTALL = "\
     man-pages \
     man-db \
     expect \
+    gfortran \
+    libgfortran \
+    libgfortran-dev \
+    libgfortran-staticdev \
+    gcov \
+    gcov-symlinks \
+    gcc-symlinks \
+    gfortran-symlinks \
+    g++-symlinks \
+    gcc-plugins \
+    gcc-dev \
+    cpp-symlinks \
     ${CORE_IMAGE_EXTRA_INSTALL} \
     "
 
