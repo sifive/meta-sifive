@@ -144,6 +144,21 @@ IMAGE_INSTALL = "\
     gcc-plugins \
     gcc-dev \
     cpp-symlinks \
+    curl-staticdev \
+    dtc-staticdev \
+    boost-staticdev \
+    libarchive-staticdev \
+    bzip2-staticdev \
+    lzo-staticdev \
+    zlib-staticdev \
+    xz-staticdev \
+    binutils-staticdev \
+    gmp-staticdev \
+    libaio-staticdev \
+    libatomic-ops-staticdev \
+    libbsd-staticdev \
+    mpfr-staticdev \
+    openmp-staticdev \
     ${CORE_IMAGE_EXTRA_INSTALL} \
     "
 
