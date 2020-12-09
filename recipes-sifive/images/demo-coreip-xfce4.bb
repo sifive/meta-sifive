@@ -69,7 +69,7 @@ IMAGE_INSTALL = "\
     vulkan-tools \
     vulkan-loader \
     vulkan-headers \
-    vulkan-demos \
+    vulkan-samples \
     xserver-xorg-utils \
     xserver-xorg-xvfb \
     xserver-xorg-extension-dbe \
