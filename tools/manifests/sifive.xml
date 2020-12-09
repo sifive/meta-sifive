@@ -8,10 +8,10 @@
   <default remote="openembedded" revision="master" />
 
   <project name="meta-sifive" remote="sifive" path="meta-sifive" revision="master" />
-  <project name="meta-riscv" remote="riscv" path="meta-riscv" revision="21abe9ccf788aada156a3b4b9fe0551992eb09b6" />
-  <project name="openembedded-core" remote="openembedded" path="openembedded-core" revision="791da075619139fa55751f8013c73d2fbf0cf64c" />
-  <project name="bitbake" remote="openembedded" path="openembedded-core/bitbake" revision="14a35f273b579d5cd5fd92765b89c28f870dd577" />
-  <project name="meta-openembedded" remote="openembedded" path="meta-openembedded" revision="80efddfabbee4cc18e33e40ec61ad1ff47b47a6c" />
-  <project name="meta-clang" remote="kraj" path="meta-clang" revision="61faae011fb95712064f2c58abe6293f0daeeab5" />
+  <project name="meta-riscv" remote="riscv" path="meta-riscv" revision="9d10fd4f37d9f209847e79953fcc9bc018b1fe5e" />
+  <project name="openembedded-core" remote="openembedded" path="openembedded-core" revision="13ff38ffd216fcd7044d7a0f46c8907d64ce3f6e" />
+  <project name="bitbake" remote="openembedded" path="openembedded-core/bitbake" revision="22b8c53205f8915b33d1e0ad6a666dcacc01491d" />
+  <project name="meta-openembedded" remote="openembedded" path="meta-openembedded" revision="a6d9a4adb86bac52ef02731fd9c8c941a6fbf955" />
+  <project name="meta-clang" remote="kraj" path="meta-clang" revision="1dfc3a905ad0fed7a3b300aa51153365f9950fe7" />
 </manifest>
 
