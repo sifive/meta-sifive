@@ -52,16 +52,6 @@ If you want to make modifications to existing layers then creating working branc
 repo start work --all
 ```
 
-### Updating Existing Workspace
-
-If you want to pull in the latest changes in all layers.
-
-```bash
-cd riscv-sifive
-repo sync
-repo rebase
-```
-
 ### Getting Build Tools (optional)
 
 OpenEmbedded-Core requires GCC 6 or newer to be available on the host system. Your host system might have an older version of GCC if you use LTS (Long Term Support) Linux distribution (e.g. Ubuntu 16.04.6 has GCC 5.4.0). You could solve this issue by installing build tools. This requires less than 400MB of disk space. You can download pre-built one or build your own build tools.
