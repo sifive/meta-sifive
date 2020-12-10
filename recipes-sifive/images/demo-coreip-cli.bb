@@ -116,8 +116,6 @@ IMAGE_INSTALL = "\
     openmp \
     wireless-regdb \
     info \
-    texinfo \
-    gettext \
     gettext-runtime \
     gperf \
     perl-module-locale \

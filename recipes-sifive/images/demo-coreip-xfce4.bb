@@ -9,7 +9,8 @@ IMAGE_FEATURES += "\
     doc-pkgs \
     dev-pkgs \
     nfs-client \
-    x11-base"
+    x11-base \
+    hwcodecs"
 
 IMAGE_INSTALL = "\
     packagegroup-core-boot \
@@ -143,8 +144,6 @@ IMAGE_INSTALL = "\
     openmp \
     wireless-regdb \
     info \
-    texinfo \
-    gettext \
     gettext-runtime \
     gperf \
     perl-module-locale \
@@ -185,6 +184,16 @@ IMAGE_INSTALL = "\
     libbsd-staticdev \
     mpfr-staticdev \
     openmp-staticdev \
+    epiphany \
+    evince \
+    xdg-utils \
+    libva \
+    libva-utils \
+    libvdpau \
+    gstreamer1.0 \
+    gstreamer1.0-vaapi \
+    mesa-vdpau-drivers \
+    vdpauinfo \
     ${CORE_IMAGE_EXTRA_INSTALL} \
     "
 
