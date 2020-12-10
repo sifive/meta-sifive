@@ -10,18 +10,21 @@ LICENSE = "LGPL-2.1"
 LIC_FILES_CHKSUM = "file://Licenses/lgpl-2.1.txt;md5=4fbd65380cdd255951079008b364516c"
 SECTION = "libs"
 
-PV = "0.2+git${SRCPV}"
 SRC_URI = "git://github.com/sbabic/libubootenv;protocol=https"
-SRCREV = "f4b9cde3815abe84a98079cedd515283ea08c16b"
+SRCREV = "824551ac77bab1d0f7ae34d7a7c77b155240e754"
 
 S = "${WORKDIR}/git"
 
-inherit cmake lib_package
+inherit uboot-config cmake lib_package
 
 EXTRA_OECMAKE = "-DCMAKE_BUILD_TYPE=Release"
 
 DEPENDS = "zlib"
 PROVIDES += "u-boot-fw-utils"
 RPROVIDES_${PN}-bin += "u-boot-fw-utils"
+
+PACKAGE_ARCH = "${MACHINE_ARCH}"
+
+RRECOMMENDS_${PN}-bin_append_class-target = " u-boot-default-env"
 
 BBCLASSEXTEND = "native"
