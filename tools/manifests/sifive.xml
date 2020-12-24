@@ -7,7 +7,7 @@
   <remote name="kraj" fetch="git://github.com/kraj/" />
   <default remote="openembedded" revision="master" />
 
-  <project name="meta-sifive" remote="sifive" path="meta-sifive" revision="2020.12" />
+  <project name="meta-sifive" remote="sifive" path="meta-sifive" revision="4093de92bf59dd28a8253163a5fb2b6895e45a1d" />
   <project name="meta-riscv" remote="riscv" path="meta-riscv" revision="9d10fd4f37d9f209847e79953fcc9bc018b1fe5e" />
   <project name="openembedded-core" remote="openembedded" path="openembedded-core" revision="20ef6292c3b573f1e867437e821b0a176c2e0e94" />
   <project name="bitbake" remote="openembedded" path="openembedded-core/bitbake" revision="5775d9463ecedf8681cb6c919b240b80fe70f5a3" />
