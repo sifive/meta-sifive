@@ -9,9 +9,9 @@
 
   <project name="meta-sifive" remote="sifive" path="meta-sifive" revision="master" />
   <project name="meta-riscv" remote="riscv" path="meta-riscv" revision="9d10fd4f37d9f209847e79953fcc9bc018b1fe5e" />
-  <project name="openembedded-core" remote="openembedded" path="openembedded-core" revision="20ef6292c3b573f1e867437e821b0a176c2e0e94" />
-  <project name="bitbake" remote="openembedded" path="openembedded-core/bitbake" revision="5775d9463ecedf8681cb6c919b240b80fe70f5a3" />
-  <project name="meta-openembedded" remote="openembedded" path="meta-openembedded" revision="8e7c57bd8f8250251e54fcbe149dc81743c0e30a" />
-  <project name="meta-clang" remote="kraj" path="meta-clang" revision="1dfc3a905ad0fed7a3b300aa51153365f9950fe7" />
+  <project name="openembedded-core" remote="openembedded" path="openembedded-core" revision="cbc20b9d8d119bfd777f83432c760dcdb94f07f9" />
+  <project name="bitbake" remote="openembedded" path="openembedded-core/bitbake" revision="efd026c26a377b826a49b945a8212bf7de8a480a" />
+  <project name="meta-openembedded" remote="openembedded" path="meta-openembedded" revision="69bae2a2360643805de2ae1cd9ebc4202cd5a2fb" />
+  <project name="meta-clang" remote="kraj" path="meta-clang" revision="216da5f0313271257fc564fb86445cf9c62d0101" />
 </manifest>
 
