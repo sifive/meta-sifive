@@ -1,9 +1,9 @@
 diff --git a/include/configs/sifive-fu540.h b/include/configs/sifive-fu540.h
-index 72c841e..a6a900d 100644
+index c1c79db147..9750381a8c 100644
 --- a/include/configs/sifive-fu540.h
 +++ b/include/configs/sifive-fu540.h
-@@ -64,6 +64,8 @@
- 	"scriptaddr=0x88100000\0" \
+@@ -66,6 +66,8 @@
+ 	"script_size_f=0x1000\0" \
  	"pxefile_addr_r=0x88200000\0" \
  	"ramdisk_addr_r=0x88300000\0" \
 +	"kernel_comp_addr_r=0x90000000\0" \
