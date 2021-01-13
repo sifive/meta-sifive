@@ -103,13 +103,16 @@ PACKAGECONFIG_append_pn-mesa = " gallium-llvm"
 PACKAGECONFIG_append_pn-mesa = " va"
 PACKAGECONFIG_append_pn-mesa = " vdpau"
 
-PACKAGECONFIG_append_pn-gstreamer1.0-plugins-bad = " vdpau"
+PACKAGECONFIG_append_pn-gdb = " python"
+PACKAGECONFIG_append_pn-gdb = " tui"
+PACKAGECONFIG_append_pn-gdb = " xz"
+
+PACKAGECONFIG_append_pn-elfutils = " bzip2"
+PACKAGECONFIG_append_pn-elfutils = " xz"
 
 PACKAGECONFIG_append_pn-pulseaudio = " autospawn-for-root"
 
 QEMU_TARGETS = "riscv64 x86_64"
-
-GDBVERSION = "10.%"
 
 CLANGSDK = "1"
 
