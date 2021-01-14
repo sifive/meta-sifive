@@ -20,6 +20,7 @@ SRC_URI_append_freedom-u540 = " \
     file://irqchip-sifive-plic-fix-broken-irq_set_affinity-callback.patch \
     file://irqchip-sifive-plix-fix-getting-wrong-chip_date-when-interrupt-is-hierarchy.patch \
     file://i2c-ocores-fix-polling-mode-workaround-on-FU540-C000-SoC.patch \
+    file://riscv-fixup-CONFIG_GENERIC_TIME_VSYSCALL.patch \
 "
 
 # For freedom-u540 use out-of-tree defconfig
