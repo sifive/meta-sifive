@@ -1,4 +1,4 @@
-do_install_append() {
+do_install_append_freedom-u540() {
 	# now copy in parts from the build that we'll need later
 	(
 		cd ${B}
