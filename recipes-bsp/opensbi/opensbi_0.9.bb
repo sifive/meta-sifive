@@ -5,9 +5,13 @@ LIC_FILES_CHKSUM = "file://COPYING.BSD;md5=42dd9555eb177f35150cf9aa240b61e5"
 
 inherit autotools-brokensep deploy
 
-SRCREV = "v0.8"
+SRCREV = "v0.9"
 SRC_URI = "git://github.com/riscv/opensbi.git \
            file://0001-Makefile-Don-t-specify-mabi-or-march.patch \
+          "
+
+SRC_URI_append_unmatched = " \
+           file://0001-generic-fu740-add-workaround-for-CIP-1200-errata.patch \
           "
 
 S = "${WORKDIR}/git"
