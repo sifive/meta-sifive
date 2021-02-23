@@ -128,6 +128,10 @@ QEMU_TARGETS = "riscv64 x86_64"
 CLANGSDK = "1"
 
 FORTRAN_forcevariable = ",fortran"
+
+DISTRO_NAME = "FreedomUSDK"
+DISTRO_VERSION = "2021.02.00"
+DISTRO_CODENAME = "2021February"
 EOF
 fi
 
