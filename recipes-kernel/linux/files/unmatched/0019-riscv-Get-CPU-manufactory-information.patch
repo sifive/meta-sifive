@@ -1,0 +1,116 @@
+From 34c4f71f957e4e15776493d094593970178ddc9e Mon Sep 17 00:00:00 2001
+From: Vincent Chen <vincent.chen@sifive.com>
+Date: Tue, 12 Jan 2021 15:15:23 +0800
+Subject: [PATCH 19/29] riscv: Get CPU manufactory information
+
+Issue 3 SBI calls to get the vendor ID, architecture ID and
+implementataion ID.
+
+Signed-off-by: Vincent Chen <vincent.chen@sifive.com>
+---
+ arch/riscv/include/asm/csr.h       |  3 +++
+ arch/riscv/include/asm/hwcap.h     |  6 ++++++
+ arch/riscv/include/asm/processor.h |  2 ++
+ arch/riscv/kernel/cpufeature.c     | 17 +++++++++++++++++
+ arch/riscv/kernel/setup.c          |  2 ++
+ 5 files changed, 30 insertions(+)
+
+diff --git a/arch/riscv/include/asm/csr.h b/arch/riscv/include/asm/csr.h
+index cec462e..076beb9 100644
+--- a/arch/riscv/include/asm/csr.h
++++ b/arch/riscv/include/asm/csr.h
+@@ -109,6 +109,9 @@
+ #define CSR_MIP			0x344
+ #define CSR_PMPCFG0		0x3a0
+ #define CSR_PMPADDR0		0x3b0
++#define CSR_MVENDORID		0xf11
++#define CSR_MARCHID		0xf12
++#define CSR_MIMPID		0xf13
+ #define CSR_MHARTID		0xf14
+ 
+ #ifdef CONFIG_RISCV_M_MODE
+diff --git a/arch/riscv/include/asm/hwcap.h b/arch/riscv/include/asm/hwcap.h
+index 5ce5046..952fe76 100644
+--- a/arch/riscv/include/asm/hwcap.h
++++ b/arch/riscv/include/asm/hwcap.h
+@@ -44,6 +44,12 @@ bool __riscv_isa_extension_available(const unsigned long *isa_bitmap, int bit);
+ #define riscv_isa_extension_available(isa_bitmap, ext)	\
+ 	__riscv_isa_extension_available(isa_bitmap, RISCV_ISA_EXT_##ext)
+ 
++struct cpu_manufactor_info_t {
++	unsigned long vendorid;
++	unsigned long archid;
++	unsigned long impid;
++};
++
+ #endif
+ 
+ #endif /* _ASM_RISCV_HWCAP_H */
+diff --git a/arch/riscv/include/asm/processor.h b/arch/riscv/include/asm/processor.h
+index bdddcd5..c9639b5 100644
+--- a/arch/riscv/include/asm/processor.h
++++ b/arch/riscv/include/asm/processor.h
+@@ -71,6 +71,8 @@ int riscv_of_parent_hartid(struct device_node *node);
+ 
+ extern void riscv_fill_hwcap(void);
+ 
++void riscv_fill_cpu_manufactor_info(void);
++
+ #endif /* __ASSEMBLY__ */
+ 
+ #endif /* _ASM_RISCV_PROCESSOR_H */
+diff --git a/arch/riscv/kernel/cpufeature.c b/arch/riscv/kernel/cpufeature.c
+index ac202f4..0315297 100644
+--- a/arch/riscv/kernel/cpufeature.c
++++ b/arch/riscv/kernel/cpufeature.c
+@@ -12,6 +12,8 @@
+ #include <asm/hwcap.h>
+ #include <asm/smp.h>
+ #include <asm/switch_to.h>
++#include <asm/sbi.h>
++#include <asm/csr.h>
+ 
+ unsigned long elf_hwcap __read_mostly;
+ 
+@@ -22,6 +24,8 @@ static DECLARE_BITMAP(riscv_isa, RISCV_ISA_EXT_MAX) __read_mostly;
+ bool has_fpu __read_mostly;
+ #endif
+ 
++struct cpu_manufactor_info_t cpu_manufactor_info;
++
+ /**
+  * riscv_isa_extension_base() - Get base extension word
+  *
+@@ -149,3 +153,16 @@ void riscv_fill_hwcap(void)
+ 		has_fpu = true;
+ #endif
+ }
++
++void riscv_fill_cpu_manufactor_info(void)
++{
++#ifndef CONFIG_RISCV_M_MODE
++	cpu_manufactor_info.vendorid = sbi_get_vendorid();
++	cpu_manufactor_info.archid = sbi_get_archid();
++	cpu_manufactor_info.impid = sbi_get_impid();
++#else
++	cpu_manufactor_info.vendorid = csr_read(CSR_MVENDORID);
++	cpu_manufactor_info.archid = csr_read(CSR_MARCHID);
++	cpu_manufactor_info.impid = csr_read(CSR_MIMPID);
++#endif
++}
+diff --git a/arch/riscv/kernel/setup.c b/arch/riscv/kernel/setup.c
+index 117f321..c7c1ae9 100644
+--- a/arch/riscv/kernel/setup.c
++++ b/arch/riscv/kernel/setup.c
+@@ -107,6 +107,8 @@ void __init setup_arch(char **cmdline_p)
+ #endif
+ 
+ 	riscv_fill_hwcap();
++
++	riscv_fill_cpu_manufactor_info();
+ }
+ 
+ static int __init topology_init(void)
+-- 
+2.7.4
+

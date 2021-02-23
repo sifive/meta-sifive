@@ -1,0 +1,33 @@
+From 6bc4ee53eaffad7385babe568a7889b13752606f Mon Sep 17 00:00:00 2001
+From: Yash Shah <yash.shah@sifive.com>
+Date: Tue, 8 Dec 2020 10:25:36 +0530
+Subject: [PATCH 09/29] dt-bindings: serial: Update DT binding docs to support
+ SiFive FU740 SoC
+
+Add new compatible strings to the DT binding documents to support SiFive
+FU740-C000.
+
+Signed-off-by: Yash Shah <yash.shah@sifive.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+---
+ Documentation/devicetree/bindings/serial/sifive-serial.yaml | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/Documentation/devicetree/bindings/serial/sifive-serial.yaml b/Documentation/devicetree/bindings/serial/sifive-serial.yaml
+index 92283f6..3ac5c7f 100644
+--- a/Documentation/devicetree/bindings/serial/sifive-serial.yaml
++++ b/Documentation/devicetree/bindings/serial/sifive-serial.yaml
+@@ -17,7 +17,9 @@ allOf:
+ properties:
+   compatible:
+     items:
+-      - const: sifive,fu540-c000-uart
++      - enum:
++          - sifive,fu540-c000-uart
++          - sifive,fu740-c000-uart
+       - const: sifive,uart0
+ 
+     description:
+-- 
+2.7.4
+

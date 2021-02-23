@@ -1,0 +1,433 @@
+From a3e6ca97499c444fee45c7efafcdef311142952c Mon Sep 17 00:00:00 2001
+From: Vincent Chen <vincent.chen@sifive.com>
+Date: Tue, 19 Jan 2021 03:30:22 -0800
+Subject: [PATCH 20/29] riscv: Introduce alternative mechanism to apply errata
+ solution
+
+Introduce the "alternative" mechanism from ARM64 and x86 to apply the CPU
+vendors' errata solution at runtime. The main purpose of this patch is
+to provide a framework. Therefore, the implementation is quite basic for
+now so that some scenarios could not use this scheme such as patching code
+to a module, relocating the patching code and heterogeneous CPU topology.
+
+Users could use the two macros ALTINSN and ALTDATA to modify the existing
+instruction and data respectively. By specifying the parameters vendorid,
+archid and impid, the kernel can probably apply the patch codes based on
+the same information of the running CPU. To keep the flexibility, the user
+can pass the specific kernel configure to the alternative macro to enable
+or disable the errata solution at compile time.
+
+Rebased for v5.10.8 by David Abdurachmanov.
+
+Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>
+---
+ arch/riscv/Kconfig                          |   7 ++
+ arch/riscv/Makefile                         |   1 +
+ arch/riscv/errata/Makefile                  |   1 +
+ arch/riscv/errata/alternative.c             |  74 ++++++++++++++++
+ arch/riscv/include/asm/alternative-macros.h | 133 ++++++++++++++++++++++++++++
+ arch/riscv/include/asm/alternative.h        |  43 +++++++++
+ arch/riscv/include/asm/asm.h                |   1 +
+ arch/riscv/include/asm/sections.h           |   3 +
+ arch/riscv/kernel/smpboot.c                 |   4 +
+ arch/riscv/kernel/vmlinux.lds.S             |  21 +++++
+ 10 files changed, 288 insertions(+)
+ create mode 100644 arch/riscv/errata/Makefile
+ create mode 100644 arch/riscv/errata/alternative.c
+ create mode 100644 arch/riscv/include/asm/alternative-macros.h
+ create mode 100644 arch/riscv/include/asm/alternative.h
+
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index 3474286..2717aa0 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -84,6 +84,7 @@ config RISCV
+ 	select PCI_MSI if PCI
+ 	select RISCV_INTC
+ 	select RISCV_TIMER if RISCV_SBI
++	select RISCV_ERRATA
+ 	select SPARSEMEM_STATIC if 32BIT
+ 	select SPARSE_IRQ
+ 	select SYSCTL_EXCEPTION_TRACE
+@@ -423,6 +424,12 @@ config BUILTIN_DTB
+ 	depends on RISCV_M_MODE
+ 	depends on OF
+ 
++config RISCV_ERRATA
++	bool "Runtime apply errata patch"
++	help
++	  This option provides the support for applying the errata patch
++	  at runtime.
++
+ menu "Power management options"
+ 
+ source "kernel/power/Kconfig"
+diff --git a/arch/riscv/Makefile b/arch/riscv/Makefile
+index 0289a97..cd23fb0 100644
+--- a/arch/riscv/Makefile
++++ b/arch/riscv/Makefile
+@@ -75,6 +75,7 @@ KBUILD_IMAGE	:= $(boot)/Image.gz
+ head-y := arch/riscv/kernel/head.o
+ 
+ core-y += arch/riscv/
++core-$(CONFIG_RISCV_ERRATA) += arch/riscv/errata/
+ 
+ libs-y += arch/riscv/lib/
+ libs-$(CONFIG_EFI_STUB) += $(objtree)/drivers/firmware/efi/libstub/lib.a
+diff --git a/arch/riscv/errata/Makefile b/arch/riscv/errata/Makefile
+new file mode 100644
+index 00000000..43e6d54
+--- /dev/null
++++ b/arch/riscv/errata/Makefile
+@@ -0,0 +1 @@
++obj-y	+= alternative.o
+diff --git a/arch/riscv/errata/alternative.c b/arch/riscv/errata/alternative.c
+new file mode 100644
+index 00000000..0827c05
+--- /dev/null
++++ b/arch/riscv/errata/alternative.c
+@@ -0,0 +1,74 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * alternative runtime patching
++ * inspired by the ARM64 and x86 version
++ *
++ * Copyright (C) 2021 Sifive.
++ */
++
++#include <linux/init.h>
++#include <linux/cpu.h>
++#include <linux/uaccess.h>
++#include <asm/patch.h>
++#include <asm/alternative.h>
++#include <asm/sections.h>
++
++struct alt_region {
++	struct alt_entry *begin;
++	struct alt_entry *end;
++};
++
++static bool __init default_checkfunc(struct alt_entry *alt)
++{
++	return false;
++}
++
++static bool (*errata_checkfunc)(struct alt_entry *alt) = default_checkfunc;
++typedef int (*patch_func_t)(void *addr, const void *insn, size_t size);
++
++static void __apply_alternatives(void *alt_region, void *alt_patch_func)
++{
++	struct alt_entry *alt;
++	struct alt_region *region = alt_region;
++
++	for (alt = region->begin; alt < region->end; alt++) {
++		if (!errata_checkfunc(alt))
++			continue;
++		((patch_func_t)alt_patch_func)(alt->old_ptr, alt->alt_ptr, alt->old_len);
++	}
++}
++
++static void __init init_alternatvie(void)
++{
++	struct errata_checkfunc_id *ptr;
++
++	for (ptr = (struct errata_checkfunc_id *)__alt_checkfunc_table;
++	     ptr < (struct errata_checkfunc_id *)__alt_checkfunc_table_end;
++	     ptr++) {
++		if (cpu_manufactor_info.vendorid == ptr->vendorid)
++			errata_checkfunc = ptr->func;
++	}
++}
++
++/*
++ * This is called very early in the boot process (directly after we run
++ * a feature detect on the boot CPU). No need to worry about other CPUs
++ * here.
++ */
++void __init apply_boot_alternatives(void)
++{
++	struct alt_region region;
++
++	init_alternatvie();
++	/* If called on non-boot cpu things could go wrong */
++	WARN_ON(smp_processor_id() != 0);
++
++	region.begin = (struct alt_entry *)__alt_insn;
++	region.end = (struct alt_entry *)__alt_insn_end;
++	__apply_alternatives(&region, patch_text_nosync);
++
++	region.begin = (struct alt_entry *)__alt_data;
++	region.end = (struct alt_entry *)__alt_data_end;
++	__apply_alternatives(&region, copy_to_kernel_nofault);
++}
++
+diff --git a/arch/riscv/include/asm/alternative-macros.h b/arch/riscv/include/asm/alternative-macros.h
+new file mode 100644
+index 00000000..dd06ded
+--- /dev/null
++++ b/arch/riscv/include/asm/alternative-macros.h
+@@ -0,0 +1,133 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef __ASM_ALTERNATIVE_MACROS_H
++#define __ASM_ALTERNATIVE_MACROS_H
++
++#ifndef __ASSEMBLY__
++
++#include <asm/asm.h>
++#include <linux/stringify.h>
++
++#define ALT_ENTRY(oldptr, altptr, vendorid, archid, impid, oldlen, altlen) \
++	RISCV_PTR " " oldptr "\n" \
++	RISCV_PTR " " altptr "\n" \
++	REG_ASM " " vendorid "\n" \
++	REG_ASM " " archid "\ n" \
++	REG_ASM " " impid "\n" \
++	".word " oldlen "\n" \
++	".word " altlen "\n" \
++
++#define __ALTINSN_CFG(oldinsn, altinsn, vendorid, archid, impid, enable) \
++	".if " __stringify(enable) " == 1\n"				\
++	"886 :\n\t"							\
++	oldinsn "\n"							\
++	"887 :\n"							\
++	".pushsection .altinsn, \"a\"\n"				\
++	ALT_ENTRY("886b", "888f", vendorid, archid, impid, "887b - 886b", "889f - 888f") \
++	".popsection\n"							\
++	".subsection 1\n"						\
++	"888 :\n\t"							\
++	altinsn "\n"							\
++	"889 :\n\t"							\
++	".previous\n"							\
++	".org	. - (887b - 886b) + (889b - 888b)\n\t"			\
++	".org	. - (889b - 888b) + (887b - 886b)\n\t"			\
++	".endif\n"
++
++#define _ALTINSN_CFG(oldinsn, altinsn, vendorid, archid, impid, CONFIG_k, ...)	\
++	__ALTINSN_CFG(oldinsn, altinsn, vendorid, archid, impid, IS_ENABLED(CONFIG_k))
++
++#define __ALTDATA_CFG(oldptr, altptr, vendorid, archid, impid, oldlen, altlen, enable) \
++	".if " __stringify(enable) " == 1\n"					\
++	".pushsection .altdata, \"a\"\n"					\
++	ALT_ENTRY(oldptr, altptr, vendorid, archid, impid, oldlen, altlen)	\
++	".popsection\n"								\
++	".previous\n"								\
++	".endif\n"
++
++#define _ALTDATA_CFG(oldptr, altptr, vendorid, archid, impid, oldlen, altlen, CONFIG_k, ...)	\
++	__ALTDATA_CFG(oldptr, altptr, vendorid, archid, impid, oldlen, altlen, IS_ENABLED(CONFIG_k))
++
++#else
++.macro ALT_ENTRY oldptr altptr vendorid archid impid oldlen alt_len
++	RISCV_PTR \oldptr
++	RISCV_PTR \altptr
++	REG_ASM \vendorid
++	REG_ASM \archid
++	REG_ASM \impid
++	.word \oldlen
++	.word \alt_len
++.endm
++
++.macro __ALTINSN_CFG insn1 insn2 vendorid archid impid enable = 1
++	.if \enable
++886 :
++	\insn1
++887 :
++	.pushsection .altinsn, "a"
++	ALT_ENTRY 886b, 888f, \vendorid, \archid, \impid, 887b - 886b, 889f - 888f
++	.popsection
++	.subsection 1
++888 :
++	\insn2
++889 :
++	.previous
++	.org    . - (889b - 888b) + (887b - 886b)
++	.org    . - (887b - 886b) + (889b - 888b)
++	.endif
++.endm
++
++#define _ALTINSN_CFG(oldinsn, altinsn, vendorid, archid, impid, CONFIG_k, ...) \
++	__ALTINSN_CFG oldinsn, altinsn, vendorid, archid, impid, IS_ENABLED(CONFIG_k)
++
++.macro __ALTDATA_CFG oldptr altptr vendorid archid impid oldlen altlen enable = 1
++	.if \enable
++	.pushsection .altdata, "a"
++	ALT_ENTRY \oldptr \altptr \vendorid \archid \impid \oldlen \altlen
++	.popsection
++	.org	. - \oldlen + \altlen
++	.org	. - \altlen + \oldlen
++	.endif
++.endm
++
++#define _ALTDATA_CFG(oldptr, altptr, vendorid, archid, impid, oldlen, altlen, CONFIG_k, ...)	\
++	__ALTDATA_CFG oldptr, altptr, vendorid, archid, impid, oldlen, altlen, IS_ENABLED(CONFIG_k)
++
++#endif
++
++/*
++ * Usage: asm(ALTINSN(oldinsn, altinsn, vendorid, archid, impid));
++ *
++ * Usage: asm(ALTERNATIVE(oldinsn, altinsn, vendorid, archid, impid, CONFIG_FOO));
++ *
++ * oldinsn: The old instruction which will be replaced.
++ * altinsn: The replacement instruction.
++ * vendorid: The CPU vendor ID.
++ * archid: The CPU architecture ID.
++ * impid: The CPU implement ID.
++ *
++ * N.B. If CONFIG_FOO is specified, but not selected, the whole block
++ *      will be omitted, including oldinstr.
++ */
++#define ALTINSN(oldinsn, altinsn, ...)   \
++	_ALTINSN_CFG(oldinsn, altinsn, __VA_ARGS__, 1)
++
++/*
++ * Usage: asm(ALTDATA(oldptr, altptr, vendorid, archid, impid, oldlen, altlen));
++ *
++ * Usage: asm(ALTERNATIVE(oldptr, altptr, feature, CONFIG_FOO));
++ *
++ * oldptr: The address of old data.
++ * altinsn: The address of replacement data.
++ * vendorid: The CPU vendor ID.
++ * archid: The CPU architecture ID.
++ * impid: The CPU implement ID.
++ * oldlen: The data length of old data.
++ * newlen: The data length of new data.
++ *
++ * N.B. If CONFIG_FOO is specified, but not selected, the whole block
++ *      will be omitted.
++ */
++
++#define ALTDATA(oldptr, altptr, ...)   \
++	_ALTDATA_CFG(oldptr, altptr, __VA_ARGS__, 1)
++#endif
+diff --git a/arch/riscv/include/asm/alternative.h b/arch/riscv/include/asm/alternative.h
+new file mode 100644
+index 00000000..fc1d929
+--- /dev/null
++++ b/arch/riscv/include/asm/alternative.h
+@@ -0,0 +1,43 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++/*
++ * Copyright (C) 2021 Sifive.
++ */
++
++#ifndef __ASM_ALTERNATIVE_H
++#define __ASM_ALTERNATIVE_H
++
++#include <asm/alternative-macros.h>
++#ifndef __ASSEMBLY__
++
++#include <linux/init.h>
++#include <linux/types.h>
++#include <linux/stddef.h>
++#include <asm/hwcap.h>
++
++void __init apply_boot_alternatives(void);
++
++struct alt_entry {
++	void *old_ptr;		/* address of original instruciton or data  */
++	void *alt_ptr;		/* address of replacement instruction or data */
++	unsigned long vendorid;	/* cpu vendor id */
++	unsigned long archid;	/* cpu architecture id */
++	unsigned long impid;	/* cpu implement id */
++	unsigned int old_len;	/* size of original instruction(s) or data(s) */
++	unsigned int alt_len;	/* size of new instruction(s) or data(s) */
++};
++
++struct errata_checkfunc_id {
++	unsigned long vendorid;
++	bool (*func)(struct alt_entry *alt);
++};
++
++extern struct cpu_manufactor_info_t cpu_manufactor_info;
++
++#define REGISTER_ERRATA_CHECKFUNC(checkfunc, vendor_id)			  \
++	static const struct errata_checkfunc_id _errata_check_##vendor_id \
++	__used __section(".alt_checkfunc_table")			  \
++	__aligned(__alignof__(struct errata_checkfunc_id)) =		  \
++	{ .vendorid = vendor_id,					  \
++	  .func = checkfunc }
++#endif
++#endif
+diff --git a/arch/riscv/include/asm/asm.h b/arch/riscv/include/asm/asm.h
+index 9c992a8..618d7c5 100644
+--- a/arch/riscv/include/asm/asm.h
++++ b/arch/riscv/include/asm/asm.h
+@@ -23,6 +23,7 @@
+ #define REG_L		__REG_SEL(ld, lw)
+ #define REG_S		__REG_SEL(sd, sw)
+ #define REG_SC		__REG_SEL(sc.d, sc.w)
++#define REG_ASM		__REG_SEL(.dword, .word)
+ #define SZREG		__REG_SEL(8, 4)
+ #define LGREG		__REG_SEL(3, 2)
+ 
+diff --git a/arch/riscv/include/asm/sections.h b/arch/riscv/include/asm/sections.h
+index 3a9971b..2ee8e12 100644
+--- a/arch/riscv/include/asm/sections.h
++++ b/arch/riscv/include/asm/sections.h
+@@ -9,5 +9,8 @@
+ 
+ extern char _start[];
+ extern char _start_kernel[];
++extern char __alt_checkfunc_table[], __alt_checkfunc_table_end[];
++extern char __alt_data[], __alt_data_end[];
++extern char __alt_insn[], __alt_insn_end[];
+ 
+ #endif /* __ASM_SECTIONS_H */
+diff --git a/arch/riscv/kernel/smpboot.c b/arch/riscv/kernel/smpboot.c
+index 96167d5..7177ee2 100644
+--- a/arch/riscv/kernel/smpboot.c
++++ b/arch/riscv/kernel/smpboot.c
+@@ -31,6 +31,7 @@
+ #include <asm/sections.h>
+ #include <asm/sbi.h>
+ #include <asm/smp.h>
++#include <asm/alternative.h>
+ 
+ #include "head.h"
+ 
+@@ -39,6 +40,9 @@ static DECLARE_COMPLETION(cpu_running);
+ void __init smp_prepare_boot_cpu(void)
+ {
+ 	init_cpu_topology();
++#ifdef CONFIG_RISCV_ERRATA
++	apply_boot_alternatives();
++#endif
+ }
+ 
+ void __init smp_prepare_cpus(unsigned int max_cpus)
+diff --git a/arch/riscv/kernel/vmlinux.lds.S b/arch/riscv/kernel/vmlinux.lds.S
+index 3ffbd6c..9df933c 100644
+--- a/arch/riscv/kernel/vmlinux.lds.S
++++ b/arch/riscv/kernel/vmlinux.lds.S
+@@ -77,6 +77,27 @@ SECTIONS
+ 
+ 	INIT_DATA_SECTION(16)
+ 
++	. = ALIGN(8);
++	.alt_checkfunc_table : {
++		__alt_checkfunc_table = .;
++		*(.alt_checkfunc_table)
++		__alt_checkfunc_table_end = .;
++	}
++
++	. = ALIGN(8);
++	.altinsn : {
++		__alt_insn = .;
++		*(.altinsn)
++		__alt_insn_end = .;
++	}
++
++	. = ALIGN(8);
++	.altdata : {
++		__alt_data = .;
++		*(.altdata)
++		__alt_data_end = .;
++	}
++
+ 	/* Start of data section */
+ 	_sdata = .;
+ 	RO_DATA(SECTION_ALIGN)
+-- 
+2.7.4
+

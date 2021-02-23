@@ -1,0 +1,62 @@
+From df86ca5b9416ebeacb5ecee63118170c7ea20035 Mon Sep 17 00:00:00 2001
+From: Zong Li <zong.li@sifive.com>
+Date: Wed, 9 Dec 2020 17:49:13 +0800
+Subject: [PATCH 02/29] clk: sifive: Use common name for prci configuration
+
+Use generic name CLK_SIFIVE_PRCI instead of CLK_SIFIVE_FU540_PRCI. This
+patch is prepared for fu740 support.
+
+Signed-off-by: Zong Li <zong.li@sifive.com>
+Reviewed-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Acked-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Reviewed-by: Pragnesh Patel <Pragnesh.patel@sifive.com>
+---
+ arch/riscv/Kconfig.socs     | 2 +-
+ drivers/clk/sifive/Kconfig  | 6 +++---
+ drivers/clk/sifive/Makefile | 2 +-
+ 3 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/arch/riscv/Kconfig.socs b/arch/riscv/Kconfig.socs
+index 8a55f61..3284d5c 100644
+--- a/arch/riscv/Kconfig.socs
++++ b/arch/riscv/Kconfig.socs
+@@ -5,7 +5,7 @@ config SOC_SIFIVE
+ 	select SERIAL_SIFIVE if TTY
+ 	select SERIAL_SIFIVE_CONSOLE if TTY
+ 	select CLK_SIFIVE
+-	select CLK_SIFIVE_FU540_PRCI
++	select CLK_SIFIVE_PRCI
+ 	select SIFIVE_PLIC
+ 	help
+ 	  This enables support for SiFive SoC platform hardware.
+diff --git a/drivers/clk/sifive/Kconfig b/drivers/clk/sifive/Kconfig
+index f3b4eb9..ab48cf7 100644
+--- a/drivers/clk/sifive/Kconfig
++++ b/drivers/clk/sifive/Kconfig
+@@ -8,12 +8,12 @@ menuconfig CLK_SIFIVE
+ 
+ if CLK_SIFIVE
+ 
+-config CLK_SIFIVE_FU540_PRCI
+-	bool "PRCI driver for SiFive FU540 SoCs"
++config CLK_SIFIVE_PRCI
++	bool "PRCI driver for SiFive SoCs"
+ 	select CLK_ANALOGBITS_WRPLL_CLN28HPC
+ 	help
+ 	  Supports the Power Reset Clock interface (PRCI) IP block found in
+-	  FU540 SoCs.  If this kernel is meant to run on a SiFive FU540 SoC,
++	  FU540 SoCs. If this kernel is meant to run on a SiFive FU540 SoC,
+ 	  enable this driver.
+ 
+ endif
+diff --git a/drivers/clk/sifive/Makefile b/drivers/clk/sifive/Makefile
+index 51b6ebc..3074cdb 100644
+--- a/drivers/clk/sifive/Makefile
++++ b/drivers/clk/sifive/Makefile
+@@ -1,2 +1,2 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+-obj-$(CONFIG_CLK_SIFIVE_FU540_PRCI)	+= sifive-prci.o fu540-prci.o
++obj-$(CONFIG_CLK_SIFIVE_PRCI)	+= sifive-prci.o fu540-prci.o
+-- 
+2.7.4
+

@@ -1,0 +1,35 @@
+From a57464df4cfa31061f665d2bac4222d625ec5ca9 Mon Sep 17 00:00:00 2001
+From: Greentime Hu <greentime.hu@sifive.com>
+Date: Wed, 3 Feb 2021 11:11:57 +0800
+Subject: [PATCH 27/29] MAINTAINERS: Add maintainers for SiFive FU740 PCIe
+ driver
+
+Here add maintainer information for SiFive FU740 PCIe driver.
+
+Signed-off-by: Greentime Hu <greentime.hu@sifive.com>
+---
+ MAINTAINERS | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 281de21..5980c85 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -13389,6 +13389,14 @@ S:	Maintained
+ F:	Documentation/devicetree/bindings/pci/fsl,imx6q-pcie.txt
+ F:	drivers/pci/controller/dwc/*imx6*
+ 
++PCI DRIVER FOR FU740
++M:	Paul Walmsley <paul.walmsley@sifive.com>
++M:	Greentime Hu <greentime.hu@sifive.com>
++L:	linux-pci@vger.kernel.org
++S:	Maintained
++F:	Documentation/devicetree/bindings/pci/sifive,fu740-pcie.yaml
++F:	drivers/pci/controller/dwc/pcie-fu740.c
++
+ PCI DRIVER FOR INTEL VOLUME MANAGEMENT DEVICE (VMD)
+ M:	Jonathan Derrick <jonathan.derrick@intel.com>
+ L:	linux-pci@vger.kernel.org
+-- 
+2.7.4
+

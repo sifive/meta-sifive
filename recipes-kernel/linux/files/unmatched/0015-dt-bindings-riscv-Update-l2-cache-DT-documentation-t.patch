@@ -1,0 +1,88 @@
+From 2655e2e5c1586f40931d0ebe26d68242c9ec7cab Mon Sep 17 00:00:00 2001
+From: Yash Shah <yash.shah@sifive.com>
+Date: Thu, 10 Dec 2020 15:58:02 +0530
+Subject: [PATCH 15/29] dt-bindings: riscv: Update l2 cache DT documentation to
+ add support for SiFive FU740
+
+The L2 cache controller in SiFive FU740 has 4 ECC interrupt sources as
+compared to 3 in FU540. Update the DT documentation accordingly with
+"compatible" and "interrupt" property changes.
+
+Signed-off-by: Yash Shah <yash.shah@sifive.com>
+Reviewed-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Acked-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+---
+ .../devicetree/bindings/riscv/sifive-l2-cache.yaml | 34 +++++++++++++++++++---
+ 1 file changed, 30 insertions(+), 4 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/riscv/sifive-l2-cache.yaml b/Documentation/devicetree/bindings/riscv/sifive-l2-cache.yaml
+index efc0198..6a576dc 100644
+--- a/Documentation/devicetree/bindings/riscv/sifive-l2-cache.yaml
++++ b/Documentation/devicetree/bindings/riscv/sifive-l2-cache.yaml
+@@ -27,6 +27,7 @@ select:
+       items:
+         - enum:
+             - sifive,fu540-c000-ccache
++            - sifive,fu740-c000-ccache
+ 
+   required:
+     - compatible
+@@ -34,7 +35,9 @@ select:
+ properties:
+   compatible:
+     items:
+-      - const: sifive,fu540-c000-ccache
++      - enum:
++          - sifive,fu540-c000-ccache
++          - sifive,fu740-c000-ccache
+       - const: cache
+ 
+   cache-block-size:
+@@ -52,10 +55,13 @@ properties:
+   cache-unified: true
+ 
+   interrupts:
+-    description: |
+-      Must contain entries for DirError, DataError and DataFail signals.
+     minItems: 3
+-    maxItems: 3
++    maxItems: 4
++    items:
++      - description: DirError interrupt
++      - description: DataError interrupt
++      - description: DataFail interrupt
++      - description: DirFail interrupt
+ 
+   reg:
+     maxItems: 1
+@@ -67,6 +73,26 @@ properties:
+       The reference to the reserved-memory for the L2 Loosely Integrated Memory region.
+       The reserved memory node should be defined as per the bindings in reserved-memory.txt.
+ 
++if:
++  properties:
++    compatible:
++      contains:
++        const: sifive,fu540-c000-ccache
++
++then:
++  properties:
++    interrupts:
++      description: |
++        Must contain entries for DirError, DataError and DataFail signals.
++      maxItems: 3
++
++else:
++  properties:
++    interrupts:
++      description: |
++        Must contain entries for DirError, DataError, DataFail, DirFail signals.
++      minItems: 4
++
+ additionalProperties: false
+ 
+ required:
+-- 
+2.7.4
+

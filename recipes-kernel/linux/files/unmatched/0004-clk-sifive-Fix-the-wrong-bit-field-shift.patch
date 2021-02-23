@@ -1,0 +1,38 @@
+From ff2bcef458e1fc95c6f3da7304df4119628f92c5 Mon Sep 17 00:00:00 2001
+From: Zong Li <zong.li@sifive.com>
+Date: Wed, 9 Dec 2020 17:49:15 +0800
+Subject: [PATCH 04/29] clk: sifive: Fix the wrong bit field shift
+
+The clk enable bit should be 31 instead of 24.
+
+Signed-off-by: Zong Li <zong.li@sifive.com>
+Reported-by: Pragnesh Patel <pragnesh.patel@sifive.com>
+---
+ drivers/clk/sifive/sifive-prci.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/clk/sifive/sifive-prci.h b/drivers/clk/sifive/sifive-prci.h
+index 7e509df..88493f3 100644
+--- a/drivers/clk/sifive/sifive-prci.h
++++ b/drivers/clk/sifive/sifive-prci.h
+@@ -59,7 +59,7 @@
+ 
+ /* DDRPLLCFG1 */
+ #define PRCI_DDRPLLCFG1_OFFSET		0x10
+-#define PRCI_DDRPLLCFG1_CKE_SHIFT	24
++#define PRCI_DDRPLLCFG1_CKE_SHIFT	31
+ #define PRCI_DDRPLLCFG1_CKE_MASK	(0x1 << PRCI_DDRPLLCFG1_CKE_SHIFT)
+ 
+ /* GEMGXLPLLCFG0 */
+@@ -81,7 +81,7 @@
+ 
+ /* GEMGXLPLLCFG1 */
+ #define PRCI_GEMGXLPLLCFG1_OFFSET	0x20
+-#define PRCI_GEMGXLPLLCFG1_CKE_SHIFT	24
++#define PRCI_GEMGXLPLLCFG1_CKE_SHIFT	31
+ #define PRCI_GEMGXLPLLCFG1_CKE_MASK	(0x1 << PRCI_GEMGXLPLLCFG1_CKE_SHIFT)
+ 
+ /* CORECLKSEL */
+-- 
+2.7.4
+

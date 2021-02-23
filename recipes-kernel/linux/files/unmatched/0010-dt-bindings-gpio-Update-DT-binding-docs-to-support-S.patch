@@ -1,0 +1,33 @@
+From 9791e30869ff598c0faede92500d4d35c8bbba45 Mon Sep 17 00:00:00 2001
+From: Yash Shah <yash.shah@sifive.com>
+Date: Tue, 8 Dec 2020 10:25:37 +0530
+Subject: [PATCH 10/29] dt-bindings: gpio: Update DT binding docs to support
+ SiFive FU740 SoC
+
+Add new compatible strings to the DT binding documents to support SiFive
+FU740-C000.
+
+Signed-off-by: Yash Shah <yash.shah@sifive.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+---
+ Documentation/devicetree/bindings/gpio/sifive,gpio.yaml | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/Documentation/devicetree/bindings/gpio/sifive,gpio.yaml b/Documentation/devicetree/bindings/gpio/sifive,gpio.yaml
+index a0efd8d..ab22056 100644
+--- a/Documentation/devicetree/bindings/gpio/sifive,gpio.yaml
++++ b/Documentation/devicetree/bindings/gpio/sifive,gpio.yaml
+@@ -13,7 +13,9 @@ maintainers:
+ properties:
+   compatible:
+     items:
+-      - const: sifive,fu540-c000-gpio
++      - enum:
++          - sifive,fu540-c000-gpio
++          - sifive,fu740-c000-gpio
+       - const: sifive,gpio0
+ 
+   reg:
+-- 
+2.7.4
+

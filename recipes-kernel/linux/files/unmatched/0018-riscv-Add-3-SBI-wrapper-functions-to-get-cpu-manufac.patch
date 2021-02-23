@@ -1,0 +1,58 @@
+From 49e87f076a3d9d4b1ebadfe2b19250977be6d668 Mon Sep 17 00:00:00 2001
+From: Vincent Chen <vincent.chen@sifive.com>
+Date: Tue, 12 Jan 2021 14:43:50 +0800
+Subject: [PATCH 18/29] riscv: Add 3 SBI wrapper functions to get cpu
+ manufactory information
+
+Add 3 wrapper functions to get vendor id, architecture id and implement id
+from M-mode
+
+Signed-off-by: Vincent Chen <vincent.chen@sifive.com>
+---
+ arch/riscv/include/asm/sbi.h |  3 +++
+ arch/riscv/kernel/sbi.c      | 15 +++++++++++++++
+ 2 files changed, 18 insertions(+)
+
+diff --git a/arch/riscv/include/asm/sbi.h b/arch/riscv/include/asm/sbi.h
+index 653edb2..97eb78d 100644
+--- a/arch/riscv/include/asm/sbi.h
++++ b/arch/riscv/include/asm/sbi.h
+@@ -97,6 +97,9 @@ struct sbiret sbi_ecall(int ext, int fid, unsigned long arg0,
+ 
+ void sbi_console_putchar(int ch);
+ int sbi_console_getchar(void);
++long sbi_get_vendorid(void);
++long sbi_get_archid(void);
++long sbi_get_impid(void);
+ void sbi_set_timer(uint64_t stime_value);
+ void sbi_shutdown(void);
+ void sbi_clear_ipi(void);
+diff --git a/arch/riscv/kernel/sbi.c b/arch/riscv/kernel/sbi.c
+index 226ccce..b8f82c7 100644
+--- a/arch/riscv/kernel/sbi.c
++++ b/arch/riscv/kernel/sbi.c
+@@ -547,6 +547,21 @@ static inline long sbi_get_firmware_version(void)
+ 	return __sbi_base_ecall(SBI_EXT_BASE_GET_IMP_VERSION);
+ }
+ 
++long sbi_get_vendorid(void)
++{
++	return __sbi_base_ecall(SBI_EXT_BASE_GET_MVENDORID);
++}
++
++long sbi_get_archid(void)
++{
++	return __sbi_base_ecall(SBI_EXT_BASE_GET_MARCHID);
++}
++
++long sbi_get_impid(void)
++{
++	return __sbi_base_ecall(SBI_EXT_BASE_GET_MIMPID);
++}
++
+ static void sbi_send_cpumask_ipi(const struct cpumask *target)
+ {
+ 	struct cpumask hartid_mask;
+-- 
+2.7.4
+
