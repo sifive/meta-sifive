@@ -2,9 +2,9 @@
 # Bootstrapper for buildbot slave
 
 DIR="build"
-MACHINE="freedom-u540"
+MACHINE="unmatched"
 CONFFILE="conf/auto.conf"
-BITBAKEIMAGE="demo-coreip-cli"
+BITBAKEIMAGE="demo-coreip-xfce4"
 
 # clean up the output dir
 #echo "Cleaning build dir"
@@ -86,7 +86,18 @@ INHERIT += "uninative"
 DISTRO_FEATURES_append = " largefile opengl ptest multiarch pam systemd vulkan "
 DISTRO_FEATURES_BACKFILL_CONSIDERED += "sysvinit"
 VIRTUAL-RUNTIME_init_manager = "systemd"
+VIRTUAL-RUNTIME_initscripts = ""
+VIRTUAL-RUNTIME_syslog = ""
+VIRTUAL-RUNTIME_login_manager = "shadow-base"
 HOSTTOOLS_NONFATAL_append = " ssh"
+
+PREFERRED_PROVIDER_base-utils = "packagegroup-core-base-utils"
+VIRTUAL-RUNTIME_base-utils = "packagegroup-core-base-utils"
+VIRTUAL-RUNTIME_base-utils-hwclock = "util-linux-hwclock"
+VIRTUAL-RUNTIME_base-utils-syslog = ""
+
+# Use full features vim instead of vim-tiny
+VIRTUAL-RUNTIME_vim = "vim"
 
 # We use NetworkManager instead
 PACKAGECONFIG_remove_pn-systemd = "networkd"
@@ -121,13 +132,14 @@ EOF
 fi
 
 echo "---------------------------------------------------"
-echo "MACHINE=${MACHINE} bitbake ${BITBAKEIMAGE}"
+echo "Example: MACHINE=${MACHINE} bitbake ${BITBAKEIMAGE}"
 echo "---------------------------------------------------"
 echo ""
 echo "Buildable machine info"
 echo "---------------------------------------------------"
-echo "* freedom-u540: The SiFive HiFive Unleashed board"
-echo "* qemuriscv64: The 64-bit RISC-V machine"
+echo "* unmatched    : The SiFive HiFive Unmatched board"
+echo "* freedom-u540 : The SiFive HiFive Unleashed board"
+echo "* qemuriscv64  : The 64-bit RISC-V machine"
 echo "---------------------------------------------------"
 
 # start build

@@ -1,0 +1,8 @@
+# short-description: Create SD card image for HiFive Unmatched development board with U-Boot SPL and OpenSBI (FW_DYNAMIC)
+
+part --source rawcopy --sourceparams="file=u-boot-spl.bin" --ondisk mmcblk0 --fixed-size 1M --align 17 --part-type 5b193300-fc78-40cd-8002-e86c45580b47
+part --source rawcopy --sourceparams="file=u-boot.itb" --ondisk mmcblk0 --fixed-size 4M --align 1 --part-type 2e54b353-1271-4842-806f-e436d6af6985
+part /boot --source bootimg-partition --sourceparams="loader=u-boot" --ondisk mmcblk0 --fstype=vfat --label boot --active --size=100M --align 4096
+part / --source rootfs --ondisk mmcblk0 --fstype=ext4 --label root --align 4096 --size 5G
+
+bootloader --ptable gpt --configfile="unmatched-extlinux.conf"
