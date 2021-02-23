@@ -9,11 +9,10 @@ SRC_URI = " \
     git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git;branch=${BRANCH} \
 "
 
-SRC_append_unmatched = " \
-    file://riscv-fixup-CONFIG_GENERIC_TIME_VSYSCALL.patch \
+SRC_URI_append_unmatched = " \
     file://0001-clk-sifive-Extract-prci-core-to-common-base.patch \
     file://0002-clk-sifive-Use-common-name-for-prci-configuration.patch \
-    file://0003-clk-sifive-Add-a-driver-for-the-SiFive-FU740-PRCI-IP.patch
+    file://0003-clk-sifive-Add-a-driver-for-the-SiFive-FU740-PRCI-IP.patch \
     file://0004-clk-sifive-Fix-the-wrong-bit-field-shift.patch \
     file://0005-clk-sifive-Add-clock-enable-and-disable-ops.patch \
     file://0006-dt-bindings-riscv-Update-DT-binding-docs-to-support-.patch \
