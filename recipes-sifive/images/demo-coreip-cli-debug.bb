@@ -45,19 +45,21 @@ IMAGE_INSTALL = "\
     i2c-tools-misc \
     spitools \
     networkmanager \
+    networkmanager-nmcli \
+    networkmanager-nmcli-doc \
     networkmanager-nmtui \
     networkmanager-nmtui-doc \
     haveged \
     e2fsprogs-resize2fs \
     e2fsprogs-e2fsck \
     e2fsprogs-mke2fs \
+    gparted \
     parted \
     gptfdisk \
     rsync \
     screen \
     tmux \
     stress-ng \
-    dhcpcd \
     nbd-client \
     mpfr-dev \
     gmp-dev \
@@ -157,6 +159,14 @@ IMAGE_INSTALL = "\
     libbsd-staticdev \
     mpfr-staticdev \
     openmp-staticdev \
+    patchelf \
+    python3-pip \
+    python3-setuptools \
+    openssh-misc \
+    openssh-sftp \
+    openssh-sftp-server \
+    lmsensors \
+    smartmontools \
     ${CORE_IMAGE_EXTRA_INSTALL} \
     "
 

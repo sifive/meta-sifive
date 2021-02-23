@@ -46,12 +46,16 @@ IMAGE_INSTALL = "\
     i2c-tools-misc \
     spitools \
     networkmanager \
+    networkmanager-nmcli \
+    networkmanager-nmcli-doc \
     networkmanager-nmtui \
     networkmanager-nmtui-doc \
+    network-manager-applet \
     haveged \
     e2fsprogs-resize2fs \
     e2fsprogs-e2fsck \
     e2fsprogs-mke2fs \
+    gparted \
     parted \
     gptfdisk \
     rsync \
@@ -84,7 +88,6 @@ IMAGE_INSTALL = "\
     xf86-video-amdgpu \
     linux-firmware \
     quake2 \
-    dhcpcd \
     nbd-client \
     mpfr-dev \
     gmp-dev \
@@ -194,6 +197,14 @@ IMAGE_INSTALL = "\
     gstreamer1.0-vaapi \
     mesa-vdpau-drivers \
     vdpauinfo \
+    patchelf \
+    python3-pip \
+    python3-setuptools \
+    openssh-misc \
+    openssh-sftp \
+    openssh-sftp-server \
+    lmsensors \
+    smartmontools \
     ${CORE_IMAGE_EXTRA_INSTALL} \
     "
 
