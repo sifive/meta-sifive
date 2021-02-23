@@ -1,0 +1,87 @@
+From 313410edaf2dcd7f2aa327c310ff50729d449333 Mon Sep 17 00:00:00 2001
+From: Pragnesh Patel <pragnesh.patel@sifive.com>
+Date: Wed, 21 Oct 2020 17:22:32 +0530
+Subject: [PATCH 19/34] sifive: hifive_unmatched_fu740: Add sample SD gpt
+ partition layout
+
+This is a sample GPT partition layout for SD card,
+right now three important partitions are added to
+make the system bootable.
+
+partition layout:
+
+Part    Start LBA       End LBA         Name
+        Attributes
+        Type GUID
+        Partition GUID
+  1     0x00000022      0x00000821      "loader1"
+        attrs:  0x0000000000000000
+        type:   5b193300-fc78-40cd-8002-e86c45580b47
+        guid:   cbcbef44-e627-42bc-b134-93b6f3784b8c
+  2     0x00000822      0x00002821      "loader2"
+        attrs:  0x0000000000000000
+        type:   2e54b353-1271-4842-806f-e436d6af6985
+        guid:   f54eba28-d8de-4852-978d-1a673777e2ae
+  3     0x00002822      0x00020821      "rootfs"
+        attrs:  0x0000000000000004
+        type:   0fc63daf-8483-4772-8e79-3d69d8477de4
+        type:   linux
+        guid:   9561df46-8d55-4799-a83b-cfee9ef6ff93
+
+Note:
+- loader1 would be spl
+- loader2 would be U-Boot or U-Boot proper
+
+Signed-off-by: Pragnesh Patel <pragnesh.patel@sifive.com>
+---
+ board/sifive/hifive_unmatched_fu740/Kconfig     |  2 ++
+ include/configs/sifive-hifive-unmatched-fu740.h | 13 +++++++++++++
+ 2 files changed, 15 insertions(+)
+
+diff --git a/board/sifive/hifive_unmatched_fu740/Kconfig b/board/sifive/hifive_unmatched_fu740/Kconfig
+index 9857330..19b6413 100644
+--- a/board/sifive/hifive_unmatched_fu740/Kconfig
++++ b/board/sifive/hifive_unmatched_fu740/Kconfig
+@@ -32,6 +32,8 @@ config BOARD_SPECIFIC_OPTIONS # dummy
+ 	imply CMD_EXT4
+ 	imply CMD_FAT
+ 	imply CMD_FS_GENERIC
++	imply CMD_GPT
++	imply PARTITION_TYPE_GUID
+ 	imply CMD_NET
+ 	imply CMD_PING
+ 	imply CMD_SF
+diff --git a/include/configs/sifive-hifive-unmatched-fu740.h b/include/configs/sifive-hifive-unmatched-fu740.h
+index 59088a0..d3fc373 100644
+--- a/include/configs/sifive-hifive-unmatched-fu740.h
++++ b/include/configs/sifive-hifive-unmatched-fu740.h
+@@ -45,6 +45,15 @@
+ 
+ #include <config_distro_bootcmd.h>
+ 
++#define TYPE_GUID_LOADER1	"5B193300-FC78-40CD-8002-E86C45580B47"
++#define TYPE_GUID_LOADER2	"2E54B353-1271-4842-806F-E436D6AF6985"
++#define TYPE_GUID_SYSTEM	"0FC63DAF-8483-4772-8E79-3D69D8477DE4"
++
++#define PARTS_DEFAULT \
++	"name=loader1,start=17K,size=1M,type=${type_guid_gpt_loader1};" \
++	"name=loader2,size=4MB,type=${type_guid_gpt_loader2};" \
++	"name=system,size=-,bootable,type=${type_guid_gpt_system};"
++
+ #define CONFIG_EXTRA_ENV_SETTINGS \
+ 	"fdt_high=0xffffffffffffffff\0" \
+ 	"initrd_high=0xffffffffffffffff\0" \
+@@ -53,6 +62,10 @@
+ 	"scriptaddr=0x88100000\0" \
+ 	"pxefile_addr_r=0x88200000\0" \
+ 	"ramdisk_addr_r=0x88300000\0" \
++	"type_guid_gpt_loader1=" TYPE_GUID_LOADER1 "\0" \
++	"type_guid_gpt_loader2=" TYPE_GUID_LOADER2 "\0" \
++	"type_guid_gpt_system=" TYPE_GUID_SYSTEM "\0" \
++	"partitions=" PARTS_DEFAULT "\0" \
+ 	BOOTENV
+ 
+ #define CONFIG_PREBOOT \
+-- 
+2.7.4
+

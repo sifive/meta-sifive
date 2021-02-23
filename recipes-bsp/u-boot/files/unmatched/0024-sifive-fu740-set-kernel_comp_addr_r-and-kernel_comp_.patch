@@ -1,0 +1,30 @@
+From ef08f93f17b1a76037588bf642c7bd0af2a8df81 Mon Sep 17 00:00:00 2001
+From: David Abdurachmanov <david.abdurachmanov@sifive.com>
+Date: Tue, 12 Jan 2021 20:25:25 +0200
+Subject: [PATCH 24/34] sifive-fu740: set kernel_comp_addr_r and
+ kernel_comp_size
+
+These are required for compressed Image.{gz,xz,.} kernel images to work
+with booti command.
+
+Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>
+---
+ include/configs/sifive-hifive-unmatched-fu740.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/include/configs/sifive-hifive-unmatched-fu740.h b/include/configs/sifive-hifive-unmatched-fu740.h
+index d3fc373..34d2647 100644
+--- a/include/configs/sifive-hifive-unmatched-fu740.h
++++ b/include/configs/sifive-hifive-unmatched-fu740.h
+@@ -62,6 +62,8 @@
+ 	"scriptaddr=0x88100000\0" \
+ 	"pxefile_addr_r=0x88200000\0" \
+ 	"ramdisk_addr_r=0x88300000\0" \
++	"kernel_comp_addr_r=0x90000000\0" \
++	"kernel_comp_size=0x4000000\0" \
+ 	"type_guid_gpt_loader1=" TYPE_GUID_LOADER1 "\0" \
+ 	"type_guid_gpt_loader2=" TYPE_GUID_LOADER2 "\0" \
+ 	"type_guid_gpt_system=" TYPE_GUID_SYSTEM "\0" \
+-- 
+2.7.4
+

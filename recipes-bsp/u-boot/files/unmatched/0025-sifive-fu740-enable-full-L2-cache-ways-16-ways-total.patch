@@ -1,0 +1,88 @@
+From 5ce70ea7495d0febaa3671d16add996b49ecc329 Mon Sep 17 00:00:00 2001
+From: David Abdurachmanov <david.abdurachmanov@sifive.com>
+Date: Tue, 12 Jan 2021 20:32:50 +0200
+Subject: [PATCH 25/34] sifive: fu740: enable full L2 cache ways (16 ways
+ total)
+
+Linux reports now:
+
+[..]
+[    2.593562] L2CACHE: Index of the largest way enabled: 15
+[..]
+
+Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>
+---
+ arch/riscv/cpu/fu740/Makefile                              |  1 +
+ arch/riscv/dts/fu740-c000-u-boot.dtsi                      |  3 +++
+ arch/riscv/include/asm/arch-fu740/cache.h                  | 14 ++++++++++++++
+ .../sifive/hifive_unmatched_fu740/hifive-unmatched-fu740.c |  9 ++++++++-
+ 4 files changed, 26 insertions(+), 1 deletion(-)
+ create mode 100644 arch/riscv/include/asm/arch-fu740/cache.h
+
+diff --git a/arch/riscv/cpu/fu740/Makefile b/arch/riscv/cpu/fu740/Makefile
+index 043fb96..088205e 100644
+--- a/arch/riscv/cpu/fu740/Makefile
++++ b/arch/riscv/cpu/fu740/Makefile
+@@ -8,4 +8,5 @@ obj-y += spl.o
+ else
+ obj-y += dram.o
+ obj-y += cpu.o
++obj-y += cache.o
+ endif
+diff --git a/arch/riscv/dts/fu740-c000-u-boot.dtsi b/arch/riscv/dts/fu740-c000-u-boot.dtsi
+index 88cbaaa..ae1d607 100644
+--- a/arch/riscv/dts/fu740-c000-u-boot.dtsi
++++ b/arch/riscv/dts/fu740-c000-u-boot.dtsi
+@@ -99,3 +99,6 @@
+ 	assigned-clocks = <&prci PRCI_CLK_GEMGXLPLL>;
+ 	assigned-clock-rates = <126750000>;
+ };
++&ccache {
++	status = "okay";
++};
+diff --git a/arch/riscv/include/asm/arch-fu740/cache.h b/arch/riscv/include/asm/arch-fu740/cache.h
+new file mode 100644
+index 0000000..135a17c
+--- /dev/null
++++ b/arch/riscv/include/asm/arch-fu740/cache.h
+@@ -0,0 +1,14 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * Copyright (C) 2020 SiFive, Inc.
++ *
++ * Authors:
++ *   Pragnesh Patel <pragnesh.patel@sifve.com>
++ */
++
++#ifndef _CACHE_SIFIVE_H
++#define _CACHE_SIFIVE_H
++
++int cache_enable_ways(void);
++
++#endif /* _CACHE_SIFIVE_H */
+diff --git a/board/sifive/hifive_unmatched_fu740/hifive-unmatched-fu740.c b/board/sifive/hifive_unmatched_fu740/hifive-unmatched-fu740.c
+index febfa51..361bfbf 100644
+--- a/board/sifive/hifive_unmatched_fu740/hifive-unmatched-fu740.c
++++ b/board/sifive/hifive_unmatched_fu740/hifive-unmatched-fu740.c
+@@ -8,10 +8,17 @@
+ 
+ #include <common.h>
+ #include <dm.h>
++#include <asm/arch/cache.h>
+ 
+ int board_init(void)
+ {
+-	/* For now nothing to do here. */
++	int ret;
+ 
++	/* enable all cache ways */
++	ret = cache_enable_ways();
++	if (ret) {
++		debug("%s: could not enable cache ways\n", __func__);
++		return ret;
++	}
+ 	return 0;
+ }
+-- 
+2.7.4
+

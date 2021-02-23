@@ -1,0 +1,49 @@
+From d7a0143389875554621c27387537a1bd6a4e4e4f Mon Sep 17 00:00:00 2001
+From: Pragnesh Patel <pragnesh.patel@sifive.com>
+Date: Sat, 31 Oct 2020 19:54:53 +0530
+Subject: [PATCH 13/34] fu740: dtsi: add reset producer and consumer entries
+
+The resets to DDR, ethernet and Chiplink sub-system are
+connected to PRCI device reset control register, these reset
+signals are active low and are held low at power-up. Add these
+reset producer and consumer details needed by the reset driver.
+
+Signed-off-by: Pragnesh Patel <pragnesh.patel@sifive.com>
+---
+ arch/riscv/dts/fu740-c000-u-boot.dtsi | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/arch/riscv/dts/fu740-c000-u-boot.dtsi b/arch/riscv/dts/fu740-c000-u-boot.dtsi
+index c7df15b..d38d573 100644
+--- a/arch/riscv/dts/fu740-c000-u-boot.dtsi
++++ b/arch/riscv/dts/fu740-c000-u-boot.dtsi
+@@ -3,6 +3,8 @@
+  * (C) Copyright 2020 SiFive, Inc
+  */
+ 
++#include <dt-bindings/reset/sifive-fu740-prci.h>
++
+ / {
+ 	cpus {
+ 		assigned-clocks = <&prci PRCI_CLK_COREPLL>;
+@@ -58,6 +60,17 @@
+ 			reg = <0x0 0x2000000 0x0 0x10000>;
+ 			u-boot,dm-spl;
+ 		};
++		prci: clock-controller@10000000 {
++			#reset-cells = <1>;
++			resets = <&prci PRCI_RST_DDR_CTRL_N>,
++				 <&prci PRCI_RST_DDR_AXI_N>,
++				 <&prci PRCI_RST_DDR_AHB_N>,
++				 <&prci PRCI_RST_DDR_PHY_N>,
++				 <&prci PRCI_RST_GEMGXL_N>,
++				 <&prci PRCI_RST_CLTX_N>;
++			reset-names = "ddr_ctrl", "ddr_axi", "ddr_ahb",
++					"ddr_phy", "gemgxl_reset", "cltx_reset";
++		};
+ 	};
+ };
+ 
+-- 
+2.7.4
+

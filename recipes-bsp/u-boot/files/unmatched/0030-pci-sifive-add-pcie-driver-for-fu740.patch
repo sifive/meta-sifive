@@ -1,0 +1,1315 @@
+From b8346c052d42fc8aa034e7ebbff1b04c3d8a300c Mon Sep 17 00:00:00 2001
+From: Green Wan <green.wan@sifive.com>
+Date: Fri, 15 Jan 2021 23:36:18 +0800
+Subject: [PATCH 30/34] pci: sifive: add pcie driver for fu740
+
+Add pcie driver support root complex in Gen1 and depends on fu740 clock,
+reset and gpio drivers.
+
+Tested adapter:
+  - e1000 compatible network adapter
+  - SP M.2 PCIe Gen3 SSD
+  - 2 and 4 ports PCI to USB adapter
+
+Signed-off-by: Green Wan <green.wan@sifive.com>
+---
+ arch/riscv/dts/fu740-c000.dtsi                  |  38 ++
+ configs/sifive_hifive_unmatched_fu740_defconfig |   5 +
+ drivers/pci/Kconfig                             |   9 +
+ drivers/pci/Makefile                            |   1 +
+ drivers/pci/pcie_sifive.c                       | 797 ++++++++++++++++++++++++
+ drivers/pci/pcie_sifive.h                       | 374 +++++++++++
+ 6 files changed, 1224 insertions(+)
+ create mode 100644 drivers/pci/pcie_sifive.c
+ create mode 100644 drivers/pci/pcie_sifive.h
+
+diff --git a/arch/riscv/dts/fu740-c000.dtsi b/arch/riscv/dts/fu740-c000.dtsi
+index c5964a6..7847879 100644
+--- a/arch/riscv/dts/fu740-c000.dtsi
++++ b/arch/riscv/dts/fu740-c000.dtsi
+@@ -4,6 +4,7 @@
+ /dts-v1/;
+ 
+ #include <dt-bindings/clock/sifive-fu740-prci.h>
++#include <dt-bindings/reset/sifive-fu740-prci.h>
+ 
+ / {
+ 	#address-cells = <2>;
+@@ -158,6 +159,7 @@
+ 			reg = <0x0 0x10000000 0x0 0x1000>;
+ 			clocks = <&hfclk>, <&rtcclk>;
+ 			#clock-cells = <1>;
++			#reset-cells = <1>;
+ 		};
+ 		uart0: serial@10010000 {
+ 			compatible = "sifive,fu740-c000-uart", "sifive,uart0";
+@@ -288,5 +290,41 @@
+ 			clocks = <&prci PRCI_CLK_PCLK>;
+ 			status = "disabled";
+ 		};
++		pcie@e00000000 {
++			#address-cells = <3>;
++			#interrupt-cells = <1>;
++			#num-lanes = <8>;
++			#size-cells = <2>;
++			compatible = "sifive,fu740-pcie";
++			reg = <0xe 0x00000000 0x1 0x0
++			       0xd 0xf0000000 0x0 0x10000000
++			       0x0 0x100d0000 0x0 0x1000>;
++			reg-names = "dbi", "config", "mgmt";
++			device_type = "pci";
++			dma-coherent;
++			bus-range = <0x0 0xff>;
++			ranges = <0x81000000  0x0 0x60080000  0x0 0x60080000 0x0 0x10000
++				  0x82000000  0x0 0x60090000  0x0 0x60090000 0x0 0xff70000
++				  0x82000000  0x0 0x70000000  0x0 0x70000000 0x0 0x1000000
++				  0xc3000000 0x20 0x00000000 0x20 0x00000000 0x20 0x00000000>;
++			num-lanes = <0x8>;
++			msi-parent = <&plic0>;
++			interrupts = <56 57 58 59 60 61 62 63 64>;
++			interrupt-names = "msi", "inta", "intb", "intc", "intd";
++			interrupt-parent = <&plic0>;
++			interrupt-map-mask = <0x0 0x0 0x0 0x7>;
++			interrupt-map = <0x0 0x0 0x0 0x1 &plic0 57>,
++					<0x0 0x0 0x0 0x2 &plic0 58>,
++					<0x0 0x0 0x0 0x3 &plic0 59>,
++					<0x0 0x0 0x0 0x4 &plic0 60>;
++			pwren-gpios = <&gpio 5 0>;
++			perstn-gpios = <&gpio 8 0>;
++			clocks = <&prci PRCI_CLK_PCIEAUX>;
++			clock-names = "pcieaux";
++			resets = <&prci PRCI_RST_PCIE_POWER_UP_N>;
++			reset-names = "rst_n";
++
++			status = "okay";
++		};
+ 	};
+ };
+diff --git a/configs/sifive_hifive_unmatched_fu740_defconfig b/configs/sifive_hifive_unmatched_fu740_defconfig
+index 17cc047..bf274eb 100644
+--- a/configs/sifive_hifive_unmatched_fu740_defconfig
++++ b/configs/sifive_hifive_unmatched_fu740_defconfig
+@@ -21,3 +21,8 @@ CONFIG_SPL_YMODEM_SUPPORT=y
+ CONFIG_SYS_RELOC_GD_ENV_ADDR=y
+ CONFIG_SPL_CLK=y
+ CONFIG_DM_RESET=y
++CONFIG_CMD_PCI=y
++CONFIG_PCI=y
++CONFIG_DM_PCI=y
++CONFIG_PCI_PNP=y
++CONFIG_PCIE_SIFIVE_FU740=y
+diff --git a/drivers/pci/Kconfig b/drivers/pci/Kconfig
+index 65498bc..2f221ed 100644
+--- a/drivers/pci/Kconfig
++++ b/drivers/pci/Kconfig
+@@ -97,6 +97,15 @@ config PCIE_DW_MVEBU
+ 	  Armada-8K SoCs. The PCIe controller on Armada-8K is based on
+ 	  DesignWare hardware.
+ 
++config PCIE_SIFIVE_FU740
++	bool "Enable SiFive FU740 PCIe"
++	depends on CLK_SIFIVE_PRCI
++	depends on RESET_SIFIVE
++	depends on SIFIVE_GPIO
++	help
++	  Say Y here if you want to enable PCIe controller support on
++	  FU740.
++
+ config PCIE_FSL
+ 	bool "FSL PowerPC PCIe support"
+ 	depends on DM_PCI
+diff --git a/drivers/pci/Makefile b/drivers/pci/Makefile
+index 8b4d49a..0b8b278 100644
+--- a/drivers/pci/Makefile
++++ b/drivers/pci/Makefile
+@@ -50,3 +50,4 @@ obj-$(CONFIG_PCIE_MEDIATEK) += pcie_mediatek.o
+ obj-$(CONFIG_PCIE_ROCKCHIP) += pcie_rockchip.o
+ obj-$(CONFIG_PCI_BRCMSTB) += pcie_brcmstb.o
+ obj-$(CONFIG_PCI_OCTEONTX) += pci_octeontx.o
++obj-$(CONFIG_PCIE_SIFIVE_FU740) += pcie_sifive.o
+diff --git a/drivers/pci/pcie_sifive.c b/drivers/pci/pcie_sifive.c
+new file mode 100644
+index 0000000..70bc2e1
+--- /dev/null
++++ b/drivers/pci/pcie_sifive.c
+@@ -0,0 +1,797 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * SiFive FU740 DesignWare PCIe Controller
++ *
++ * Copyright (C) 2020-2021 SiFive, Inc.
++ *
++ * Based in early part on the i.MX6 PCIe host controller shim which is:
++ *
++ * Copyright (C) 2013 Kosagi
++ *		http://www.kosagi.com
++ *
++ * Based on driver from author: Alan Mikhak <amikhak@wirelessfabric.com>
++ */
++#include "pcie_sifive.h"
++#include <common.h>
++#include <dm.h>
++
++/* Host Bridge Identification */
++#define DEVICE_NAME	"SiFive FU740 PCIe Host Controller"
++#define VENDOR_ID	0x51fe
++#define DEVICE_ID	0x51fe
++
++static enum pcie_sifive_devtype pcie_sifive_get_devtype(struct pcie_sifive *sv)
++{
++	u32 val;
++
++	val = readl(sv->priv.iobase + MGMT_MISC_DEVICE_TYPE_OFFSET);
++	switch (val) {
++	case MGMT_MISC_DEVICE_TYPE_RC:
++		return SV_PCIE_HOST_TYPE;
++	case MGMT_MISC_DEVICE_TYPE_EP:
++		return SV_PCIE_ENDPOINT_TYPE;
++	default:
++		return SV_PCIE_UNKNOWN_TYPE;
++	}
++}
++
++static void pcie_sifive_priv_set_state(struct pcie_sifive *sv, u32 reg,
++				       u32 bits, int state)
++{
++	u32 val;
++
++	val = readl(sv->priv.iobase + reg);
++	val = state ? (val | bits) : (val & !bits);
++	writel(val, sv->priv.iobase + reg);
++}
++
++static void pcie_sifive_assert_perstn(struct pcie_sifive *sv)
++{
++	dm_gpio_set_value(&sv->perstn_gpio, 0);
++	writel(0x0, sv->priv.iobase + PCIEX8MGMT_PERST_N);
++	mdelay(100);
++}
++
++static void pcie_sifive_power_on(struct pcie_sifive *sv)
++{
++	dm_gpio_set_value(&sv->pwren_gpio, 1);
++	mdelay(100);
++}
++
++static void pcie_sifive_deassert_perstn(struct pcie_sifive *sv)
++{
++	writel(0x1, sv->priv.iobase + PCIEX8MGMT_PERST_N);
++	dm_gpio_set_value(&sv->perstn_gpio, 1);
++	mdelay(100);
++}
++
++static int pcie_sifive_setphy(const u8 phy, const u8 write,
++			      const u16 addr, const u16 wrdata,
++			      u16 *rddata, struct pcie_sifive *sv)
++{
++	unsigned char ack = 0;
++
++	if (!(phy == 0 || phy == 1))
++		return -2;
++
++	/* setup phy para */
++	writel(addr, sv->priv.iobase +
++	       (phy ? PCIEX8MGMT_PHY1_CR_PARA_ADDR :
++		PCIEX8MGMT_PHY0_CR_PARA_ADDR));
++
++	if (write)
++		writel(wrdata, sv->priv.iobase +
++		       (phy ? PCIEX8MGMT_PHY1_CR_PARA_WR_DATA :
++			PCIEX8MGMT_PHY0_CR_PARA_WR_DATA));
++
++	/* enable access if write */
++	if (write)
++		writel(1, sv->priv.iobase +
++		       (phy ? PCIEX8MGMT_PHY1_CR_PARA_WR_EN :
++			PCIEX8MGMT_PHY0_CR_PARA_WR_EN));
++	else
++		writel(1, sv->priv.iobase +
++		       (phy ? PCIEX8MGMT_PHY1_CR_PARA_RD_EN :
++			PCIEX8MGMT_PHY0_CR_PARA_RD_EN));
++
++	/* wait for wait_idle */
++	do {
++		u32 val;
++
++		val = readl(sv->priv.iobase +
++			    (phy ? PCIEX8MGMT_PHY1_CR_PARA_ACK :
++			     PCIEX8MGMT_PHY0_CR_PARA_ACK));
++		if (val) {
++			ack = 1;
++			if (!write)
++				readl(sv->priv.iobase +
++				      (phy ? PCIEX8MGMT_PHY1_CR_PARA_RD_DATA :
++				       PCIEX8MGMT_PHY0_CR_PARA_RD_DATA));
++			mdelay(1);
++		}
++	} while (!ack);
++
++	/* clear */
++	if (write)
++		writel(0, sv->priv.iobase +
++		       (phy ? PCIEX8MGMT_PHY1_CR_PARA_WR_EN :
++			PCIEX8MGMT_PHY0_CR_PARA_WR_EN));
++	else
++		writel(0, sv->priv.iobase +
++		       (phy ? PCIEX8MGMT_PHY1_CR_PARA_RD_EN :
++			PCIEX8MGMT_PHY0_CR_PARA_RD_EN));
++
++	while (readl(sv->priv.iobase +
++		     (phy ? PCIEX8MGMT_PHY1_CR_PARA_ACK :
++		      PCIEX8MGMT_PHY0_CR_PARA_ACK))) {
++		/* wait for ~wait_idle */
++	}
++
++	return 0;
++}
++
++static void pcie_sifive_init_phy(struct pcie_sifive *sv)
++{
++	int lane;
++
++	/* enable phy cr_para_sel interfaces */
++	writel(0x1, sv->priv.iobase + PCIEX8MGMT_PHY0_CR_PARA_SEL);
++	writel(0x1, sv->priv.iobase + PCIEX8MGMT_PHY1_CR_PARA_SEL);
++	mdelay(1);
++
++	/* set PHY AC termination mode */
++	for (lane = 0; lane < PCIEX8MGMT_LANE_NUM; lane++) {
++		pcie_sifive_setphy(0, 1,
++				   PCIEX8MGMT_LANE +
++				   (PCIEX8MGMT_LANE_OFF * lane),
++				   PCIEX8MGMT_TERM_MODE, NULL, sv);
++		pcie_sifive_setphy(1, 1,
++				   PCIEX8MGMT_LANE +
++				   (PCIEX8MGMT_LANE_OFF * lane),
++				   PCIEX8MGMT_TERM_MODE, NULL, sv);
++	}
++}
++
++static void pcie_sifive_set_pci_int_pin(struct pcie_sifive *sv,
++					enum pci_interrupt_pin pin)
++{
++	u32 val;
++
++	/* ctrl_ro_wr_enable */
++	val = readl(sv->ctrl.iobase + PCIE_MISC_CONTROL_1);
++	val |= DBI_RO_WR_EN;
++	writel(val, sv->ctrl.iobase + PCIE_MISC_CONTROL_1);
++
++	writeb(pin, sv->ctrl.iobase + PCI_CONFIG(PCI_INTERRUPT_PIN));
++
++	/* ctrl_ro_wr_disable */
++	val &= ~DBI_RO_WR_EN;
++	writel(val, sv->ctrl.iobase + PCIE_MISC_CONTROL_1);
++}
++
++static int pcie_sifive_get_property(struct pcie_sifive *sv,
++				    const char *property)
++{
++	u32 value = 0;
++
++	if (dev_read_u32(sv->pci.dev, property, &value))
++		return 0;
++
++	return value;
++}
++
++static int pcie_sifive_get_required_property(struct pcie_sifive *sv,
++					     const char *property)
++{
++	int value;
++
++	value = pcie_sifive_get_property(sv, property);
++	if (value == -EINVAL)
++		sv_err(sv, "Unable to read %s property\n", property);
++
++	return value;
++}
++
++static u32 pcie_sifive_get_link_width_mask(struct pcie_sifive *sv, int lanes)
++{
++	switch (lanes) {
++	case 1: return LINK_WIDTH_1_LANE;
++	case 2: return LINK_WIDTH_2_LANES;
++	case 4: return LINK_WIDTH_4_LANES;
++	case 8: return LINK_WIDTH_8_LANES;
++	default: return 0;
++	}
++}
++
++static u32 pcie_sifive_get_link_lanes_mask(struct pcie_sifive *sv, int lanes)
++{
++	switch (lanes) {
++	case 1: return LINK_MODE_1_LANE;
++	case 2: return LINK_MODE_2_LANES;
++	case 4: return LINK_MODE_4_LANES;
++	case 8: return LINK_MODE_8_LANES;
++	default: return 0;
++	}
++}
++
++static void pcie_sifive_set_link_num_lanes(struct pcie_sifive *sv, int lanes)
++{
++	u32 mode;
++
++	mode = pcie_sifive_get_link_lanes_mask(sv, lanes);
++	if (mode) {
++		u32 val;
++
++		val = readl(sv->ctrl.iobase + LINK_CONTROL);
++		val &= ~LINK_MODE_MASK;
++		val |= mode;
++		writel(val, sv->ctrl.iobase + LINK_CONTROL);
++	}
++}
++
++static void pcie_sifive_set_link_width(struct pcie_sifive *sv, int lanes)
++{
++	u32 lwidth;
++
++	lwidth = pcie_sifive_get_link_width_mask(sv, lanes);
++	if (lwidth) {
++		u32 val;
++
++		val = readl(sv->ctrl.iobase + LINK_WIDTH_SPEED_CONTROL);
++		val &= ~LINK_WIDTH_MASK;
++		val |= lwidth;
++		writel(val, sv->ctrl.iobase + LINK_WIDTH_SPEED_CONTROL);
++	}
++}
++
++static int pcie_sifive_check_link(struct pcie_sifive *sv)
++{
++	u32 val;
++
++	val = readl(sv->ctrl.iobase + PHY_DEBUG_R1);
++	return (val & PHY_DEBUG_R1_LINK_UP) &&
++		!(val & PHY_DEBUG_R1_LINK_IN_TRAINING);
++}
++
++static void pcie_sifive_force_gen1(struct pcie_sifive *sv)
++{
++	u32 val, linkcap;
++
++	/*
++	 * Force Gen1 operation when starting the link. In case the link is
++	 * started in Gen2 mode, there is a possibility the devices on the
++	 * bus will not be detected at all. This happens with PCIe switches.
++	 */
++
++	/* ctrl_ro_wr_enable */
++	val = readl(sv->ctrl.iobase + PCIE_MISC_CONTROL_1);
++	val |= DBI_RO_WR_EN;
++	writel(val, sv->ctrl.iobase + PCIE_MISC_CONTROL_1);
++
++	/* configure link cap */
++	linkcap = readl(sv->ctrl.iobase + PF0_PCIE_CAP_LINK_CAP);
++	linkcap |= PCIE_LINK_CAP_MAX_SPEED_MASK;
++	writel(linkcap, sv->ctrl.iobase + PF0_PCIE_CAP_LINK_CAP);
++
++	/* ctrl_ro_wr_disable */
++	val &= ~DBI_RO_WR_EN;
++	writel(val, sv->ctrl.iobase + PCIE_MISC_CONTROL_1);
++}
++
++static void pcie_sifive_print_phy_debug(struct pcie_sifive *sv)
++{
++	sv_err(sv, "PHY DEBUG_R0=0x%08x DEBUG_R1=0x%08x\n",
++	       readl(sv->ctrl.iobase + PHY_DEBUG_R0),
++	       readl(sv->ctrl.iobase + PHY_DEBUG_R1));
++}
++
++static int pcie_sifive_set_check_atu(struct pcie_sifive *sv, u32 region)
++{
++	u32 retries, val;
++
++	/*
++	 * Make sure ATU enable takes effect before any subsequent config
++	 * and I/O accesses.
++	 */
++	for (retries = 0; retries < ATU_WAIT_MAX_RETRIES; retries++) {
++		val = readl(sv->ctrl.iobase + region + ATU_REGION_CTRL2);
++		if (val & ATU_ENABLE)
++			return 0;
++
++		mdelay(ATU_WAIT);
++	}
++
++	return -EBUSY;
++}
++
++static void pcie_sifive_set_atu(struct pcie_sifive *sv, u32 region,
++				u32 ctrl1, u32 ctrl2, u64 size,
++				u64 base_addr, u64 target_addr)
++{
++	u64 limit_addr = base_addr + size - 1;
++
++	if (upper_32_bits(size))
++		ctrl1 |= ATU_INCREASE_REGION_SIZE;
++
++	writel(lower_32_bits(base_addr),
++	       sv->ctrl.iobase + region + ATU_LOWER_BASE);
++	writel(upper_32_bits(base_addr),
++	       sv->ctrl.iobase + region + ATU_UPPER_BASE);
++	writel(lower_32_bits(limit_addr),
++	       sv->ctrl.iobase + region + ATU_LOWER_LIMIT);
++	writel(upper_32_bits(limit_addr),
++	       sv->ctrl.iobase + region + ATU_UPPER_LIMIT);
++	writel(lower_32_bits(target_addr),
++	       sv->ctrl.iobase + region + ATU_LOWER_TARGET);
++	writel(upper_32_bits(target_addr),
++	       sv->ctrl.iobase + region + ATU_UPPER_TARGET);
++	writel(ctrl1, sv->ctrl.iobase + region + ATU_REGION_CTRL1);
++	writel(ctrl2 | ATU_ENABLE, sv->ctrl.iobase + region + ATU_REGION_CTRL2);
++}
++
++static void pcie_sifive_set_outbound_atu(struct pcie_sifive *sv,
++					 u32 index, u32 ctrl1, u32 ctrl2,
++					 u64 size, u64 cpu_addr, u64 pci_addr)
++{
++	u32 region = ATU_CONFIG(ATU_OUTBOUND_REGION(index));
++
++	pcie_sifive_set_atu(sv, region, ctrl1, ctrl2, size, cpu_addr, pci_addr);
++
++	if (pcie_sifive_set_check_atu(sv, region))
++		sv_err(sv, "Outbound ATU could not be enabled\n");
++}
++
++static void __iomem *pcie_sifive_cfg_outbound_atu(struct pcie_sifive *sv,
++						  u32 bdf, u32 where)
++{
++	u32 bus, ctrl1;
++
++	where &= ~0x3;
++
++	bus = ((bdf >> 16) & 0xff) - sv->pci.pp.root_bus_nr;
++	if (!bus)
++		return sv->ctrl.iobase + PCI_CONFIG(where);
++
++	if (bus == 1)
++		ctrl1 = ATU_TYPE_CFG0;
++	else
++		ctrl1 = ATU_TYPE_CFG1;
++
++	bdf = (bus << 16) | (bdf & 0xffff);
++	pcie_sifive_set_outbound_atu(sv, 1, ctrl1, 0, SZ_4K,
++				     sv->pci.pp.cfg1_base,
++				     (u64)(bdf << 8));
++
++	return sv->pci.pp.va_cfg1_base + where;
++}
++
++static void pcie_sifive_set_outbound_mem_atu(struct pcie_sifive *sv, u32 index,
++					     u64 size, u64 cpu_addr,
++					     u64 pci_addr)
++{
++	pcie_sifive_set_outbound_atu(sv, index, ATU_TYPE_MEM, 0,
++				     size, cpu_addr, pci_addr);
++}
++
++static void pcie_sifive_set_outbound_io_atu(struct pcie_sifive *sv, u32 index,
++					    u64 size, u64 cpu_addr,
++					    u64 pci_addr)
++{
++	pcie_sifive_set_outbound_atu(sv, index, ATU_TYPE_IO, 0,
++				     size, cpu_addr, pci_addr);
++}
++
++static int pcie_sifive_set_outbound_ecam_atu(struct pcie_sifive *sv, u32 index,
++					     u64 cpu_addr)
++{
++	pcie_sifive_set_outbound_atu(sv, index++,
++				     ATU_TYPE_CFG0, ATU_CFG_SHIFT_MODE,
++				     SZ_4K, cpu_addr, 0);
++
++	pcie_sifive_set_outbound_atu(sv, index++,
++				     ATU_TYPE_CFG1, ATU_CFG_SHIFT_MODE,
++				     SZ_256M - SZ_1M,
++				     cpu_addr + SZ_1M,
++				     SZ_1M);
++	return index;
++}
++
++static void pcie_sifive_assert_phy_reset(struct pcie_sifive *sv)
++{
++	writel(0x1, sv->priv.iobase + PCIEX8MGMT_APP_HOLD_PHY_RST);
++}
++
++static int pcie_sifive_wait_for_link(struct pcie_sifive *sv)
++{
++	u32 val;
++	int timeout;
++
++	/* Wait for the link to train */
++	mdelay(20);
++	timeout = 20;
++
++	do {
++		mdelay(1);
++	} while (--timeout && !pcie_sifive_check_link(sv));
++
++	val = readl(sv->ctrl.iobase + PHY_DEBUG_R1);
++	if (!(val & PHY_DEBUG_R1_LINK_UP) ||
++	    (val & PHY_DEBUG_R1_LINK_IN_TRAINING)) {
++		sv_info(sv, "Failed to negotiate PCIe link!\n");
++		pcie_sifive_print_phy_debug(sv);
++		pcie_sifive_assert_phy_reset(sv);
++		return -ETIMEDOUT;
++	}
++
++	sv_info(sv, "PCIe Link up, Gen%i\n",
++		readw(sv->ctrl.iobase + PF0_PCIE_CAP_LINK_STATUS) &
++		PCIE_LINK_STATUS_SPEED_MASK);
++
++	return 0;
++}
++
++static void pcie_sifive_setup_link(struct pcie_sifive *sv)
++{
++	u32 lanes;
++
++	lanes = pcie_sifive_get_required_property(sv, "num-lanes");
++	if (lanes > 0) {
++		pcie_sifive_set_link_num_lanes(sv, lanes);
++		pcie_sifive_set_link_width(sv, lanes);
++	}
++}
++
++static int pcie_sifive_start_link(struct pcie_sifive *sv)
++{
++	if (pcie_sifive_check_link(sv))
++		return -EALREADY;
++
++	pcie_sifive_force_gen1(sv);
++
++	/* set ltssm */
++	pcie_sifive_priv_set_state(sv, MGMT_MISC_LTSSM_ENABLE_OFFSET,
++				   MGMT_MISC_LTSSM_ENABLE_BIT, 1);
++	return 0;
++}
++
++static void pcie_sifive_setup_host_atu(struct pcie_sifive *sv)
++{
++	pcie_sifive_set_outbound_mem_atu(sv, 0,
++					 sv->pci.pp.mem_size,
++					 sv->pci.pp.mem_base,
++					 sv->pci.pp.mem_bus_addr);
++
++	if (sv->pci.num_viewport > 2)
++		pcie_sifive_set_outbound_io_atu(sv, 2,
++						sv->pci.pp.io_size,
++						sv->pci.pp.io_base,
++						sv->pci.pp.io_bus_addr);
++
++	if (sv->pci.pp.ecam.iobase)
++		pcie_sifive_set_outbound_ecam_atu(sv, 3,
++						  (u64)sv->pci.pp.ecam.iobase);
++}
++
++static void pcie_sifive_setup_host_prefetch(struct pcie_sifive *sv)
++{
++	u32 val;
++
++	/* ctrl_ro_wr_enable */
++	val = readl(sv->ctrl.iobase + PCIE_MISC_CONTROL_1);
++	val |= DBI_RO_WR_EN;
++	writel(val, sv->ctrl.iobase + PCIE_MISC_CONTROL_1);
++
++	writew(0xf, sv->ctrl.iobase + PCI_CONFIG(PCI_PREF_MEMORY_BASE));
++	writew(0xf, sv->ctrl.iobase + PCI_CONFIG(PCI_PREF_MEMORY_LIMIT));
++	writel(0x20, sv->ctrl.iobase + PCI_CONFIG(PCI_PREF_BASE_UPPER32));
++	writel(0x40, sv->ctrl.iobase + PCI_CONFIG(PCI_PREF_LIMIT_UPPER32));
++
++	/* ctrl_ro_wr_disable */
++	val &= ~DBI_RO_WR_EN;
++	writel(val, sv->ctrl.iobase + PCIE_MISC_CONTROL_1);
++}
++
++static void pcie_sifive_setup_host(struct pcie_sifive *sv)
++{
++	u32 val;
++
++	sv->pci.iatu_unroll_enabled = true;
++
++	pcie_sifive_setup_link(sv);
++
++	/* ctrl_ro_wr_enable */
++	val = readl(sv->ctrl.iobase + PCIE_MISC_CONTROL_1);
++	val |= DBI_RO_WR_EN;
++	writel(val, sv->ctrl.iobase + PCIE_MISC_CONTROL_1);
++
++	/* Setup correct class code for host bridge */
++	writew(PCI_CLASS_BRIDGE_PCI,
++	       sv->ctrl.iobase + PCI_CONFIG(PCI_CLASS_DEVICE));
++
++	/* ctrl_ro_wr_disable */
++	val &= ~DBI_RO_WR_EN;
++	writel(val, sv->ctrl.iobase + PCIE_MISC_CONTROL_1);
++
++	writeb(PCI_HEADER_TYPE_BRIDGE,
++	       sv->ctrl.iobase + PCI_CONFIG(PCI_HEADER_TYPE));
++
++	/* Setup RC BARs */
++	writel(0x4, sv->ctrl.iobase + PCI_CONFIG(PCI_BASE_ADDRESS_0));
++	writel(0x0, sv->ctrl.iobase + PCI_CONFIG(PCI_BASE_ADDRESS_1));
++
++	pcie_sifive_set_pci_int_pin(sv, PCI_INTERRUPT_INTA);
++
++	/* Setup bus numbers */
++	val = readl(sv->ctrl.iobase + PCI_CONFIG(PCI_PRIMARY_BUS)) &
++	      ~0x00ffffff;
++	val |= 0x00ff0100;
++	writel(val, sv->ctrl.iobase + PCI_CONFIG(PCI_PRIMARY_BUS));
++
++	/* Setup command register */
++	writew(PCI_COMMAND_IO | PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER |
++	       PCI_COMMAND_SERR, sv->ctrl.iobase + PCI_CONFIG(PCI_COMMAND));
++
++	pcie_sifive_setup_host_atu(sv);
++
++	writel(0x0, sv->ctrl.iobase + PCI_CONFIG(PCI_BASE_ADDRESS_0));
++
++	pcie_sifive_setup_host_prefetch(sv);
++}
++
++static int pcie_sifive_init_host(struct pcie_sifive *sv)
++{
++	pcie_sifive_setup_host(sv);
++
++	if (pcie_sifive_start_link(sv) == -EALREADY)
++		sv_info(sv, "PCIe link is already up\n");
++	else if (pcie_sifive_wait_for_link(sv) == -ETIMEDOUT)
++		return -ETIMEDOUT;
++
++	return 0;
++}
++
++static int pcie_sifive_addr_valid(struct pcie_sifive *sv, pci_dev_t bdf)
++{
++	if ((PCI_BUS(bdf) == sv->pci.pp.root_bus_nr) && (PCI_DEV(bdf) > 0))
++		return 0;
++	if ((PCI_BUS(bdf) == sv->pci.pp.root_bus_nr + 1) && (PCI_DEV(bdf) > 0))
++		return 0;
++
++	return 1;
++}
++
++static int pcie_sifive_read_config(const struct udevice *bus, pci_dev_t bdf,
++				   uint offset, ulong *valuep,
++				   enum pci_size_t size)
++{
++	struct pcie_sifive *sv = dev_get_priv(bus);
++	void __iomem *va;
++	ulong value;
++
++	sv_debug(sv, "PCIe CFG read:  (b,d,f)=(%2d,%2d,%2d) ",
++		 PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf));
++
++	if (!pcie_sifive_addr_valid(sv, bdf)) {
++		sv_debug(sv, "- out of range\n");
++		*valuep = pci_get_ff(size);
++		return 0;
++	}
++
++	va = pcie_sifive_cfg_outbound_atu(sv, bdf, offset);
++	value = readl(va);
++
++	sv_debug(sv, "(addr,val)=(0x%04x, 0x%08lx)\n", offset, value);
++	*valuep = pci_conv_32_to_size(value, offset, size);
++
++	if (sv->pci.num_viewport <= 2)
++		pcie_sifive_set_outbound_io_atu(sv, 1,
++						sv->pci.pp.io_size,
++						sv->pci.pp.io_base,
++						sv->pci.pp.io_bus_addr);
++	return 0;
++}
++
++static int pcie_sifive_write_config(struct udevice *bus, pci_dev_t bdf,
++				    uint offset, ulong value,
++				    enum pci_size_t size)
++{
++	struct pcie_sifive *sv = dev_get_priv(bus);
++	void __iomem *va;
++	ulong old;
++
++	sv_debug(sv, "PCIe CFG write: (b,d,f)=(%2d,%2d,%2d) ",
++		 PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf));
++	sv_debug(sv, "(addr,val)=(0x%04x, 0x%08lx)\n", offset, value);
++
++	if (!pcie_sifive_addr_valid(sv, bdf)) {
++		sv_debug(sv, "- out of range\n");
++		return 0;
++	}
++
++	va = pcie_sifive_cfg_outbound_atu(sv, bdf, offset);
++	old = readl(va);
++	value = pci_conv_size_to_32(old, value, offset, size);
++	writel(value, va);
++
++	if (sv->pci.num_viewport <= 2)
++		pcie_sifive_set_outbound_io_atu(sv, 1,
++						sv->pci.pp.io_size,
++						sv->pci.pp.io_base,
++						sv->pci.pp.io_bus_addr);
++	return 0;
++}
++
++bool pcie_sifive_set_mode(struct pcie_sifive *sv, enum pcie_sifive_devtype mode)
++{
++	int ret;
++
++	pcie_sifive_assert_perstn(sv);
++	pcie_sifive_power_on(sv);
++	pcie_sifive_deassert_perstn(sv);
++
++	clk_enable(&sv->aux_ck);
++
++	/*
++	 * assert hold_phy_rst (hold the controller LTSSM in reset
++	 * after power_up_rst_n for register programming with cr_para)
++	 */
++	pcie_sifive_assert_phy_reset(sv);
++
++	/* deassert power_up_rst_n */
++	ret = reset_deassert(&sv->reset);
++	if (ret < 0) {
++		pr_err("reset_assert() failed: %d", ret);
++		return false;
++	}
++
++	pcie_sifive_init_phy(sv);
++
++	clk_disable(&sv->aux_ck);
++
++	/* deassert phy reset */
++	writel(0x0, sv->priv.iobase + PCIEX8MGMT_APP_HOLD_PHY_RST);
++
++	/* enable pcieauxclk */
++	clk_enable(&sv->aux_ck);
++
++	/* Set desired mode while core is not operational */
++	if (mode == SV_PCIE_HOST_TYPE)
++		writel(MGMT_MISC_DEVICE_TYPE_RC,
++		       sv->priv.iobase + MGMT_MISC_DEVICE_TYPE_OFFSET);
++	else
++		writel(MGMT_MISC_DEVICE_TYPE_EP,
++		       sv->priv.iobase + MGMT_MISC_DEVICE_TYPE_OFFSET);
++
++	/* Confirm desired mode from operational core */
++	if (pcie_sifive_get_devtype(sv) != mode)
++		return false;
++
++	sv->mode = mode;
++
++	return true;
++}
++
++static int pcie_sifive_probe(struct udevice *dev)
++{
++	struct pcie_sifive *sv = dev_get_priv(dev);
++	struct udevice *parent = pci_get_controller(dev);
++	struct pci_controller *hose = dev_get_uclass_priv(parent);
++	int err;
++
++	sv->ctrl.iobase = (void __iomem *)sv->ctrl.phys_base;
++	sv->priv.iobase = (void __iomem *)sv->priv.phys_base;
++
++	sv->pci.dev = dev;
++	sv->pci.pp.root_bus_nr = dev->seq;
++
++	sv->pci.pp.io_size = hose->regions[0].size;
++	sv->pci.pp.io_base = hose->regions[0].phys_start;
++	sv->pci.pp.io_bus_addr = hose->regions[0].bus_start;
++
++	sv->pci.pp.mem_size = hose->regions[1].size;
++	sv->pci.pp.mem_base = hose->regions[1].phys_start;
++	sv->pci.pp.mem_bus_addr = hose->regions[1].bus_start;
++
++	sv->pci.pp.config.iobase = (void __iomem *)sv->pci.pp.config.phys_base;
++	sv->pci.pp.ecam.iobase = (void __iomem *)sv->pci.pp.ecam.phys_base;
++
++	sv->pci.pp.cfg0_base = sv->pci.pp.config.phys_base;
++	sv->pci.pp.va_cfg0_base = (void __iomem *)sv->pci.pp.cfg0_base;
++	sv->pci.pp.cfg0_size = SZ_4K;
++
++	sv->pci.pp.cfg1_base = sv->pci.pp.cfg0_base + sv->pci.pp.cfg0_size;
++	sv->pci.pp.va_cfg1_base = (void __iomem *)sv->pci.pp.cfg1_base;
++	sv->pci.pp.cfg1_size = SZ_4K;
++
++	sv->pci.pp.msi_data = sv->pci.pp.cfg1_base + sv->pci.pp.cfg1_size;
++
++	gpio_request_by_name(dev, "pwren-gpios", 0, &sv->pwren_gpio,
++			     GPIOD_IS_OUT);
++
++	if (!dm_gpio_is_valid(&sv->pwren_gpio)) {
++		sv_info(sv, "pwren_gpio is invalid\n");
++		return -EINVAL;
++	}
++
++	gpio_request_by_name(dev, "perstn-gpios", 0, &sv->perstn_gpio,
++			     GPIOD_IS_OUT);
++
++	if (!dm_gpio_is_valid(&sv->perstn_gpio)) {
++		sv_info(sv, "perstn_gpio is invalid\n");
++		return -EINVAL;
++	}
++
++	err = clk_get_by_index(dev, 0, &sv->aux_ck);
++	if (err) {
++		sv_info(sv, "clk_get_by_index(aux_ck) failed: %d\n", err);
++		return err;
++	}
++
++	err = reset_get_by_index(dev, 0, &sv->reset);
++	if (err) {
++		sv_info(sv, "reset_get_by_index(reset) failed: %d\n", err);
++		return err;
++	}
++
++	if (!pcie_sifive_set_mode(sv, SV_PCIE_HOST_TYPE)) {
++		sv_info(sv, "Unable to set desired PCIe operation mode\n");
++		return -EINVAL;
++	}
++
++	return pcie_sifive_init_host(sv);
++}
++
++static int pcie_sifive_ofdata_to_platdata(struct udevice *dev)
++{
++	struct pcie_sifive *sv = dev_get_priv(dev);
++
++	sv->pci.dev = dev;
++
++	sv->ctrl.phys_base = dev_read_addr_size_name(dev, "dbi",
++						     &sv->ctrl.iosize);
++	if (sv->ctrl.phys_base == FDT_ADDR_T_NONE)
++		return -EINVAL;
++
++	sv->priv.phys_base = dev_read_addr_size_name(dev, "mgmt",
++						     &sv->priv.iosize);
++	if (sv->priv.phys_base == FDT_ADDR_T_NONE)
++		return -EINVAL;
++
++	sv->pci.pp.config.phys_base =
++		dev_read_addr_size_name(dev, "config",
++					&sv->pci.pp.config.iosize);
++	if (sv->pci.pp.config.phys_base == FDT_ADDR_T_NONE)
++		return -EINVAL;
++
++	sv->pci.pp.ecam.phys_base =
++		dev_read_addr_size_name(dev, "ecam", &sv->pci.pp.ecam.iosize);
++	if (sv->pci.pp.config.phys_base == FDT_ADDR_T_NONE)
++		sv->pci.pp.ecam.phys_base = 0;
++
++	sv->pci.num_viewport = pcie_sifive_get_property(sv, "num-viewport");
++	if (sv->pci.num_viewport == 0)
++		sv->pci.num_viewport = 2;
++
++	return 0;
++}
++
++static const struct dm_pci_ops pcie_sifive_ops = {
++	.read_config	= pcie_sifive_read_config,
++	.write_config	= pcie_sifive_write_config
++};
++
++static const struct udevice_id pcie_sifive_ids[] = {
++	{ .compatible = "sifive,fu740-pcie" },
++	{ .compatible = "sifive,fu740-pcie-ecam" },
++	{}
++};
++
++U_BOOT_DRIVER(pcie_sifive) = {
++	.name			= "pcie_sifive",
++	.id			= UCLASS_PCI,
++	.of_match		= pcie_sifive_ids,
++	.ops			= &pcie_sifive_ops,
++	.ofdata_to_platdata	= pcie_sifive_ofdata_to_platdata,
++	.probe			= pcie_sifive_probe,
++	.priv_auto_alloc_size	= sizeof(struct pcie_sifive),
++};
+diff --git a/drivers/pci/pcie_sifive.h b/drivers/pci/pcie_sifive.h
+new file mode 100644
+index 0000000..45070f7
+--- /dev/null
++++ b/drivers/pci/pcie_sifive.h
+@@ -0,0 +1,374 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * SiFive FU740 DesignWare PCIe Controller
++ *
++ * Copyright (C) 2020-2021 SiFive, Inc.
++ *
++ * Based in early part on the i.MX6 PCIe host controller shim which is:
++ *
++ * Copyright (C) 2013 Kosagi
++ *		http://www.kosagi.com
++ *
++ * Based on driver from author: Alan Mikhak <amikhak@wirelessfabric.com>
++ */
++
++#ifndef __PCIE_SIFIVE_H__
++#define __PCIE_SIFIVE_H__
++
++#include <clk.h>
++#include <pci.h>
++#include <asm/io.h>
++#include <linux/bitops.h>
++#include <linux/log2.h>
++#include <pci_ep.h>
++#include <pci_ids.h>
++#include <generic-phy.h>
++#include <regmap.h>
++#include <reset.h>
++#include <syscon.h>
++#include <asm-generic/gpio.h>
++
++#define MAX_MSI_IRQS		256
++#define MAX_MSI_IRQS_PER_CTRL	32
++#define MAX_MSI_CTRLS		(MAX_MSI_IRQS / MAX_MSI_IRQS_PER_CTRL)
++
++enum pcie_sifive_devtype {
++	SV_PCIE_UNKNOWN_TYPE = 0,
++	SV_PCIE_ENDPOINT_TYPE = 1,
++	SV_PCIE_HOST_TYPE = 3
++};
++
++struct sv_iomem {
++	size_t iosize;
++	void __iomem *iobase;
++	fdt_addr_t phys_base;
++};
++
++struct pcie_sifive {
++	struct {
++		struct udevice *dev;
++		u32 num_viewport;
++		u8 iatu_unroll_enabled;
++		struct {
++			u8 root_bus_nr;
++			u64 cfg0_base;
++			void __iomem *va_cfg0_base;
++			fdt_size_t cfg0_size;
++			u64 cfg1_base;
++			void __iomem *va_cfg1_base;
++			fdt_size_t cfg1_size;
++			u32 io_size;
++			u64 io_base;
++			u64 io_bus_addr;
++			u64 mem_size;
++			u64 mem_base;
++			u64 mem_bus_addr;
++			u64 msi_data;
++			u32 num_vectors;
++			u32 irq_mask[MAX_MSI_CTRLS];
++			struct sv_iomem config;
++			struct sv_iomem ecam;
++		} pp;
++	} pci;
++	struct sv_iomem ctrl;
++	struct sv_iomem priv;
++	enum pcie_sifive_devtype mode;
++	int sys_int_pin;
++	struct gpio_desc pwren_gpio;
++	struct gpio_desc perstn_gpio;
++	struct clk aux_ck;
++	struct reset_ctl reset;
++};
++
++#define sv_info(sv, fmt, arg...)	printf(fmt, ## arg)
++#define sv_warn(sv, fmt, arg...)	printf(fmt, ## arg)
++#define sv_debug(sv, fmt, arg...)	debug(fmt, ## arg)
++#define sv_err(sv, fmt, arg...)		printf(fmt, ## arg)
++
++#define pci_epf_header pci_ep_header
++
++#define VENDOR_ID_MASK	GENMASK(15, 0)
++#define DEVICE_ID_SHIFT	16
++
++#ifndef PCI_MSIX_FLAGS
++#define PCI_MSIX_FLAGS		2       /* Message Control */
++#define  PCI_MSIX_FLAGS_QSIZE		0x07FF  /* Table size */
++#define  PCI_MSIX_FLAGS_MASKALL		0x4000  /* Mask all vectors */
++#define  PCI_MSIX_FLAGS_ENABLE		0x8000  /* MSI-X enable */
++#endif
++
++#ifndef PCI_REBAR_CAP
++#define PCI_REBAR_CAP		4       /* capability register */
++#define  PCI_REBAR_CAP_SIZES		0x00FFFFF0  /* supported BAR sizes */
++#endif
++
++#ifndef PCI_REBAR_CTRL
++#define PCI_REBAR_CTRL		8       /* control register */
++#define  PCI_REBAR_CTRL_BAR_IDX		0x00000007  /* BAR index */
++#define  PCI_REBAR_CTRL_NBAR_MASK	0x000000E0  /* # of resizable BARs */
++#define  PCI_REBAR_CTRL_NBAR_SHIFT	5           /* shift for # of BARs */
++#define  PCI_REBAR_CTRL_BAR_SIZE	0x00001F00  /* BAR size */
++#define  PCI_REBAR_CTRL_BAR_SHIFT	8           /* shift for BAR size */
++#endif
++
++#define MGMT_MISC_LTSSM_ENABLE_OFFSET	0x10
++#define MGMT_MISC_SYS_INT_OFFSET	0x238
++#define MGMT_MISC_EDMA_XFER_PEND_OFFSET	0x4d0
++#define MGMT_MISC_EDMA_INT_OFFSET	0x630
++#define MGMT_MISC_DEVICE_TYPE_OFFSET	0x708
++
++#define MGMT_MISC_LTSSM_ENABLE_BIT	BIT(0)
++#define MGMT_MISC_EDMA_XFER_PEND_BIT	BIT(0)
++#define MGMT_MISC_EDMA_INT_BITS		(BIT(1) | BIT(0))
++
++#define MGMT_MISC_DEVICE_TYPE_EP	0x0
++#define MGMT_MISC_DEVICE_TYPE_RC	0x4
++
++/* Doorbell Interface */
++#define DBI_OFFSET			0x0
++#define DBI_SIZE			0x1000
++
++/* Doorbell Interface 2 */
++#define DBI2_OFFSET			0x100000
++#define DBI2_SIZE			0x80
++
++/* Address Translation Units */
++#define ATU_OFFSET			0x300000
++#define ATU_SIZE			0x80000
++
++/* DMA Engines */
++#define DMA_OFFSET			0x380000
++#define DMA_SIZE			0x80000
++
++#define DMA_WRITE_ENGINE_EN_OFFSET	0x0C
++
++#define DMA_WRITE_DOORBELL_OFFSET	0x10
++
++#define DMA_READ_ENGINE_EN_OFFSET	0x2C
++
++#define DMA_READ_DOORBELL_OFFSET	0x30
++
++#define DMA_WRITE_INT_STATUS_OFFSET	0x4C
++#define DMA_WRITE_INT_MASK_OFFSET	0x54
++#define DMA_WRITE_INT_CLEAR_OFFSET	0x58
++
++#define DMA_READ_INT_STATUS_OFFSET	0xA0
++#define DMA_READ_INT_MASK_OFFSET	0xA8
++#define DMA_READ_INT_CLEAR_OFFSET	0xAC
++
++#define DMA_WRITE_LL_ERR_EN_OFFSET	0x90
++
++#define DMA_READ_LL_ERR_EN_OFFSET	0xC4
++
++#define DMA_WRITE_CONTROL1_OFFSET	0x200
++#define DMA_WRITE_TRANSFER_SIZE_OFFSET	0x208
++#define DMA_WRITE_SAR_LOW_OFFSET	0x20C
++#define DMA_WRITE_SAR_HI_OFFSET		0x210
++#define DMA_WRITE_DAR_LOW_OFFSET	0x214
++#define DMA_WRITE_DAR_HI_OFFSET		0x218
++
++#define DMA_READ_CONTROL1_OFFSET	0x300
++#define DMA_READ_TRANSFER_SIZE_OFFSET	0x308
++#define DMA_READ_SAR_LOW_OFFSET		0x30C
++#define DMA_READ_SAR_HI_OFFSET		0x310
++#define DMA_READ_DAR_LOW_OFFSET		0x314
++#define DMA_READ_DAR_HI_OFFSET		0x318
++
++#define DMA_CHAN_BIT(chan)		(BIT(chan))
++#define DMA_ENABLE_BIT_CHAN(chan)	DMA_CHAN_BIT(chan)
++#define DMA_LLLAIE_BIT_CHAN(chan)	DMA_CHAN_BIT(chan)
++#define DMA_INT_DONE_BIT_CHAN(chan)	DMA_CHAN_BIT(chan)
++#define DMA_INT_ABORT_BIT_CHAN(chan)	(BIT((chan) + 16))
++
++/* PCIe Port Logic registers (memory-mapped) */
++#define PL_OFFSET			0x700
++#define PCIE_PL_PFLR			(PL_OFFSET + 0x08)
++#define PCIE_PL_PFLR_LINK_STATE		(0x3f << 16)
++#define PCIE_PL_PFLR_FORCE_LINK		BIT(15)
++
++#define LINK_CONTROL			(PL_OFFSET + 0x10)
++#define LINK_MODE(n)			((n) << 16)
++#define LINK_MODE_MASK			LINK_MODE(0x3f)
++#define LINK_MODE_1_LANE		LINK_MODE(0x1)
++#define LINK_MODE_2_LANES		LINK_MODE(0x3)
++#define LINK_MODE_4_LANES		LINK_MODE(0x7)
++#define LINK_MODE_8_LANES		LINK_MODE(0xf)
++
++#define PHY_DEBUG_R0			(PL_OFFSET + 0x28)
++
++#define PHY_DEBUG_R1			(PL_OFFSET + 0x2c)
++#define PHY_DEBUG_R1_LINK_UP		(0x1 << 4)
++#define PHY_DEBUG_R1_LINK_IN_TRAINING	(0x1 << 29)
++
++#define LINK_WIDTH_SPEED_CONTROL	(PL_OFFSET + 0x10c)
++#define LINK_WIDTH(n)			((n) << 8)
++#define LINK_WIDTH_MASK			LINK_WIDTH(0x1f)
++#define LINK_WIDTH_1_LANE		LINK_WIDTH(0x1)
++#define LINK_WIDTH_2_LANES		LINK_WIDTH(0x2)
++#define LINK_WIDTH_4_LANES		LINK_WIDTH(0x4)
++#define LINK_WIDTH_8_LANES		LINK_WIDTH(0x8)
++
++#define PHY_STAT			(PL_OFFSET + 0x110)
++#define PHY_STAT_ACK_LOC		16
++
++#define PHY_CTRL			(PL_OFFSET + 0x114)
++#define PHY_CTRL_DATA_LOC		0
++#define PHY_CTRL_CAP_ADR_LOC		16
++#define PHY_CTRL_CAP_DAT_LOC		17
++#define PHY_CTRL_WR_LOC			18
++#define PHY_CTRL_RD_LOC			19
++
++#define MSI_CTRL_BLOCK_SIZE		12
++#define MSI_CTRL_BLOCK(ctrl)		((ctrl) * MSI_CTRL_BLOCK_SIZE)
++#define MSI_CTRL_INT_ENABLE(ctrl)	(0x828 + MSI_CTRL_BLOCK(ctrl))
++#define MSI_CTRL_INT_MASK(ctrl)		(0x82c + MSI_CTRL_BLOCK(ctrl))
++#define MSI_CTRL_INT_STATUS(ctrl)	(0x830 + MSI_CTRL_BLOCK(ctrl))
++
++#define PCIE_MISC_CONTROL_1		0x8bc
++#define DBI_RO_WR_EN			BIT(0)
++
++#define ATU_VIEWPORT			0x900
++#define ATU_REGION_MIN_SIZE		BIT(16)
++#define ATU_REGION_INBOUND		BIT(31)
++#define ATU_REGION_OUTBOUND		0
++
++#define ATU_VIEWPORT_CTRL_1		0x904
++#define ATU_TYPE_MASK			0xf
++#define ATU_TYPE_MEM			0x0
++#define ATU_TYPE_IO			0x2
++#define ATU_TYPE_CFG0			0x4
++#define ATU_TYPE_CFG1			0x5
++#ifdef CONFIG_PCI_ALMOND_FPGA_REV8
++#define ATU_INCREASE_REGION_SIZE	0
++#else
++#define ATU_INCREASE_REGION_SIZE	BIT(13)
++#endif
++
++#define ATU_VIEWPORT_CTRL_2		0x908
++#define ATU_CFG_SHIFT_MODE		BIT(28)
++#define ATU_BAR_MATCH_MODE		BIT(30)
++#define ATU_ENABLE			BIT(31)
++#define ATU_DISABLE			(u32)~ATU_ENABLE
++
++#define ATU_MAX_IN			16
++#define ATU_MAX_OUT			16
++
++#define ATU_WAIT_MAX_RETRIES		5
++#define ATU_WAIT			9
++
++/*
++ * iATU Unroll-specific register definitions
++ * From 4.80 core version the address translation will be made by unroll
++ */
++#define ATU_REGION_CTRL1		0x00
++#define ATU_REGION_CTRL2		0x04
++#define ATU_LOWER_BASE			0x08
++#define ATU_UPPER_BASE			0x0C
++#define ATU_LOWER_LIMIT			0x10
++#define ATU_LOWER_TARGET		0x14
++#define ATU_UPPER_TARGET		0x18
++#define ATU_UPPER_LIMIT			0x20
++
++#define ATU_OUTBOUND_REGION(region)	((region) << 9)
++#define ATU_INBOUND_REGION(region)	(((region) << 9) | BIT(8))
++
++#define SIFIVE_PCIEAUXGATECFG 0x14
++#define SIFIVE_DEVICESRESETREG 0x28
++
++#define PCIEX8MGMT_PERST_N 0x0
++#define PCIEX8MGMT_APP_LTSSM_ENABLE	0x10
++#define PCIEX8MGMT_APP_HOLD_PHY_RST 0x18
++#define PCIEX8MGMT_DEVICE_TYPE		0x708
++#define PCIEX8MGMT_PHY0_CR_PARA_ADDR 0x860
++#define PCIEX8MGMT_PHY0_CR_PARA_RD_EN 0x870
++#define PCIEX8MGMT_PHY0_CR_PARA_RD_DATA 0x878
++#define PCIEX8MGMT_PHY0_CR_PARA_SEL 0x880
++#define PCIEX8MGMT_PHY0_CR_PARA_WR_DATA 0x888
++#define PCIEX8MGMT_PHY0_CR_PARA_WR_EN 0x890
++#define PCIEX8MGMT_PHY0_CR_PARA_ACK 0x898
++#define PCIEX8MGMT_PHY1_CR_PARA_ADDR 0x8a0
++#define PCIEX8MGMT_PHY1_CR_PARA_RD_EN 0x8b0
++#define PCIEX8MGMT_PHY1_CR_PARA_RD_DATA 0x8b8
++#define PCIEX8MGMT_PHY1_CR_PARA_SEL 0x8c0
++#define PCIEX8MGMT_PHY1_CR_PARA_WR_DATA 0x8c8
++#define PCIEX8MGMT_PHY1_CR_PARA_WR_EN 0x8d0
++#define PCIEX8MGMT_PHY1_CR_PARA_ACK 0x8d8
++
++#define PCIEX8MGMT_LANE_NUM 8
++#define PCIEX8MGMT_LANE 0x1008
++#define PCIEX8MGMT_LANE_OFF 0x100
++#define PCIEX8MGMT_TERM_MODE 0x0e21
++
++/* PCIe Port Logic registers (memory-mapped) */
++#define PL_OFFSET 0x700
++#define PCIE_PL_PFLR (PL_OFFSET + 0x08)
++#define PCIE_PL_PFLR_LINK_STATE_MASK		(0x3f << 16)
++#define PCIE_PL_PFLR_FORCE_LINK			BIT(15)
++#define PCIE_PHY_DEBUG_R0 (PL_OFFSET + 0x28)
++#define PCIE_PHY_DEBUG_R1 (PL_OFFSET + 0x2c)
++#define PCIE_PL_GEN2_CTRL_OFF (PL_OFFSET + 0x10c)
++#define PCIE_PL_DIRECTED_SPEED_CHANGE_OFF 0x20000
++
++#define PCIE_PHY_CTRL (PL_OFFSET + 0x114)
++#define PCIE_PHY_CTRL_DATA_LOC 0
++#define PCIE_PHY_CTRL_CAP_ADR_LOC 16
++#define PCIE_PHY_CTRL_CAP_DAT_LOC 17
++#define PCIE_PHY_CTRL_WR_LOC 18
++#define PCIE_PHY_CTRL_RD_LOC 19
++
++#define PCIE_PHY_STAT (PL_OFFSET + 0x110)
++#define PCIE_PHY_STAT_ACK_LOC 16
++
++#define PCIE_LINK_WIDTH_SPEED_CONTROL	0x80C
++
++/* PCIe Root Complex registers (memory-mapped) */
++#define PCIE_RC_PF0_MSI_CAP			0x50
++#define PCI_MSI_CAP_ID_NEXT_CTRL_REG		(PCIE_RC_PF0_MSI_CAP + 0x0)
++
++#define PCIE_RC_PF0_MSIX_CAP			0x0
++
++#define PCIE_DSP_PF0_PCIE_CAP_BASE		0x70
++#define PCIE_RC_LCR				(PCIE_DSP_PF0_PCIE_CAP_BASE + 0xc)
++#define PCIE_RC_LCR_MAX_LINK_SPEEDS_GEN1	0x1
++#define PCIE_RC_LCR_MAX_LINK_SPEEDS_GEN2	0x2
++#define PCIE_RC_LCR_MAX_LINK_SPEEDS_GEN3	0x3
++#define PCIE_RC_LCR_MAX_LINK_SPEEDS_MASK	0xf
++
++#define PCIE_RC_LCSR				(PCIE_DSP_PF0_PCIE_CAP_BASE + 0x10)
++
++#define DMA_CONFIG(r)			(DMA_OFFSET + (r))
++#define ATU_CONFIG(r)			(ATU_OFFSET + (r))
++#define PCI_SHADOW(r)			(DBI2_OFFSET + (r))
++#define PCI_CONFIG(r)			(DBI_OFFSET + (r))
++#define MSI_CAPABILITIES(r)		PCI_CONFIG(PCIE_RC_PF0_MSI_CAP + (r))
++#define MSIX_CAPABILITIES(r)		PCI_CONFIG(PCIE_RC_PF0_MSIX_CAP + (r))
++#define PCIE_CAPABILITIES(r)		PCI_CONFIG(PCIE_DSP_PF0_PCIE_CAP_BASE + (r))
++
++#define PF0_PCIE_CAP_LINK_CAP		PCIE_CAPABILITIES(0xc)
++#define PCIE_LINK_CAP_MAX_SPEED_MASK	0xf
++#define PCIE_LINK_CAP_MAX_SPEED_GEN1	BIT(0)
++#define PCIE_LINK_CAP_MAX_SPEED_GEN2	BIT(1)
++#define PCIE_LINK_CAP_MAX_SPEED_GEN3	BIT(2)
++#define PCIE_LINK_CAP_MAX_SPEED_GEN4	BIT(3)
++
++#define PF0_PCIE_CAP_LINK_CONTROL	PCIE_CAPABILITIES(0x10)
++
++#define PF0_PCIE_CAP_LINK_STATUS	PCIE_CAPABILITIES(0x12)
++#define PCIE_LINK_STATUS_SPEED_MASK	0xf
++
++#define PCI_CFG0_REGION_OFFSET		0x00000000
++#define PCI_CFG0_REGION_SIZE		0x00001000	/* 2^12 = 4KB */
++#define PCI_CFG1_REGION_OFFSET		0x00001000
++#define PCI_CFG1_REGION_SIZE		0x00001000	/* 2^12 = 4KB */
++#define PCI_MSI_REGION_OFFSET		0x00002000
++#define PCI_MSI_REGION_SIZE		0x00001000	/* 2^12 = 4KB */
++#define PCI_IO_REGION_OFFSET		0x00080000
++#define PCI_IO_REGION_SIZE		0x00010000	/* 2^16 = 64KB */
++#define PCI_MEM_REGION_OFFSET		0x04000000
++#define PCI_MEM_REGION_SIZE		0x04000000	/* 2^26 = 64MB */
++#define PCI_AUTOCFG_REGION_OFFSET	0x08000000
++#define PCI_AUTOCFG_REGION_SIZE		0x08000000	/* 2^27 = 128MB */
++#define PCI_ECAM_REGION_OFFSET		0x10000000
++#define PCI_ECAM_REGION_SIZE		0x10000000	/* 2^28 = 256MB */
++
++#endif /* __PCIE_SIFIVE_H__ */
+-- 
+2.7.4
+

@@ -1,0 +1,120 @@
+From 9d0d30253299f61a96f9ed59dfd2ed3ddaacf7fd Mon Sep 17 00:00:00 2001
+From: Green Wan <green.wan@sifive.com>
+Date: Fri, 15 Jan 2021 23:08:48 +0800
+Subject: [PATCH 29/34] clk: sifive: add pciaux clock
+
+pciaux clock has no parent and divider. Overwrite the default
+clock enable function in sifive_prci.c
+
+Signed-off-by: Green Wan <green.wan@sifive.com>
+---
+ drivers/clk/sifive/fu740-prci.c               | 31 +++++++++++++++++++++++++++
+ drivers/clk/sifive/fu740-prci.h               |  2 +-
+ drivers/clk/sifive/sifive-prci.h              |  5 +++++
+ include/dt-bindings/clock/sifive-fu740-prci.h |  1 +
+ 4 files changed, 38 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/clk/sifive/fu740-prci.c b/drivers/clk/sifive/fu740-prci.c
+index 218029b..32b0f40 100644
+--- a/drivers/clk/sifive/fu740-prci.c
++++ b/drivers/clk/sifive/fu740-prci.c
+@@ -18,6 +18,23 @@
+ 
+ #include <dt-bindings/clock/sifive-fu740-prci.h>
+ #include "sifive-prci.h"
++#include <asm/io.h>
++
++int sifive_prci_fu740_pciauxclk_enable(struct __prci_clock *pc, bool enable)
++{
++	struct __prci_wrpll_data *pwd = pc->pwd;
++	struct __prci_data *pd = pc->pd;
++	u32 v;
++
++	if (pwd->cfg1_offs != PRCI_PCIEAUXCFG1_OFFSET)
++		return -EINVAL;
++
++	v = readl(pd->va + pwd->cfg1_offs);
++	v = enable ? (v | PRCI_PCIEAUXCFG1_MASK) : (v & ~PRCI_PCIEAUXCFG1_MASK);
++	writel(v, pd->va + pwd->cfg1_offs);
++
++	return 0;
++}
+ 
+ /* PRCI integration data for each WRPLL instance */
+ static struct __prci_wrpll_data __prci_corepll_data = {
+@@ -59,6 +76,10 @@ static struct __prci_wrpll_data __prci_cltxpll_data = {
+ 	.release_reset = sifive_prci_cltx_release_reset,
+ };
+ 
++static struct __prci_wrpll_data __prci_pcieaux_data = {
++	.cfg1_offs = PRCI_PCIEAUXCFG1_OFFSET,
++};
++
+ /* Linux clock framework integration */
+ 
+ static const struct __prci_clock_ops sifive_fu740_prci_wrpll_clk_ops = {
+@@ -76,6 +97,10 @@ static const struct __prci_clock_ops sifive_fu740_prci_hfpclkplldiv_clk_ops = {
+ 	.recalc_rate = sifive_prci_hfpclkplldiv_recalc_rate,
+ };
+ 
++static const struct __prci_clock_ops sifive_fu740_prci_pcieaux_clk_ops = {
++	.enable_clk = sifive_prci_fu740_pciauxclk_enable,
++};
++
+ /* List of clock controls provided by the PRCI */
+ struct __prci_clock __prci_init_clocks_fu740[] = {
+ 	[PRCI_CLK_COREPLL] = {
+@@ -124,4 +149,10 @@ struct __prci_clock __prci_init_clocks_fu740[] = {
+ 		.parent_name = "hfpclkpll",
+ 		.ops = &sifive_fu740_prci_hfpclkplldiv_clk_ops,
+ 	},
++	[PRCI_CLK_PCIEAUX] {
++		.name = "pciaux",
++		.parent_name = "",
++		.ops = &sifive_fu740_prci_pcieaux_clk_ops,
++		.pwd = &__prci_pcieaux_data,
++	}
+ };
+diff --git a/drivers/clk/sifive/fu740-prci.h b/drivers/clk/sifive/fu740-prci.h
+index 4db6b79..ebd1a07 100644
+--- a/drivers/clk/sifive/fu740-prci.h
++++ b/drivers/clk/sifive/fu740-prci.h
+@@ -10,7 +10,7 @@
+ 
+ #include "sifive-prci.h"
+ 
+-#define NUM_CLOCK_FU740		8
++#define NUM_CLOCK_FU740		9
+ 
+ extern struct __prci_clock __prci_init_clocks_fu740[NUM_CLOCK_FU740];
+ 
+diff --git a/drivers/clk/sifive/sifive-prci.h b/drivers/clk/sifive/sifive-prci.h
+index af81ff8..cfe6127 100644
+--- a/drivers/clk/sifive/sifive-prci.h
++++ b/drivers/clk/sifive/sifive-prci.h
+@@ -67,6 +67,11 @@
+ #define PRCI_DDRPLLCFG1_CKE_SHIFT	31
+ #define PRCI_DDRPLLCFG1_CKE_MASK	(0x1 << PRCI_DDRPLLCFG1_CKE_SHIFT)
+ 
++/* PCIEAUXCFG1 */
++#define PRCI_PCIEAUXCFG1_OFFSET		0x14
++#define PRCI_PCIEAUXCFG1_SHIFT		0
++#define PRCI_PCIEAUXCFG1_MASK		(0x1 << PRCI_PCIEAUXCFG1_SHIFT)
++
+ /* GEMGXLPLLCFG0 */
+ #define PRCI_GEMGXLPLLCFG0_OFFSET	0x1c
+ #define PRCI_GEMGXLPLLCFG0_DIVR_SHIFT	0
+diff --git a/include/dt-bindings/clock/sifive-fu740-prci.h b/include/dt-bindings/clock/sifive-fu740-prci.h
+index 6ee4c6d..ed93ec3 100644
+--- a/include/dt-bindings/clock/sifive-fu740-prci.h
++++ b/include/dt-bindings/clock/sifive-fu740-prci.h
+@@ -20,5 +20,6 @@
+ #define PRCI_CLK_CLTXPLL	5
+ #define PRCI_CLK_TLCLK		6
+ #define PRCI_CLK_PCLK		7
++#define PRCI_CLK_PCIEAUX	8
+ 
+ #endif
+-- 
+2.7.4
+

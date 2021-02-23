@@ -1,0 +1,150 @@
+From 61eb18411e58541899b98f922f1e56402e6166f7 Mon Sep 17 00:00:00 2001
+From: Pragnesh Patel <pragnesh.patel@sifive.com>
+Date: Mon, 19 Oct 2020 18:03:37 +0530
+Subject: [PATCH 11/34] riscv: sifive: dts: fu740: Add board -u-boot.dtsi files
+
+Devicetree files in FU740 platform is synced from Linux, like other
+platforms does. Apart from these U-Boot in FU740 would also require
+some U-Boot specific node like clint.
+
+So, create board specific -u-boot.dtsi files. This would help of
+maintain U-Boot specific changes separately without touching Linux
+dts(i) files which indeed easy for syncing from Linux between
+releases.
+
+Signed-off-by: Pragnesh Patel <pragnesh.patel@sifive.com>
+---
+ arch/riscv/dts/fu740-c000-u-boot.dtsi           | 74 +++++++++++++++++++++++++
+ arch/riscv/dts/hifive-unmatched-a00-u-boot.dtsi | 39 +++++++++++++
+ 2 files changed, 113 insertions(+)
+ create mode 100644 arch/riscv/dts/fu740-c000-u-boot.dtsi
+ create mode 100644 arch/riscv/dts/hifive-unmatched-a00-u-boot.dtsi
+
+diff --git a/arch/riscv/dts/fu740-c000-u-boot.dtsi b/arch/riscv/dts/fu740-c000-u-boot.dtsi
+new file mode 100644
+index 0000000..c7df15b
+--- /dev/null
++++ b/arch/riscv/dts/fu740-c000-u-boot.dtsi
+@@ -0,0 +1,74 @@
++// SPDX-License-Identifier: (GPL-2.0 OR MIT)
++/*
++ * (C) Copyright 2020 SiFive, Inc
++ */
++
++/ {
++	cpus {
++		assigned-clocks = <&prci PRCI_CLK_COREPLL>;
++		assigned-clock-rates = <1001000000>;
++		u-boot,dm-spl;
++		cpu0: cpu@0 {
++			clocks = <&prci PRCI_CLK_COREPLL>;
++			u-boot,dm-spl;
++			status = "okay";
++			cpu0_intc: interrupt-controller {
++				u-boot,dm-spl;
++			};
++		};
++		cpu1: cpu@1 {
++			clocks = <&prci PRCI_CLK_COREPLL>;
++			u-boot,dm-spl;
++			cpu1_intc: interrupt-controller {
++				u-boot,dm-spl;
++			};
++		};
++		cpu2: cpu@2 {
++			clocks = <&prci PRCI_CLK_COREPLL>;
++			u-boot,dm-spl;
++			cpu2_intc: interrupt-controller {
++				 u-boot,dm-spl;
++			};
++		};
++		cpu3: cpu@3 {
++			clocks = <&prci PRCI_CLK_COREPLL>;
++			u-boot,dm-spl;
++			cpu3_intc: interrupt-controller {
++				u-boot,dm-spl;
++			};
++		};
++		cpu4: cpu@4 {
++			clocks = <&prci PRCI_CLK_COREPLL>;
++			u-boot,dm-spl;
++			cpu4_intc: interrupt-controller {
++				u-boot,dm-spl;
++			};
++		};
++	};
++
++	soc {
++		u-boot,dm-spl;
++		clint: clint@2000000 {
++			compatible = "riscv,clint0";
++			interrupts-extended = <&cpu0_intc 3 &cpu0_intc 7
++					       &cpu1_intc 3 &cpu1_intc 7
++					       &cpu2_intc 3 &cpu2_intc 7
++					       &cpu3_intc 3 &cpu3_intc 7
++					       &cpu4_intc 3 &cpu4_intc 7>;
++			reg = <0x0 0x2000000 0x0 0x10000>;
++			u-boot,dm-spl;
++		};
++	};
++};
++
++&prci {
++	u-boot,dm-spl;
++};
++
++&uart0 {
++	u-boot,dm-spl;
++};
++
++&spi0 {
++	u-boot,dm-spl;
++};
+diff --git a/arch/riscv/dts/hifive-unmatched-a00-u-boot.dtsi b/arch/riscv/dts/hifive-unmatched-a00-u-boot.dtsi
+new file mode 100644
+index 0000000..7171e25
+--- /dev/null
++++ b/arch/riscv/dts/hifive-unmatched-a00-u-boot.dtsi
+@@ -0,0 +1,39 @@
++// SPDX-License-Identifier: (GPL-2.0 OR MIT)
++/*
++ * Copyright (C) 2020 SiFive, Inc
++ */
++
++#include "fu740-c000-u-boot.dtsi"
++
++/ {
++	aliases {
++		spi0 = &spi0;
++	};
++
++	memory@80000000 {
++		u-boot,dm-spl;
++	};
++
++	hfclk {
++		u-boot,dm-spl;
++	};
++
++	rtcclk {
++		u-boot,dm-spl;
++	};
++
++};
++
++&clint {
++	clocks = <&rtcclk>;
++};
++
++&spi0 {
++	mmc@0 {
++		u-boot,dm-spl;
++	};
++};
++
++&gpio {
++	u-boot,dm-spl;
++};
+-- 
+2.7.4
+

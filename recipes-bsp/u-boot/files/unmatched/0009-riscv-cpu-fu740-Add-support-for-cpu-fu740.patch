@@ -1,0 +1,252 @@
+From 502bdc0955f1f38ff93f3d9c1f2bb6c4cd771718 Mon Sep 17 00:00:00 2001
+From: Pragnesh Patel <pragnesh.patel@sifive.com>
+Date: Mon, 19 Oct 2020 18:34:50 +0530
+Subject: [PATCH 09/34] riscv: cpu: fu740: Add support for cpu fu740
+
+Add SiFive fu740 cpu to support RISC-V arch
+
+Signed-off-by: Pragnesh Patel <pragnesh.patel@sifive.com>
+---
+ arch/riscv/Kconfig                        |  1 +
+ arch/riscv/cpu/fu740/Kconfig              | 37 ++++++++++++++++++++++++++++++
+ arch/riscv/cpu/fu740/Makefile             |  7 ++++++
+ arch/riscv/cpu/fu740/cpu.c                | 22 ++++++++++++++++++
+ arch/riscv/cpu/fu740/dram.c               | 38 +++++++++++++++++++++++++++++++
+ arch/riscv/include/asm/arch-fu740/clk.h   | 14 ++++++++++++
+ arch/riscv/include/asm/arch-fu740/gpio.h  | 38 +++++++++++++++++++++++++++++++
+ arch/riscv/include/asm/arch-fu740/reset.h | 13 +++++++++++
+ 8 files changed, 170 insertions(+)
+ create mode 100644 arch/riscv/cpu/fu740/Kconfig
+ create mode 100644 arch/riscv/cpu/fu740/Makefile
+ create mode 100644 arch/riscv/cpu/fu740/cpu.c
+ create mode 100644 arch/riscv/cpu/fu740/dram.c
+ create mode 100644 arch/riscv/include/asm/arch-fu740/clk.h
+ create mode 100644 arch/riscv/include/asm/arch-fu740/gpio.h
+ create mode 100644 arch/riscv/include/asm/arch-fu740/reset.h
+
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index 30b0540..00791d9 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -61,6 +61,7 @@ source "board/sipeed/maix/Kconfig"
+ # platform-specific options below
+ source "arch/riscv/cpu/ax25/Kconfig"
+ source "arch/riscv/cpu/fu540/Kconfig"
++source "arch/riscv/cpu/fu740/Kconfig"
+ source "arch/riscv/cpu/generic/Kconfig"
+ 
+ # architecture-specific options below
+diff --git a/arch/riscv/cpu/fu740/Kconfig b/arch/riscv/cpu/fu740/Kconfig
+new file mode 100644
+index 0000000..b62fba6
+--- /dev/null
++++ b/arch/riscv/cpu/fu740/Kconfig
+@@ -0,0 +1,37 @@
++# SPDX-License-Identifier: GPL-2.0+
++#
++# Copyright (C) 2020 SiFive, Inc
++# Pragnesh Patel <pragnesh.patel@sifive.com>
++
++config SIFIVE_FU740
++	bool
++	select ARCH_EARLY_INIT_R
++	select RAM
++	select SPL_RAM if SPL
++	imply CPU
++	imply CPU_RISCV
++	imply RISCV_TIMER if (RISCV_SMODE || SPL_RISCV_SMODE)
++	imply SIFIVE_CLINT if (RISCV_MMODE || SPL_RISCV_MMODE)
++	imply CMD_CPU
++	imply SPL_CPU_SUPPORT
++	imply SPL_OPENSBI
++	imply SPL_LOAD_FIT
++	imply SMP
++	imply CLK_SIFIVE
++	imply CLK_SIFIVE_PRCI
++	imply SIFIVE_SERIAL
++	imply MACB
++	imply MII
++	imply SPI
++	imply SPI_SIFIVE
++	imply MMC
++	imply MMC_SPI
++	imply MMC_BROKEN_CD
++	imply CMD_MMC
++	imply DM_GPIO
++	imply SIFIVE_GPIO
++	imply CMD_GPIO
++	imply MISC
++	imply SIFIVE_OTP
++	imply DM_PWM
++	imply PWM_SIFIVE
+diff --git a/arch/riscv/cpu/fu740/Makefile b/arch/riscv/cpu/fu740/Makefile
+new file mode 100644
+index 0000000..44700d9
+--- /dev/null
++++ b/arch/riscv/cpu/fu740/Makefile
+@@ -0,0 +1,7 @@
++# SPDX-License-Identifier: GPL-2.0+
++#
++# Copyright (C) 2020 SiFive, Inc
++# Pragnesh Patel <pragnesh.patel@sifive.com>
++
++obj-y += dram.o
++obj-y += cpu.o
+diff --git a/arch/riscv/cpu/fu740/cpu.c b/arch/riscv/cpu/fu740/cpu.c
+new file mode 100644
+index 0000000..f13c189
+--- /dev/null
++++ b/arch/riscv/cpu/fu740/cpu.c
+@@ -0,0 +1,22 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (C) 2018, Bin Meng <bmeng.cn@gmail.com>
++ */
++
++#include <irq_func.h>
++#include <asm/cache.h>
++
++/*
++ * cleanup_before_linux() is called just before we call linux
++ * it prepares the processor for linux
++ *
++ * we disable interrupt and caches.
++ */
++int cleanup_before_linux(void)
++{
++	disable_interrupts();
++
++	cache_flush();
++
++	return 0;
++}
+diff --git a/arch/riscv/cpu/fu740/dram.c b/arch/riscv/cpu/fu740/dram.c
+new file mode 100644
+index 0000000..1dc77ef
+--- /dev/null
++++ b/arch/riscv/cpu/fu740/dram.c
+@@ -0,0 +1,38 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (C) 2018, Bin Meng <bmeng.cn@gmail.com>
++ */
++
++#include <common.h>
++#include <fdtdec.h>
++#include <init.h>
++#include <linux/sizes.h>
++
++DECLARE_GLOBAL_DATA_PTR;
++
++int dram_init(void)
++{
++	return fdtdec_setup_mem_size_base();
++}
++
++int dram_init_banksize(void)
++{
++	return fdtdec_setup_memory_banksize();
++}
++
++ulong board_get_usable_ram_top(ulong total_size)
++{
++#ifdef CONFIG_64BIT
++	/*
++	 * Ensure that we run from first 4GB so that all
++	 * addresses used by U-Boot are 32bit addresses.
++	 *
++	 * This in-turn ensures that 32bit DMA capable
++	 * devices work fine because DMA mapping APIs will
++	 * provide 32bit DMA addresses only.
++	 */
++	if (gd->ram_top > SZ_4G)
++		return SZ_4G;
++#endif
++	return gd->ram_top;
++}
+diff --git a/arch/riscv/include/asm/arch-fu740/clk.h b/arch/riscv/include/asm/arch-fu740/clk.h
+new file mode 100644
+index 0000000..d71ed43
+--- /dev/null
++++ b/arch/riscv/include/asm/arch-fu740/clk.h
+@@ -0,0 +1,14 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * Copyright (c) 2020 SiFive Inc
++ *
++ * Authors:
++ *   Pragnesh Patel <pragnesh.patel@sifive.com>
++ */
++
++#ifndef __CLK_SIFIVE_H
++#define __CLK_SIFIVE_H
++
++/* Note: This is a placeholder header for driver compilation. */
++
++#endif
+diff --git a/arch/riscv/include/asm/arch-fu740/gpio.h b/arch/riscv/include/asm/arch-fu740/gpio.h
+new file mode 100644
+index 0000000..9edc39c
+--- /dev/null
++++ b/arch/riscv/include/asm/arch-fu740/gpio.h
+@@ -0,0 +1,38 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * Copyright (C) 2020 SiFive, Inc.
++ */
++
++#ifndef _GPIO_SIFIVE_H
++#define _GPIO_SIFIVE_H
++
++#define GPIO_INPUT_VAL	0x00
++#define GPIO_INPUT_EN	0x04
++#define GPIO_OUTPUT_EN	0x08
++#define GPIO_OUTPUT_VAL	0x0C
++#define GPIO_RISE_IE	0x18
++#define GPIO_RISE_IP	0x1C
++#define GPIO_FALL_IE	0x20
++#define GPIO_FALL_IP	0x24
++#define GPIO_HIGH_IE	0x28
++#define GPIO_HIGH_IP	0x2C
++#define GPIO_LOW_IE	0x30
++#define GPIO_LOW_IP	0x34
++#define GPIO_OUTPUT_XOR	0x40
++
++#define NR_GPIOS	16
++
++enum gpio_state {
++	LOW,
++	HIGH
++};
++
++/* Details about a GPIO bank */
++struct sifive_gpio_platdata {
++	void *base;     /* address of registers in physical memory */
++};
++
++#define SIFIVE_GENERIC_GPIO_NR(port, index) \
++		(((port) * NR_GPIOS) + ((index) & (NR_GPIOS - 1)))
++
++#endif /* _GPIO_SIFIVE_H */
+diff --git a/arch/riscv/include/asm/arch-fu740/reset.h b/arch/riscv/include/asm/arch-fu740/reset.h
+new file mode 100644
+index 0000000..e42797a
+--- /dev/null
++++ b/arch/riscv/include/asm/arch-fu740/reset.h
+@@ -0,0 +1,13 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * Copyright (c) 2020 SiFive, Inc.
++ *
++ * Author: Sagar Kadam <sagar.kadam@sifive.com>
++ */
++
++#ifndef __RESET_SIFIVE_H
++#define __RESET_SIFIVE_H
++
++int sifive_reset_bind(struct udevice *dev, ulong count);
++
++#endif
+-- 
+2.7.4
+

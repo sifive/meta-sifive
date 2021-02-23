@@ -1,0 +1,30 @@
+From b7737239076ae5f0f05ac8353b1e3a29cfb7a374 Mon Sep 17 00:00:00 2001
+From: David Abdurachmanov <david.abdurachmanov@sifive.com>
+Date: Tue, 19 Jan 2021 04:34:26 -0800
+Subject: [PATCH 34/34] Unmathced/FU740 add NVME, USB and PXE to boot targets
+
+1st try NVMe, 2nd USB, 3rd MMC, 4th PXE, 5th/final DHCP
+
+Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>
+---
+ include/configs/sifive-hifive-unmatched-fu740.h | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/include/configs/sifive-hifive-unmatched-fu740.h b/include/configs/sifive-hifive-unmatched-fu740.h
+index 255031d..f915000 100644
+--- a/include/configs/sifive-hifive-unmatched-fu740.h
++++ b/include/configs/sifive-hifive-unmatched-fu740.h
+@@ -47,7 +47,10 @@
+ 
+ #ifndef CONFIG_SPL_BUILD
+ #define BOOT_TARGET_DEVICES(func) \
++	func(NVME, nvme, 0) \
++	func(USB, usb, 0) \
+ 	func(MMC, mmc, 0) \
++	func(PXE, pxe, na) \
+ 	func(DHCP, dhcp, na)
+ 
+ #include <config_distro_bootcmd.h>
+-- 
+2.7.4
+

@@ -1,0 +1,43 @@
+From 38aad675ad72d46faf4d4fc5af65b6a96fd81c4b Mon Sep 17 00:00:00 2001
+From: Pragnesh Patel <pragnesh.patel@sifive.com>
+Date: Wed, 21 Oct 2020 17:26:24 +0530
+Subject: [PATCH 20/34] sifive: fu740: Add U-Boot proper sector start
+
+Add U-Boot proper sector start offset for SiFive FU740.
+This value is based on the partition layout supported
+by SiFive FU740.
+
+u-boot.itb need to write on this specific offset so-that
+the SPL will retrieve it from here and load.
+
+Signed-off-by: Pragnesh Patel <pragnesh.patel@sifive.com>
+---
+ common/spl/Kconfig | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/common/spl/Kconfig b/common/spl/Kconfig
+index d8086bd..e78c1f5 100644
+--- a/common/spl/Kconfig
++++ b/common/spl/Kconfig
+@@ -308,7 +308,8 @@ config SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR
+ 		     ARCH_MX6 || ARCH_MX7 || \
+ 		     ARCH_ROCKCHIP || ARCH_MVEBU ||  ARCH_SOCFPGA || \
+ 		     ARCH_AT91 || ARCH_ZYNQ || ARCH_KEYSTONE || OMAP34XX || \
+-		     OMAP44XX || OMAP54XX || AM33XX || AM43XX || TARGET_SIFIVE_FU540
++		     OMAP44XX || OMAP54XX || AM33XX || AM43XX || TARGET_SIFIVE_FU540 || \
++		     TARGET_SIFIVE_HIFIVE_UNMATCHED_FU740
+ 	help
+ 	  Use sector number for specifying U-Boot location on MMC/SD in
+ 	  raw mode.
+@@ -325,7 +326,7 @@ config SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR
+ 	default 0x300 if ARCH_ZYNQ || ARCH_KEYSTONE || OMAP34XX || OMAP44XX || \
+ 		         OMAP54XX || AM33XX || AM43XX || ARCH_K3
+ 	default 0x4000 if ARCH_ROCKCHIP
+-	default 0x822 if TARGET_SIFIVE_FU540
++	default 0x822 if TARGET_SIFIVE_FU540 || TARGET_SIFIVE_HIFIVE_UNMATCHED_FU740
+ 	help
+ 	  Address on the MMC to load U-Boot from, when the MMC is being used
+ 	  in raw mode. Units: MMC sectors (1 sector = 512 bytes).
+-- 
+2.7.4
+

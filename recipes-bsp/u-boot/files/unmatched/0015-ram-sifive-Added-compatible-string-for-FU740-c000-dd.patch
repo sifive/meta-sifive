@@ -1,0 +1,27 @@
+From e46d8dbd2952ea9daa057a40472e09d84d1c1641 Mon Sep 17 00:00:00 2001
+From: Pragnesh Patel <pragnesh.patel@sifive.com>
+Date: Wed, 11 Nov 2020 18:50:19 +0530
+Subject: [PATCH 15/34] ram: sifive: Added compatible string for FU740-c000 ddr
+
+Added FU740-c000 ddr compatible string
+
+Signed-off-by: Pragnesh Patel <pragnesh.patel@sifive.com>
+---
+ drivers/ram/sifive/sifive_ddr.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/ram/sifive/sifive_ddr.c b/drivers/ram/sifive/sifive_ddr.c
+index e74ac49..c464fea 100644
+--- a/drivers/ram/sifive/sifive_ddr.c
++++ b/drivers/ram/sifive/sifive_ddr.c
+@@ -393,6 +393,7 @@ static struct ram_ops sifive_ddr_ops = {
+ 
+ static const struct udevice_id sifive_ddr_ids[] = {
+ 	{ .compatible = "sifive,fu540-c000-ddr" },
++	{ .compatible = "sifive,fu740-c000-ddr" },
+ 	{ }
+ };
+ 
+-- 
+2.7.4
+

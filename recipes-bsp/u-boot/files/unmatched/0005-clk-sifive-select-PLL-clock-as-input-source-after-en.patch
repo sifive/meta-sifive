@@ -1,0 +1,49 @@
+From 84fd726a035283257844e3ec39e6d95309a00c50 Mon Sep 17 00:00:00 2001
+From: Pragnesh Patel <pragnesh.patel@sifive.com>
+Date: Tue, 24 Nov 2020 18:36:54 +0530
+Subject: [PATCH 05/34] clk: sifive: select PLL clock as input source after
+ enabling PLL clock output
+
+PLL clock output needs to be enabled first and then any selection
+register can use PLL clock as a input source.
+
+Signed-off-by: Pragnesh Patel <pragnesh.patel@sifive.com>
+---
+ drivers/clk/sifive/sifive-prci.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/clk/sifive/sifive-prci.c b/drivers/clk/sifive/sifive-prci.c
+index 514bd36..2fc426e 100644
+--- a/drivers/clk/sifive/sifive-prci.c
++++ b/drivers/clk/sifive/sifive-prci.c
+@@ -232,9 +232,6 @@ int sifive_prci_wrpll_set_rate(struct __prci_clock *pc,
+ 
+ 	udelay(wrpll_calc_max_lock_us(&pwd->c));
+ 
+-	if (pwd->disable_bypass)
+-		pwd->disable_bypass(pd);
+-
+ 	return 0;
+ }
+ 
+@@ -246,11 +243,17 @@ int sifive_prci_clock_enable(struct __prci_clock *pc, bool enable)
+ 	if (enable) {
+ 		__prci_wrpll_write_cfg1(pd, pwd, PRCI_COREPLLCFG1_CKE_MASK);
+ 
++		if (pwd->disable_bypass)
++			pwd->disable_bypass(pd);
++
+ 		if (pwd->release_reset)
+ 			pwd->release_reset(pd);
+ 	} else {
+ 		u32 r;
+ 
++		if (pwd->enable_bypass)
++			pwd->enable_bypass(pd);
++
+ 		r = __prci_readl(pd, pwd->cfg1_offs);
+ 		r &= ~PRCI_COREPLLCFG1_CKE_MASK;
+ 
+-- 
+2.7.4
+

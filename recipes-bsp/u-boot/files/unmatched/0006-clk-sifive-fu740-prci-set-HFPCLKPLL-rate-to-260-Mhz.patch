@@ -1,0 +1,61 @@
+From 9edcb33fe4b9faba329165e5642b0f216f745577 Mon Sep 17 00:00:00 2001
+From: Pragnesh Patel <pragnesh.patel@sifive.com>
+Date: Tue, 24 Nov 2020 19:06:44 +0530
+Subject: [PATCH 06/34] clk: sifive: fu740-prci: set HFPCLKPLL rate to 260 Mhz
+
+HFPCLKPLL is a intermediate clock PLL so no peripheral driver is able
+to set the rate of HFPCLKPLL, so setting the same in probe function.
+
+Signed-off-by: Pragnesh Patel <pragnesh.patel@sifive.com>
+---
+ drivers/clk/sifive/sifive-prci.c | 27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
+
+diff --git a/drivers/clk/sifive/sifive-prci.c b/drivers/clk/sifive/sifive-prci.c
+index 2fc426e..5858004 100644
+--- a/drivers/clk/sifive/sifive-prci.c
++++ b/drivers/clk/sifive/sifive-prci.c
+@@ -32,6 +32,7 @@
+ #include <asm/arch/reset.h>
+ #include <linux/delay.h>
+ #include <linux/math64.h>
++#include <dt-bindings/clock/sifive-fu740-prci.h>
+ 
+ #include "fu540-prci.h"
+ #include "fu740-prci.h"
+@@ -671,6 +672,32 @@ static int sifive_prci_probe(struct udevice *dev)
+ 			__prci_wrpll_read_cfg0(pd, pc->pwd);
+ 	}
+ 
++#if IS_ENABLED(CONFIG_SPL_BUILD)
++	if (device_is_compatible(dev, "sifive,fu740-c000-prci")) {
++		u32 prci_pll_reg;
++		unsigned long parent_rate;
++
++		prci_pll_reg = readl(pd->va + PRCI_PRCIPLL_OFFSET);
++
++		if (prci_pll_reg & PRCI_PRCIPLL_HFPCLKPLL) {
++			/*
++			 * Only initialize the HFPCLK PLL. In this case the design uses hfpclk to
++			 * drive Chiplink
++			 */
++			pc = &data->clks[PRCI_CLK_HFPCLKPLL];
++			parent_rate = sifive_prci_parent_rate(pc, data);
++			sifive_prci_wrpll_set_rate(pc, 260000000, parent_rate);
++			pc->ops->enable_clk(pc, 1);
++		} else if (prci_pll_reg & PRCI_PRCIPLL_CLTXPLL) {
++			/* CLTX pll init */
++			pc = &data->clks[PRCI_CLK_CLTXPLL];
++			parent_rate = sifive_prci_parent_rate(pc, data);
++			sifive_prci_wrpll_set_rate(pc, 260000000, parent_rate);
++			pc->ops->enable_clk(pc, 1);
++		}
++	}
++#endif
++
+ 	return 0;
+ }
+ 
+-- 
+2.7.4
+

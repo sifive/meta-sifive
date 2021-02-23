@@ -1,0 +1,47 @@
+From f79b7968f72385487b0246e3cdaa269cf830985d Mon Sep 17 00:00:00 2001
+From: Pragnesh Patel <pragnesh.patel@sifive.com>
+Date: Tue, 24 Nov 2020 20:02:50 +0530
+Subject: [PATCH 03/34] clk: sifive: fu740: Sync-up DT bindings header with
+ upstream Linux
+
+Sync the SiFive FU740-C000 SoC DT bindings header from Linux
+
+Signed-off-by: Pragnesh Patel <pragnesh.patel@sifive.com>
+---
+ include/dt-bindings/clock/sifive-fu740-prci.h | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
+ create mode 100644 include/dt-bindings/clock/sifive-fu740-prci.h
+
+diff --git a/include/dt-bindings/clock/sifive-fu740-prci.h b/include/dt-bindings/clock/sifive-fu740-prci.h
+new file mode 100644
+index 0000000..6ee4c6d
+--- /dev/null
++++ b/include/dt-bindings/clock/sifive-fu740-prci.h
+@@ -0,0 +1,24 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Copyright (C) 2018-2019 SiFive, Inc.
++ * Wesley Terpstra
++ * Paul Walmsley
++ * Zong Li
++ * Pragnesh Patel
++ */
++
++#ifndef __DT_BINDINGS_CLOCK_SIFIVE_FU740_PRCI_H
++#define __DT_BINDINGS_CLOCK_SIFIVE_FU740_PRCI_H
++
++/* Clock indexes for use by Device Tree data and the PRCI driver */
++
++#define PRCI_CLK_COREPLL	0
++#define PRCI_CLK_DDRPLL		1
++#define PRCI_CLK_GEMGXLPLL	2
++#define PRCI_CLK_DVFSCOREPLL	3
++#define PRCI_CLK_HFPCLKPLL	4
++#define PRCI_CLK_CLTXPLL	5
++#define PRCI_CLK_TLCLK		6
++#define PRCI_CLK_PCLK		7
++
++#endif
+-- 
+2.7.4
+

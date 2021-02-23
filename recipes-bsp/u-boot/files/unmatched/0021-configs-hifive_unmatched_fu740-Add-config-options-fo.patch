@@ -1,0 +1,52 @@
+From 5f116fff54e6c11a3e6b0462056019c353cce742 Mon Sep 17 00:00:00 2001
+From: Pragnesh Patel <pragnesh.patel@sifive.com>
+Date: Wed, 21 Oct 2020 17:41:18 +0530
+Subject: [PATCH 21/34] configs: hifive_unmatched_fu740: Add config options for
+ U-Boot SPL
+
+With u-boot-spl.bin,
+u-boot-spl.bin->FIT image (opensbi + U-Boot proper + dtb)
+
+U-Boot SPL will be loaded by ZSBL from SD card and runs in
+L2 LIM in machine mode and then load FIT image u-boot.itb
+from SD card into RAM.
+
+U-Boot SPL expects u-boot.itb FIT image at the starting of SD card sector
+number (0x822) of GUID type "2E54B353-1271-4842-806F-E436D6AF6985"
+
+Signed-off-by: Pragnesh Patel <pragnesh.patel@sifive.com>
+---
+ configs/sifive_hifive_unmatched_fu740_defconfig | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/configs/sifive_hifive_unmatched_fu740_defconfig b/configs/sifive_hifive_unmatched_fu740_defconfig
+index 93ceeed..17cc047 100644
+--- a/configs/sifive_hifive_unmatched_fu740_defconfig
++++ b/configs/sifive_hifive_unmatched_fu740_defconfig
+@@ -1,12 +1,23 @@
+ CONFIG_RISCV=y
++CONFIG_SPL_GPIO_SUPPORT=y
++CONFIG_SYS_MALLOC_F_LEN=0x3000
+ CONFIG_NR_DRAM_BANKS=1
++CONFIG_SPL_DM_SPI=y
++CONFIG_SPL_MMC_SUPPORT=y
++CONFIG_SPL=y
++CONFIG_SPL_SPI_SUPPORT=y
+ CONFIG_DEFAULT_DEVICE_TREE="hifive-unmatched-a00"
+ CONFIG_TARGET_SIFIVE_HIFIVE_UNMATCHED_FU740=y
+ CONFIG_ARCH_RV64I=y
+ CONFIG_RISCV_SMODE=y
+ CONFIG_DISTRO_DEFAULTS=y
+ CONFIG_FIT=y
++CONFIG_SPL_LOAD_FIT_ADDRESS=0x84000000
+ CONFIG_DISPLAY_CPUINFO=y
+ CONFIG_DISPLAY_BOARDINFO=y
++CONFIG_SPL_SEPARATE_BSS=y
++CONFIG_SPL_DM_RESET=y
++CONFIG_SPL_YMODEM_SUPPORT=y
+ CONFIG_SYS_RELOC_GD_ENV_ADDR=y
++CONFIG_SPL_CLK=y
+ CONFIG_DM_RESET=y
+-- 
+2.7.4
+

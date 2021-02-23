@@ -1,0 +1,23 @@
+From 22b0d48143552fd24957178bf881fb8414ad5ff1 Mon Sep 17 00:00:00 2001
+From: David Abdurachmanov <david.abdurachmanov@sifive.com>
+Date: Thu, 21 Jan 2021 06:44:41 -0800
+Subject: [PATCH 33/34] fu740: add CONFIG_CMD_GPT and CONFIG_CMD_GPT_RENAME
+
+Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>
+---
+ configs/sifive_hifive_unmatched_fu740_defconfig | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/configs/sifive_hifive_unmatched_fu740_defconfig b/configs/sifive_hifive_unmatched_fu740_defconfig
+index 2a5ff39..5a1b8b0 100644
+--- a/configs/sifive_hifive_unmatched_fu740_defconfig
++++ b/configs/sifive_hifive_unmatched_fu740_defconfig
+@@ -43,3 +43,5 @@ CONFIG_USB_OHCI_GENERIC=y
+ CONFIG_CMD_PART=y
+ CONFIG_CMD_NVME=y
+ CONFIG_SYS_USB_EVENT_POLL=y
++CONFIG_CMD_GPT=y
++CONFIG_CMD_GPT_RENAME=y
+-- 
+2.7.4
+

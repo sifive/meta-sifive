@@ -1,0 +1,43 @@
+From a8baf28b03f7c59fe839f2bd304e25cdc0d754b0 Mon Sep 17 00:00:00 2001
+From: Pragnesh Patel <pragnesh.patel@sifive.com>
+Date: Sat, 31 Oct 2020 19:10:44 +0530
+Subject: [PATCH 12/34] dt-bindings: sifive: fu740: add indexes for reset
+ signals available in prci
+
+Add bit indexes for reset signals within the PRCI module
+on FU740-C000 SoC.
+
+Signed-off-by: Pragnesh Patel <pragnesh.patel@sifive.com>
+---
+ include/dt-bindings/reset/sifive-fu740-prci.h | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+ create mode 100644 include/dt-bindings/reset/sifive-fu740-prci.h
+
+diff --git a/include/dt-bindings/reset/sifive-fu740-prci.h b/include/dt-bindings/reset/sifive-fu740-prci.h
+new file mode 100644
+index 0000000..a620865
+--- /dev/null
++++ b/include/dt-bindings/reset/sifive-fu740-prci.h
+@@ -0,0 +1,19 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Copyright (C) 2020 Sifive, Inc.
++ * Author: Pragnesh Patel <pragnesh.patel@sifive.com>
++ */
++
++#ifndef __DT_BINDINGS_RESET_SIFIVE_FU740_PRCI_H
++#define __DT_BINDINGS_RESET_SIFIVE_FU740_PRCI_H
++
++/* Reset indexes for use by device tree data and the PRCI driver */
++#define PRCI_RST_DDR_CTRL_N		0
++#define PRCI_RST_DDR_AXI_N		1
++#define PRCI_RST_DDR_AHB_N		2
++#define PRCI_RST_DDR_PHY_N		3
++#define PRCI_RST_PCIE_POWER_UP_N	4
++#define PRCI_RST_GEMGXL_N		5
++#define PRCI_RST_CLTX_N			6
++
++#endif
+-- 
+2.7.4
+

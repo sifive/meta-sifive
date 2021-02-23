@@ -1,0 +1,75 @@
+From 0607085796bda51e0bf4fbeb8b1ff1c40a6e4f2a Mon Sep 17 00:00:00 2001
+From: Pragnesh Patel <pragnesh.patel@sifive.com>
+Date: Wed, 26 Aug 2020 16:54:10 +0530
+Subject: [PATCH 02/34] clk: sifive: fu540-prci: Use common name for prci
+ configuration
+
+Use generic name CLK_SIFIVE_PRCI instead of CLK_SIFIVE_FU540_PRCI. This
+patch is prepared for fu740 support.
+
+Signed-off-by: Pragnesh Patel <pragnesh.patel@sifive.com>
+---
+ arch/riscv/cpu/fu540/Kconfig | 2 +-
+ drivers/clk/sifive/Kconfig   | 6 +++---
+ drivers/clk/sifive/Makefile  | 2 +-
+ drivers/reset/Kconfig        | 2 +-
+ 4 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/arch/riscv/cpu/fu540/Kconfig b/arch/riscv/cpu/fu540/Kconfig
+index 61bd5c4..ecdc7f4 100644
+--- a/arch/riscv/cpu/fu540/Kconfig
++++ b/arch/riscv/cpu/fu540/Kconfig
+@@ -18,7 +18,7 @@ config SIFIVE_FU540
+ 	imply SPL_LOAD_FIT
+ 	imply SMP
+ 	imply CLK_SIFIVE
+-	imply CLK_SIFIVE_FU540_PRCI
++	imply CLK_SIFIVE_PRCI
+ 	imply SIFIVE_SERIAL
+ 	imply MACB
+ 	imply MII
+diff --git a/drivers/clk/sifive/Kconfig b/drivers/clk/sifive/Kconfig
+index c4d0a1f..2836904 100644
+--- a/drivers/clk/sifive/Kconfig
++++ b/drivers/clk/sifive/Kconfig
+@@ -6,11 +6,11 @@ config CLK_SIFIVE
+ 	help
+ 	  SoC drivers for SiFive Linux-capable SoCs.
+ 
+-config CLK_SIFIVE_FU540_PRCI
+-	bool "PRCI driver for SiFive FU540 SoCs"
++config CLK_SIFIVE_PRCI
++	bool "PRCI driver for SiFive SoCs"
+ 	depends on CLK_SIFIVE
+ 	select CLK_ANALOGBITS_WRPLL_CLN28HPC
+ 	help
+ 	  Supports the Power Reset Clock interface (PRCI) IP block found in
+-	  FU540 SoCs.  If this kernel is meant to run on a SiFive FU540 SoC,
++	  FU540 SoCs. If this kernel is meant to run on a SiFive FU540 SoC,
+ 	  enable this driver.
+diff --git a/drivers/clk/sifive/Makefile b/drivers/clk/sifive/Makefile
+index ea03494..c4cee5b 100644
+--- a/drivers/clk/sifive/Makefile
++++ b/drivers/clk/sifive/Makefile
+@@ -2,4 +2,4 @@
+ 
+ obj-y += sifive-prci.o
+ 
+-obj-$(CONFIG_CLK_SIFIVE_FU540_PRCI)		+= fu540-prci.o
++obj-$(CONFIG_CLK_SIFIVE_PRCI) += fu540-prci.o
+diff --git a/drivers/reset/Kconfig b/drivers/reset/Kconfig
+index 33c2736..8b40e9e 100644
+--- a/drivers/reset/Kconfig
++++ b/drivers/reset/Kconfig
+@@ -157,7 +157,7 @@ config RESET_IPQ419
+ 
+ config RESET_SIFIVE
+ 	bool "Reset Driver for SiFive SoC's"
+-	depends on DM_RESET && CLK_SIFIVE_FU540_PRCI && TARGET_SIFIVE_FU540
++	depends on DM_RESET && CLK_SIFIVE_PRCI && TARGET_SIFIVE_FU540
+ 	default y
+ 	help
+ 	  PRCI module within SiFive SoC's provides mechanism to reset
+-- 
+2.7.4
+

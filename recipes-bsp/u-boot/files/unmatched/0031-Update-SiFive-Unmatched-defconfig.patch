@@ -1,0 +1,42 @@
+From a271d3339f9b1c5ec1e29f5e5bc9938c23afc213 Mon Sep 17 00:00:00 2001
+From: David Abdurachmanov <david.abdurachmanov@sifive.com>
+Date: Tue, 23 Feb 2021 06:28:24 -0800
+Subject: [PATCH 31/34] Update SiFive Unmatched defconfig
+
+Expand defconfig to support NVMe, PCIe, USB.
+
+This seems to be USB gadget feature.
+
+Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>
+---
+ configs/sifive_hifive_unmatched_fu740_defconfig | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+diff --git a/configs/sifive_hifive_unmatched_fu740_defconfig b/configs/sifive_hifive_unmatched_fu740_defconfig
+index bf274eb..2a5ff39 100644
+--- a/configs/sifive_hifive_unmatched_fu740_defconfig
++++ b/configs/sifive_hifive_unmatched_fu740_defconfig
+@@ -26,3 +26,20 @@ CONFIG_PCI=y
+ CONFIG_DM_PCI=y
+ CONFIG_PCI_PNP=y
+ CONFIG_PCIE_SIFIVE_FU740=y
++CONFIG_NVME=y
++CONFIG_DM_ETH=y
++CONFIG_NETDEVICES=y
++CONFIG_E1000=y
++CONFIG_USB=y
++CONFIG_CMD_USB=y
++CONFIG_DM_USB=y
++CONFIG_USB_STORAGE=y
++CONFIG_USB_XHCI_HCD=y
++CONFIG_USB_XHCI_PCI=y
++CONFIG_USB_EHCI_HCD=y
++CONFIG_USB_EHCI_GENERIC=y
++CONFIG_USB_OHCI_HCD=y
++CONFIG_USB_OHCI_GENERIC=y
++CONFIG_CMD_PART=y
++CONFIG_CMD_NVME=y
++CONFIG_SYS_USB_EVENT_POLL=y
+-- 
+2.7.4
+

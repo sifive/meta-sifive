@@ -1,0 +1,29 @@
+From f91820a22ab11bc44c462121994daa28f038d434 Mon Sep 17 00:00:00 2001
+From: Pragnesh Patel <pragnesh.patel@sifive.com>
+Date: Sat, 31 Oct 2020 19:59:45 +0530
+Subject: [PATCH 23/34] riscv: sifive: dts: fu740: set ethernet clock rate
+
+Set ethernet clock rate to 125 Mhz so that it will work
+with 1000Mbps.
+
+Signed-off-by: Pragnesh Patel <pragnesh.patel@sifive.com>
+---
+ arch/riscv/dts/fu740-c000-u-boot.dtsi | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/arch/riscv/dts/fu740-c000-u-boot.dtsi b/arch/riscv/dts/fu740-c000-u-boot.dtsi
+index 1cc8cd4..88cbaaa 100644
+--- a/arch/riscv/dts/fu740-c000-u-boot.dtsi
++++ b/arch/riscv/dts/fu740-c000-u-boot.dtsi
+@@ -94,3 +94,8 @@
+ &spi0 {
+ 	u-boot,dm-spl;
+ };
++
++&eth0 {
++	assigned-clocks = <&prci PRCI_CLK_GEMGXLPLL>;
++	assigned-clock-rates = <126750000>;
++};
+-- 
+2.7.4
+

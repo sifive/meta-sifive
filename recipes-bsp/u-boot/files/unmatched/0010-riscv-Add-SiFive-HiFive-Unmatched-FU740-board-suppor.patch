@@ -1,0 +1,229 @@
+From 84d7dffc522d9d72e09ff808df461409b2655771 Mon Sep 17 00:00:00 2001
+From: Pragnesh Patel <pragnesh.patel@sifive.com>
+Date: Wed, 21 Oct 2020 12:37:16 +0530
+Subject: [PATCH 10/34] riscv: Add SiFive HiFive Unmatched FU740 board support
+
+This patch adds SiFive HiFive Unmatched FU740 board support.
+The SiFive HiFive Unmatched FU740 defconfig by default builds
+U-Boot for S-Mode.
+
+Signed-off-by: Pragnesh Patel <pragnesh.patel@sifive.com>
+---
+ arch/riscv/Kconfig                                 |  4 ++
+ board/sifive/hifive_unmatched_fu740/Kconfig        | 39 ++++++++++++++++++
+ board/sifive/hifive_unmatched_fu740/MAINTAINERS    |  8 ++++
+ board/sifive/hifive_unmatched_fu740/Makefile       |  5 +++
+ .../hifive-unmatched-fu740.c                       | 17 ++++++++
+ configs/sifive_hifive_unmatched_fu740_defconfig    | 12 ++++++
+ drivers/reset/Kconfig                              |  2 +-
+ include/configs/sifive-hifive-unmatched-fu740.h    | 47 ++++++++++++++++++++++
+ 8 files changed, 133 insertions(+), 1 deletion(-)
+ create mode 100644 board/sifive/hifive_unmatched_fu740/Kconfig
+ create mode 100644 board/sifive/hifive_unmatched_fu740/MAINTAINERS
+ create mode 100644 board/sifive/hifive_unmatched_fu740/Makefile
+ create mode 100644 board/sifive/hifive_unmatched_fu740/hifive-unmatched-fu740.c
+ create mode 100644 configs/sifive_hifive_unmatched_fu740_defconfig
+ create mode 100644 include/configs/sifive-hifive-unmatched-fu740.h
+
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index 00791d9..e1c57ca 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -20,6 +20,9 @@ config TARGET_QEMU_VIRT
+ config TARGET_SIFIVE_FU540
+ 	bool "Support SiFive FU540 Board"
+ 
++config TARGET_SIFIVE_HIFIVE_UNMATCHED_FU740
++	bool "Support SiFive hifive-unmatched FU740 Board"
++
+ config TARGET_SIPEED_MAIX
+ 	bool "Support Sipeed Maix Board"
+ 
+@@ -56,6 +59,7 @@ source "board/AndesTech/ax25-ae350/Kconfig"
+ source "board/emulation/qemu-riscv/Kconfig"
+ source "board/microchip/mpfs_icicle/Kconfig"
+ source "board/sifive/fu540/Kconfig"
++source "board/sifive/hifive_unmatched_fu740/Kconfig"
+ source "board/sipeed/maix/Kconfig"
+ 
+ # platform-specific options below
+diff --git a/board/sifive/hifive_unmatched_fu740/Kconfig b/board/sifive/hifive_unmatched_fu740/Kconfig
+new file mode 100644
+index 0000000..3b9b0ae
+--- /dev/null
++++ b/board/sifive/hifive_unmatched_fu740/Kconfig
+@@ -0,0 +1,39 @@
++if TARGET_SIFIVE_HIFIVE_UNMATCHED_FU740
++
++config SYS_BOARD
++	default "hifive_unmatched_fu740"
++
++config SYS_VENDOR
++	default "sifive"
++
++config SYS_CPU
++	default "fu740"
++
++config SYS_CONFIG_NAME
++	default "sifive-hifive-unmatched-fu740"
++
++config SYS_TEXT_BASE
++	default 0x80000000 if !RISCV_SMODE
++	default 0x80200000 if RISCV_SMODE
++
++config BOARD_SPECIFIC_OPTIONS # dummy
++	def_bool y
++	select SIFIVE_FU740
++	imply CMD_DHCP
++	imply CMD_EXT2
++	imply CMD_EXT4
++	imply CMD_FAT
++	imply CMD_FS_GENERIC
++	imply CMD_NET
++	imply CMD_PING
++	imply CMD_SF
++	imply DOS_PARTITION
++	imply EFI_PARTITION
++	imply IP_DYN
++	imply ISO_PARTITION
++	imply PHY_LIB
++	imply PHY_MSCC
++	imply SYSRESET
++	imply SYSRESET_GPIO
++
++endif
+diff --git a/board/sifive/hifive_unmatched_fu740/MAINTAINERS b/board/sifive/hifive_unmatched_fu740/MAINTAINERS
+new file mode 100644
+index 0000000..2d3a89b
+--- /dev/null
++++ b/board/sifive/hifive_unmatched_fu740/MAINTAINERS
+@@ -0,0 +1,8 @@
++SiFive HiFive Unmatched FU740 BOARD
++M:	Paul Walmsley <paul.walmsley@sifive.com>
++M:	Pragnesh Patel <pragnesh.patel@sifive.com>
++S:	Maintained
++F:	board/sifive/hifive_unmatched_fu740/
++F:	doc/board/sifive/hifive-unmatched-fu740.rst
++F:	include/configs/sifive-hifive-unmatched-fu740.h
++F:	configs/sifive_hifive_unmatched_fu740_defconfig
+diff --git a/board/sifive/hifive_unmatched_fu740/Makefile b/board/sifive/hifive_unmatched_fu740/Makefile
+new file mode 100644
+index 0000000..8f65118
+--- /dev/null
++++ b/board/sifive/hifive_unmatched_fu740/Makefile
+@@ -0,0 +1,5 @@
++# SPDX-License-Identifier: GPL-2.0+
++#
++# Copyright (c) 2020 SiFive, Inc
++
++obj-y   += hifive-unmatched-fu740.o
+diff --git a/board/sifive/hifive_unmatched_fu740/hifive-unmatched-fu740.c b/board/sifive/hifive_unmatched_fu740/hifive-unmatched-fu740.c
+new file mode 100644
+index 0000000..febfa51
+--- /dev/null
++++ b/board/sifive/hifive_unmatched_fu740/hifive-unmatched-fu740.c
+@@ -0,0 +1,17 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (c) 2020, SiFive Inc
++ *
++ * Authors:
++ *   Pragnesh Patel <pragnesh.patel@sifive.com>
++ */
++
++#include <common.h>
++#include <dm.h>
++
++int board_init(void)
++{
++	/* For now nothing to do here. */
++
++	return 0;
++}
+diff --git a/configs/sifive_hifive_unmatched_fu740_defconfig b/configs/sifive_hifive_unmatched_fu740_defconfig
+new file mode 100644
+index 0000000..93ceeed
+--- /dev/null
++++ b/configs/sifive_hifive_unmatched_fu740_defconfig
+@@ -0,0 +1,12 @@
++CONFIG_RISCV=y
++CONFIG_NR_DRAM_BANKS=1
++CONFIG_DEFAULT_DEVICE_TREE="hifive-unmatched-a00"
++CONFIG_TARGET_SIFIVE_HIFIVE_UNMATCHED_FU740=y
++CONFIG_ARCH_RV64I=y
++CONFIG_RISCV_SMODE=y
++CONFIG_DISTRO_DEFAULTS=y
++CONFIG_FIT=y
++CONFIG_DISPLAY_CPUINFO=y
++CONFIG_DISPLAY_BOARDINFO=y
++CONFIG_SYS_RELOC_GD_ENV_ADDR=y
++CONFIG_DM_RESET=y
+diff --git a/drivers/reset/Kconfig b/drivers/reset/Kconfig
+index 8b40e9e..d51ccaa 100644
+--- a/drivers/reset/Kconfig
++++ b/drivers/reset/Kconfig
+@@ -157,7 +157,7 @@ config RESET_IPQ419
+ 
+ config RESET_SIFIVE
+ 	bool "Reset Driver for SiFive SoC's"
+-	depends on DM_RESET && CLK_SIFIVE_PRCI && TARGET_SIFIVE_FU540
++	depends on DM_RESET && CLK_SIFIVE_PRCI && (TARGET_SIFIVE_FU540 || TARGET_SIFIVE_HIFIVE_UNMATCHED_FU740)
+ 	default y
+ 	help
+ 	  PRCI module within SiFive SoC's provides mechanism to reset
+diff --git a/include/configs/sifive-hifive-unmatched-fu740.h b/include/configs/sifive-hifive-unmatched-fu740.h
+new file mode 100644
+index 0000000..dc75d25
+--- /dev/null
++++ b/include/configs/sifive-hifive-unmatched-fu740.h
+@@ -0,0 +1,47 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * Copyright (c) 2020 SiFive, Inc
++ *
++ * Authors:
++ *   Pragnesh Patel <pragnesh.patel@sifive.com>
++ */
++
++#ifndef __SIFIVE_HIFIVE_UNMATCHED_FU740_H
++#define __SIFIVE_HIFIVE_UNMATCHED_FU740_H
++
++#include <linux/sizes.h>
++
++#define CONFIG_SYS_SDRAM_BASE		0x80000000
++#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + SZ_2M)
++
++#define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + SZ_2M)
++
++#define CONFIG_SYS_MALLOC_LEN		SZ_8M
++
++#define CONFIG_SYS_BOOTM_LEN		SZ_64M
++
++#define CONFIG_STANDALONE_LOAD_ADDR	0x80200000
++
++/* Environment options */
++
++#define BOOT_TARGET_DEVICES(func) \
++	func(MMC, mmc, 0) \
++	func(DHCP, dhcp, na)
++
++#include <config_distro_bootcmd.h>
++
++#define CONFIG_EXTRA_ENV_SETTINGS \
++	"fdt_high=0xffffffffffffffff\0" \
++	"initrd_high=0xffffffffffffffff\0" \
++	"kernel_addr_r=0x84000000\0" \
++	"fdt_addr_r=0x88000000\0" \
++	"scriptaddr=0x88100000\0" \
++	"pxefile_addr_r=0x88200000\0" \
++	"ramdisk_addr_r=0x88300000\0" \
++	BOOTENV
++
++#define CONFIG_PREBOOT \
++	"setenv fdt_addr ${fdtcontroladdr};" \
++	"fdt addr ${fdtcontroladdr};"
++
++#endif /* __SIFIVE_HIFIVE_UNMATCHED_FU740_H */
+-- 
+2.7.4
+

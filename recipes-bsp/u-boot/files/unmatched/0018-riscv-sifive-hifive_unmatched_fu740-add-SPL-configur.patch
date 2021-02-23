@@ -1,0 +1,258 @@
+From 043af2665d5cea99a98137edff659fd1a144ef95 Mon Sep 17 00:00:00 2001
+From: Pragnesh Patel <pragnesh.patel@sifive.com>
+Date: Wed, 21 Oct 2020 17:14:03 +0530
+Subject: [PATCH 18/34] riscv: sifive: hifive_unmatched_fu740: add SPL
+ configuration
+
+Add a support for SPL which will boot from L2 LIM (0x0800_0000) and
+then SPL will boot U-Boot FIT image (OpenSBI FW_DYNAMIC + u-boot.bin)
+from MMC boot devices.
+
+Signed-off-by: Pragnesh Patel <pragnesh.patel@sifive.com>
+---
+ arch/riscv/cpu/fu740/Makefile                   |  4 ++
+ arch/riscv/cpu/fu740/spl.c                      | 23 +++++++
+ arch/riscv/include/asm/arch-fu740/spl.h         | 14 ++++
+ board/sifive/hifive_unmatched_fu740/Kconfig     |  8 +++
+ board/sifive/hifive_unmatched_fu740/Makefile    |  4 ++
+ board/sifive/hifive_unmatched_fu740/spl.c       | 85 +++++++++++++++++++++++++
+ include/configs/sifive-hifive-unmatched-fu740.h | 16 +++++
+ 7 files changed, 154 insertions(+)
+ create mode 100644 arch/riscv/cpu/fu740/spl.c
+ create mode 100644 arch/riscv/include/asm/arch-fu740/spl.h
+ create mode 100644 board/sifive/hifive_unmatched_fu740/spl.c
+
+diff --git a/arch/riscv/cpu/fu740/Makefile b/arch/riscv/cpu/fu740/Makefile
+index 44700d9..043fb96 100644
+--- a/arch/riscv/cpu/fu740/Makefile
++++ b/arch/riscv/cpu/fu740/Makefile
+@@ -3,5 +3,9 @@
+ # Copyright (C) 2020 SiFive, Inc
+ # Pragnesh Patel <pragnesh.patel@sifive.com>
+ 
++ifeq ($(CONFIG_SPL_BUILD),y)
++obj-y += spl.o
++else
+ obj-y += dram.o
+ obj-y += cpu.o
++endif
+diff --git a/arch/riscv/cpu/fu740/spl.c b/arch/riscv/cpu/fu740/spl.c
+new file mode 100644
+index 0000000..45657b7
+--- /dev/null
++++ b/arch/riscv/cpu/fu740/spl.c
+@@ -0,0 +1,23 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (C) 2020 SiFive, Inc
++ * Pragnesh Patel <pragnesh.patel@sifive.com>
++ */
++
++#include <dm.h>
++#include <log.h>
++
++int spl_soc_init(void)
++{
++	int ret;
++	struct udevice *dev;
++
++	/* DDR init */
++	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
++	if (ret) {
++		debug("DRAM init failed: %d\n", ret);
++		return ret;
++	}
++
++	return 0;
++}
+diff --git a/arch/riscv/include/asm/arch-fu740/spl.h b/arch/riscv/include/asm/arch-fu740/spl.h
+new file mode 100644
+index 0000000..4697279
+--- /dev/null
++++ b/arch/riscv/include/asm/arch-fu740/spl.h
+@@ -0,0 +1,14 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * Copyright (C) 2020 SiFive, Inc.
++ *
++ * Authors:
++ *   Pragnesh Patel <pragnesh.patel@sifve.com>
++ */
++
++#ifndef _SPL_SIFIVE_H
++#define _SPL_SIFIVE_H
++
++int spl_soc_init(void);
++
++#endif /* _SPL_SIFIVE_H */
+diff --git a/board/sifive/hifive_unmatched_fu740/Kconfig b/board/sifive/hifive_unmatched_fu740/Kconfig
+index 3b9b0ae..9857330 100644
+--- a/board/sifive/hifive_unmatched_fu740/Kconfig
++++ b/board/sifive/hifive_unmatched_fu740/Kconfig
+@@ -13,12 +13,20 @@ config SYS_CONFIG_NAME
+ 	default "sifive-hifive-unmatched-fu740"
+ 
+ config SYS_TEXT_BASE
++	default 0x80200000 if SPL
+ 	default 0x80000000 if !RISCV_SMODE
+ 	default 0x80200000 if RISCV_SMODE
+ 
++config SPL_TEXT_BASE
++	default 0x08000000
++
++config SPL_OPENSBI_LOAD_ADDR
++	default 0x80000000
++
+ config BOARD_SPECIFIC_OPTIONS # dummy
+ 	def_bool y
+ 	select SIFIVE_FU740
++	select SUPPORT_SPL
+ 	imply CMD_DHCP
+ 	imply CMD_EXT2
+ 	imply CMD_EXT4
+diff --git a/board/sifive/hifive_unmatched_fu740/Makefile b/board/sifive/hifive_unmatched_fu740/Makefile
+index 8f65118..aeab025 100644
+--- a/board/sifive/hifive_unmatched_fu740/Makefile
++++ b/board/sifive/hifive_unmatched_fu740/Makefile
+@@ -3,3 +3,7 @@
+ # Copyright (c) 2020 SiFive, Inc
+ 
+ obj-y   += hifive-unmatched-fu740.o
++
++ifdef CONFIG_SPL_BUILD
++obj-y += spl.o
++endif
+diff --git a/board/sifive/hifive_unmatched_fu740/spl.c b/board/sifive/hifive_unmatched_fu740/spl.c
+new file mode 100644
+index 0000000..d8ee934
+--- /dev/null
++++ b/board/sifive/hifive_unmatched_fu740/spl.c
+@@ -0,0 +1,85 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (c) 2020 SiFive, Inc
++ *
++ * Authors:
++ *   Pragnesh Patel <pragnesh.patel@sifive.com>
++ */
++
++#include <init.h>
++#include <spl.h>
++#include <misc.h>
++#include <log.h>
++#include <linux/delay.h>
++#include <linux/io.h>
++#include <asm/gpio.h>
++#include <asm/arch/gpio.h>
++#include <asm/arch/spl.h>
++
++#define GEM_PHY_RESET	SIFIVE_GENERIC_GPIO_NR(0, 12)
++
++#define MODE_SELECT_REG		0x1000
++#define MODE_SELECT_SD		0xb
++#define MODE_SELECT_MASK	GENMASK(3, 0)
++
++int spl_board_init_f(void)
++{
++	int ret;
++
++	ret = spl_soc_init();
++	if (ret) {
++		debug("HiFive Unmatched FU740 SPL init failed: %d\n", ret);
++		return ret;
++	}
++
++	/*
++	 * GEMGXL init VSC8541 PHY reset sequence;
++	 * leave pull-down active for 2ms
++	 */
++	udelay(2000);
++	ret = gpio_request(GEM_PHY_RESET, "gem_phy_reset");
++	if (ret) {
++		debug("gem_phy_reset gpio request failed: %d\n", ret);
++		return ret;
++	}
++
++	/* Set GPIO 12 (PHY NRESET) */
++	ret = gpio_direction_output(GEM_PHY_RESET, 1);
++	if (ret) {
++		debug("gem_phy_reset gpio direction set failed: %d\n", ret);
++		return ret;
++	}
++
++	udelay(1);
++
++	/* Reset PHY again to enter unmanaged mode */
++	gpio_set_value(GEM_PHY_RESET, 0);
++	udelay(1);
++	gpio_set_value(GEM_PHY_RESET, 1);
++	mdelay(15);
++
++	return 0;
++}
++
++u32 spl_boot_device(void)
++{
++	u32 mode_select = readl((void *)MODE_SELECT_REG);
++	u32 boot_device = mode_select & MODE_SELECT_MASK;
++
++	switch (boot_device) {
++	case MODE_SELECT_SD:
++		return BOOT_DEVICE_MMC1;
++	default:
++		debug("Unsupported boot device 0x%x but trying MMC1\n",
++		      boot_device);
++		return BOOT_DEVICE_MMC1;
++	}
++}
++
++#ifdef CONFIG_SPL_LOAD_FIT
++int board_fit_config_name_match(const char *name)
++{
++	/* boot using first FIT config */
++	return 0;
++}
++#endif
+diff --git a/include/configs/sifive-hifive-unmatched-fu740.h b/include/configs/sifive-hifive-unmatched-fu740.h
+index dc75d25..59088a0 100644
+--- a/include/configs/sifive-hifive-unmatched-fu740.h
++++ b/include/configs/sifive-hifive-unmatched-fu740.h
+@@ -11,6 +11,20 @@
+ 
+ #include <linux/sizes.h>
+ 
++#ifdef CONFIG_SPL
++
++#define CONFIG_SPL_MAX_SIZE		0x00100000
++#define CONFIG_SPL_BSS_START_ADDR	0x85000000
++#define CONFIG_SPL_BSS_MAX_SIZE		0x00100000
++#define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SPL_BSS_START_ADDR + \
++					 CONFIG_SPL_BSS_MAX_SIZE)
++#define CONFIG_SYS_SPL_MALLOC_SIZE	0x00100000
++
++#define CONFIG_SPL_STACK	(0x08000000 + 0x001D0000 - \
++				 GENERATED_GBL_DATA_SIZE)
++
++#endif
++
+ #define CONFIG_SYS_SDRAM_BASE		0x80000000
+ #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + SZ_2M)
+ 
+@@ -24,6 +38,7 @@
+ 
+ /* Environment options */
+ 
++#ifndef CONFIG_SPL_BUILD
+ #define BOOT_TARGET_DEVICES(func) \
+ 	func(MMC, mmc, 0) \
+ 	func(DHCP, dhcp, na)
+@@ -43,5 +58,6 @@
+ #define CONFIG_PREBOOT \
+ 	"setenv fdt_addr ${fdtcontroladdr};" \
+ 	"fdt addr ${fdtcontroladdr};"
++#endif /* CONFIG_SPL_BUILD */
+ 
+ #endif /* __SIFIVE_HIFIVE_UNMATCHED_FU740_H */
+-- 
+2.7.4
+
