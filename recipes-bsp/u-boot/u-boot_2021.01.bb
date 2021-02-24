@@ -45,6 +45,8 @@ SRC_URI_append_unmatched = " \
     file://0032-riscv-sifive-unmatched-set-cacheline-size-to-64-byte.patch \
     file://0033-fu740-add-CONFIG_CMD_GPT-and-CONFIG_CMD_GPT_RENAME.patch \ 
     file://0034-Unmathced-FU740-add-NVME-USB-and-PXE-to-boot-targets.patch \
+    file://0001-riscv-clear-feature-disable-CSR.patch \
+    file://0001-riscv-sifive-unmatched-enable-SoC-FAN-on-rev2.patch \
 "
 
 do_compile_prepend_riscv64() {
