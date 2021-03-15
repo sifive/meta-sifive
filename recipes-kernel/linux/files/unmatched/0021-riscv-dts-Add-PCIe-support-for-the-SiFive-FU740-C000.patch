@@ -1,16 +1,16 @@
-From 34222949288ef8b2666facee9ca9001c8cd93486 Mon Sep 17 00:00:00 2001
+From 7bb9df2b80184de91a10e62c0bbaa370306680a3 Mon Sep 17 00:00:00 2001
 From: Greentime Hu <greentime.hu@sifive.com>
-Date: Wed, 3 Feb 2021 11:22:10 +0800
-Subject: [PATCH 24/29] riscv: dts: Add PCIe support for the SiFive FU740-C000
+Date: Wed, 24 Feb 2021 10:45:18 +0800
+Subject: [PATCH 21/21] riscv: dts: Add PCIe support for the SiFive FU740-C000
  SoC
 
 Signed-off-by: Greentime Hu <greentime.hu@sifive.com>
 ---
- arch/riscv/boot/dts/sifive/fu740-c000.dtsi | 35 ++++++++++++++++++++++++++++++
- 1 file changed, 35 insertions(+)
+ arch/riscv/boot/dts/sifive/fu740-c000.dtsi | 34 ++++++++++++++++++++++++++++++
+ 1 file changed, 34 insertions(+)
 
 diff --git a/arch/riscv/boot/dts/sifive/fu740-c000.dtsi b/arch/riscv/boot/dts/sifive/fu740-c000.dtsi
-index cd9cc02..727fd91 100644
+index cd9cc02..04fe1b5 100644
 --- a/arch/riscv/boot/dts/sifive/fu740-c000.dtsi
 +++ b/arch/riscv/boot/dts/sifive/fu740-c000.dtsi
 @@ -159,6 +159,7 @@
@@ -21,7 +21,7 @@ index cd9cc02..727fd91 100644
  		};
  		uart0: serial@10010000 {
  			compatible = "sifive,fu740-c000-uart", "sifive,uart0";
-@@ -289,5 +290,39 @@
+@@ -289,5 +290,38 @@
  			clocks = <&prci PRCI_CLK_PCLK>;
  			status = "disabled";
  		};
@@ -43,7 +43,6 @@ index cd9cc02..727fd91 100644
 +				  0x82000000  0x0 0x70000000  0x0 0x70000000 0x0 0x1000000      /* mem */
 +				  0xc3000000 0x20 0x00000000 0x20 0x00000000 0x20 0x00000000>;  /* mem prefetchable */
 +			num-lanes = <0x8>;
-+			msi-parent = <&plic0>;
 +			interrupts = <56 57 58 59 60 61 62 63 64>;
 +			interrupt-names = "msi", "inta", "intb", "intc", "intd";
 +			interrupt-parent = <&plic0>;

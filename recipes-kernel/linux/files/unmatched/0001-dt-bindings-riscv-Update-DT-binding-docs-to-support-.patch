@@ -1,7 +1,7 @@
-From 34d032292a2b6db16fc60e7c6706b1b508c2d932 Mon Sep 17 00:00:00 2001
+From 2260fe47eb1519c6333feade526891251c68bc61 Mon Sep 17 00:00:00 2001
 From: Yash Shah <yash.shah@sifive.com>
 Date: Tue, 8 Dec 2020 10:25:33 +0530
-Subject: [PATCH 06/29] dt-bindings: riscv: Update DT binding docs to support
+Subject: [PATCH 01/21] dt-bindings: riscv: Update DT binding docs to support
  SiFive FU740 SoC
 
 Add new compatible strings in cpus.yaml to support the E71 and U74 CPU

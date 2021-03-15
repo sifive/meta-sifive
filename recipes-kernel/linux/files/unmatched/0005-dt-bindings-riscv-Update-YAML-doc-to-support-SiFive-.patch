@@ -1,7 +1,7 @@
-From 323c7d104a6fbe22100fdd7b62d53a4f4739affa Mon Sep 17 00:00:00 2001
+From 1d702b922b93f5eb6ea06a6b8af13007104628dc Mon Sep 17 00:00:00 2001
 From: Yash Shah <yash.shah@sifive.com>
 Date: Tue, 8 Dec 2020 10:25:40 +0530
-Subject: [PATCH 13/29] dt-bindings: riscv: Update YAML doc to support SiFive
+Subject: [PATCH 05/21] dt-bindings: riscv: Update YAML doc to support SiFive
  HiFive Unmatched board
 
 Add new compatible strings to the YAML DT binding document to support

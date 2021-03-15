@@ -1,7 +1,7 @@
-From 90591acb975baa3bedc7178e04bc92daaca3740f Mon Sep 17 00:00:00 2001
+From 469209c204b5beda9b608121572a1a891a030550 Mon Sep 17 00:00:00 2001
 From: Greentime Hu <greentime.hu@sifive.com>
-Date: Wed, 3 Feb 2021 11:00:32 +0800
-Subject: [PATCH 25/29] clk: sifive: Add pcie_aux clock in prci driver for PCIe
+Date: Wed, 24 Feb 2021 10:45:13 +0800
+Subject: [PATCH 16/21] clk: sifive: Add pcie_aux clock in prci driver for PCIe
  driver
 
 We add pcie_aux clock in this patch so that pcie driver can use
@@ -18,10 +18,10 @@ Signed-off-by: Greentime Hu <greentime.hu@sifive.com>
  5 files changed, 63 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/clk/sifive/fu740-prci.c b/drivers/clk/sifive/fu740-prci.c
-index db83002..76cbfb1 100644
+index 764d109..53f6e00 100644
 --- a/drivers/clk/sifive/fu740-prci.c
 +++ b/drivers/clk/sifive/fu740-prci.c
-@@ -69,6 +69,12 @@ static const struct clk_ops sifive_fu740_prci_hfpclkplldiv_clk_ops = {
+@@ -72,6 +72,12 @@ static const struct clk_ops sifive_fu740_prci_hfpclkplldiv_clk_ops = {
  	.recalc_rate = sifive_prci_hfpclkplldiv_recalc_rate,
  };
  
@@ -34,7 +34,7 @@ index db83002..76cbfb1 100644
  /* List of clock controls provided by the PRCI */
  struct __prci_clock __prci_init_clocks_fu740[] = {
  	[PRCI_CLK_COREPLL] = {
-@@ -117,4 +123,9 @@ struct __prci_clock __prci_init_clocks_fu740[] = {
+@@ -120,4 +126,9 @@ struct __prci_clock __prci_init_clocks_fu740[] = {
  		.parent_name = "hfpclkpll",
  		.ops = &sifive_fu740_prci_hfpclkplldiv_clk_ops,
  	},

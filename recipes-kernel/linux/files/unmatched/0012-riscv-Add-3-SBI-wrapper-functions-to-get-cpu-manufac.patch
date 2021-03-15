@@ -1,8 +1,8 @@
-From 49e87f076a3d9d4b1ebadfe2b19250977be6d668 Mon Sep 17 00:00:00 2001
+From dc529b247ef738fb81c9f13bfdd1b49fd762d208 Mon Sep 17 00:00:00 2001
 From: Vincent Chen <vincent.chen@sifive.com>
-Date: Tue, 12 Jan 2021 14:43:50 +0800
-Subject: [PATCH 18/29] riscv: Add 3 SBI wrapper functions to get cpu
- manufactory information
+Date: Tue, 2 Mar 2021 18:21:50 +0800
+Subject: [PATCH 12/21] riscv: Add 3 SBI wrapper functions to get cpu
+ manufacturer information
 
 Add 3 wrapper functions to get vendor id, architecture id and implement id
 from M-mode

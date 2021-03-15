@@ -1,22 +1,22 @@
-From 38fecc0dae7765bcd4de25863ef3156a18992040 Mon Sep 17 00:00:00 2001
+From d56ffde261948f404b818167d14347d7ea71df98 Mon Sep 17 00:00:00 2001
 From: Greentime Hu <greentime.hu@sifive.com>
-Date: Wed, 3 Feb 2021 11:17:35 +0800
-Subject: [PATCH 28/29] dt-bindings: PCI: Add SiFive FU740 PCIe host controller
+Date: Wed, 24 Feb 2021 10:45:16 +0800
+Subject: [PATCH 19/21] dt-bindings: PCI: Add SiFive FU740 PCIe host controller
 
 Add PCIe host controller DT bindings of SiFive FU740.
 
 Signed-off-by: Greentime Hu <greentime.hu@sifive.com>
 ---
- .../devicetree/bindings/pci/sifive,fu740-pcie.yaml | 121 +++++++++++++++++++++
- 1 file changed, 121 insertions(+)
+ .../devicetree/bindings/pci/sifive,fu740-pcie.yaml | 119 +++++++++++++++++++++
+ 1 file changed, 119 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/pci/sifive,fu740-pcie.yaml
 
 diff --git a/Documentation/devicetree/bindings/pci/sifive,fu740-pcie.yaml b/Documentation/devicetree/bindings/pci/sifive,fu740-pcie.yaml
 new file mode 100644
-index 00000000..bcd1d18
+index 0000000..879ab4f
 --- /dev/null
 +++ b/Documentation/devicetree/bindings/pci/sifive,fu740-pcie.yaml
-@@ -0,0 +1,121 @@
+@@ -0,0 +1,119 @@
 +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
 +%YAML 1.2
 +---
@@ -90,7 +90,6 @@ index 00000000..bcd1d18
 +  - bus-range
 +  - ranges
 +  - num-lanes
-+  - msi-parent
 +  - interrupts
 +  - interrupt-names
 +  - interrupt-parent
@@ -123,7 +122,6 @@ index 00000000..bcd1d18
 +                  0x82000000  0x0 0x70000000  0x0 0x70000000 0x0 0x1000000      /* mem */
 +                  0xc3000000 0x20 0x00000000 0x20 0x00000000 0x20 0x00000000>;  /* mem prefetchable */
 +        num-lanes = <0x8>;
-+        msi-parent = <&plic0>;
 +        interrupts = <56 57 58 59 60 61 62 63 64>;
 +        interrupt-names = "msi", "inta", "intb", "intc", "intd";
 +        interrupt-parent = <&plic0>;

@@ -1,7 +1,7 @@
-From 6da0f49824ae1fca4d0bf1ce433c870cf1b424ea Mon Sep 17 00:00:00 2001
+From 7260e74c6f864ee2d20c1e24644827d270f86738 Mon Sep 17 00:00:00 2001
 From: Paul Walmsley <paul.walmsley@sifive.com>
-Date: Wed, 3 Feb 2021 11:19:08 +0800
-Subject: [PATCH 29/29] PCI: designware: Add SiFive FU740 PCIe host controller
+Date: Wed, 24 Feb 2021 10:45:17 +0800
+Subject: [PATCH 20/21] PCI: designware: Add SiFive FU740 PCIe host controller
  driver
 
 Add driver for the SiFive FU740 PCIe host controller.
@@ -17,15 +17,15 @@ Signed-off-by: Paul Walmsley <paul.walmsley@sifive.com>
 ---
  drivers/pci/controller/dwc/Kconfig      |   9 +
  drivers/pci/controller/dwc/Makefile     |   1 +
- drivers/pci/controller/dwc/pcie-fu740.c | 552 ++++++++++++++++++++++++++++++++
- 3 files changed, 562 insertions(+)
+ drivers/pci/controller/dwc/pcie-fu740.c | 455 ++++++++++++++++++++++++++++++++
+ 3 files changed, 465 insertions(+)
  create mode 100644 drivers/pci/controller/dwc/pcie-fu740.c
 
 diff --git a/drivers/pci/controller/dwc/Kconfig b/drivers/pci/controller/dwc/Kconfig
-index bc04986..ee13834 100644
+index 22c5529..0a37d21 100644
 --- a/drivers/pci/controller/dwc/Kconfig
 +++ b/drivers/pci/controller/dwc/Kconfig
-@@ -312,4 +312,13 @@ config PCIE_AL
+@@ -318,4 +318,13 @@ config PCIE_AL
  	  required only for DT-based platforms. ACPI platforms with the
  	  Annapurna Labs PCIe controller don't need to enable this.
  
@@ -53,10 +53,10 @@ index a751553..625f6aa 100644
  obj-$(CONFIG_PCI_KEYSTONE) += pci-keystone.o
 diff --git a/drivers/pci/controller/dwc/pcie-fu740.c b/drivers/pci/controller/dwc/pcie-fu740.c
 new file mode 100644
-index 00000000..afb0404
+index 0000000..6916eea
 --- /dev/null
 +++ b/drivers/pci/controller/dwc/pcie-fu740.c
-@@ -0,0 +1,552 @@
+@@ -0,0 +1,455 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * FU740 DesignWare PCIe Controller integration
@@ -67,7 +67,7 @@ index 00000000..afb0404
 + * Based in part on the i.MX6 PCIe host controller shim which is:
 + *
 + * Copyright (C) 2013 Kosagi
-+ *		http://www.kosagi.com
++ *		https://www.kosagi.com
 + */
 +
 +#include <linux/clk.h>
@@ -124,40 +124,10 @@ index 00000000..afb0404
 +#define PCIEX8MGMT_PHY1_CR_PARA_WR_EN		0x8d0
 +#define PCIEX8MGMT_PHY1_CR_PARA_ACK		0x8d8
 +
-+/* PCIe Root Complex registers (memory-mapped) */
-+#define PCIE_RC_PF0_MSI_CAP			0x50
-+#define PCI_MSI_CAP_ID_NEXT_CTRL_REG		(PCIE_RC_PF0_MSI_CAP + 0x0)
-+
-+#define PCIE_DSP_PF0_PCIE_CAP_BASE		0x70
-+#define PCIE_RC_LCR				(PCIE_DSP_PF0_PCIE_CAP_BASE + 0xc)
-+#define PCIE_RC_LCR_MAX_LINK_SPEEDS_GEN1	0x1
-+#define PCIE_RC_LCR_MAX_LINK_SPEEDS_GEN2	0x2
-+#define PCIE_RC_LCR_MAX_LINK_SPEEDS_GEN3	0x3
-+#define PCIE_RC_LCR_MAX_LINK_SPEEDS_MASK	0xf
-+
-+#define PCIE_RC_LCSR				(PCIE_DSP_PF0_PCIE_CAP_BASE + 0x10)
-+
 +/* PCIe Port Logic registers (memory-mapped) */
 +#define PL_OFFSET				0x700
-+#define PCIE_PL_PFLR				(PL_OFFSET + 0x08)
-+#define PCIE_PL_PFLR_LINK_STATE_MASK		(0x3f << 16)
-+#define PCIE_PL_PFLR_FORCE_LINK			(1 << 15)
-+#define PCIE_PHY_DEBUG_R0			(PL_OFFSET + 0x28)
-+#define PCIE_PHY_DEBUG_R1			(PL_OFFSET + 0x2c)
 +#define PCIE_PL_GEN2_CTRL_OFF			(PL_OFFSET + 0x10c)
 +#define PCIE_PL_DIRECTED_SPEED_CHANGE_OFF	0x20000
-+
-+#define PCIE_PHY_CTRL				(PL_OFFSET + 0x114)
-+#define PCIE_PHY_CTRL_DATA_LOC			0
-+#define PCIE_PHY_CTRL_CAP_ADR_LOC		16
-+#define PCIE_PHY_CTRL_CAP_DAT_LOC		17
-+#define PCIE_PHY_CTRL_WR_LOC			18
-+#define PCIE_PHY_CTRL_RD_LOC			19
-+
-+#define PCIE_PHY_STAT				(PL_OFFSET + 0x110)
-+#define PCIE_PHY_STAT_ACK_LOC			16
-+
-+#define PCIE_LINK_WIDTH_SPEED_CONTROL		0x80C
 +
 +#define PCIE_PHY_MAX_RETRY_CNT			1000
 +
@@ -289,17 +259,6 @@ index 00000000..afb0404
 +
 +}
 +
-+static int fu740_pcie_wait_for_link(struct fu740_pcie *afp)
-+{
-+	struct dw_pcie *pci = afp->pci;
-+
-+	/* check if the link is up or not */
-+	if (!dw_pcie_wait_for_link(pci))
-+		return 0;
-+
-+	return -ETIMEDOUT;
-+}
-+
 +static void fu740_pcie_ltssm_enable(struct device *dev)
 +{
 +	struct fu740_pcie *afp = dev_get_drvdata(dev);
@@ -308,10 +267,10 @@ index 00000000..afb0404
 +	__raw_writel(0x1, afp->mgmt_base + PCIEX8MGMT_APP_LTSSM_ENABLE);
 +}
 +
-+static int fu740_pcie_establish_link(struct fu740_pcie *afp)
++static int fu740_pcie_start_link(struct dw_pcie *pci)
 +{
-+	struct dw_pcie *pci = afp->pci;
 +	struct device *dev = pci->dev;
++	u8 offset = dw_pcie_find_capability(pci, PCI_CAP_ID_EXP);
 +	u32 tmp;
 +	int ret;
 +
@@ -321,32 +280,32 @@ index 00000000..afb0404
 +	 * bus will not be detected at all.  This happens with PCIe switches.
 +	 */
 +	dw_pcie_dbi_ro_wr_en(pci);
-+	tmp = dw_pcie_readl_dbi(pci, PCIE_RC_LCR);
-+	tmp &= ~PCIE_RC_LCR_MAX_LINK_SPEEDS_MASK;
-+	tmp |= PCIE_RC_LCR_MAX_LINK_SPEEDS_GEN1;
-+	dw_pcie_writel_dbi(pci, PCIE_RC_LCR, tmp);
++	tmp = dw_pcie_readl_dbi(pci, offset + PCI_EXP_LNKCAP);
++	tmp &= ~PCI_EXP_LNKCAP_SLS;
++	tmp |= PCI_EXP_LNKCAP_SLS_2_5GB;
++	dw_pcie_writel_dbi(pci, offset + PCI_EXP_LNKCAP, tmp);
 +	dw_pcie_dbi_ro_wr_dis(pci);
 +
 +	/* Start LTSSM. */
 +	fu740_pcie_ltssm_enable(dev);
 +
-+	ret = fu740_pcie_wait_for_link(afp);
++	ret = dw_pcie_wait_for_link(pci);
 +	if (ret)
 +		goto err_reset_phy;
 +
 +	/* Now set it to operate in Gen3 */
 +	dw_pcie_dbi_ro_wr_en(pci);
-+	tmp = dw_pcie_readl_dbi(pci, PCIE_RC_LCR);
-+	tmp &= ~PCIE_RC_LCR_MAX_LINK_SPEEDS_MASK;
-+	tmp |= PCIE_RC_LCR_MAX_LINK_SPEEDS_GEN3;
-+	dw_pcie_writel_dbi(pci, PCIE_RC_LCR, tmp);
++	tmp = dw_pcie_readl_dbi(pci, offset + PCI_EXP_LNKCAP);
++	tmp &= ~PCI_EXP_LNKCAP_SLS;
++	tmp |= PCI_EXP_LNKCAP_SLS_8_0GB;
++	dw_pcie_writel_dbi(pci, offset + PCI_EXP_LNKCAP, tmp);
 +	/* Enable DIRECTED SPEED CHANGE bit of GEN2_CTRL_OFF register */
 +	tmp = dw_pcie_readl_dbi(pci, PCIE_PL_GEN2_CTRL_OFF);
 +	tmp |= PCIE_PL_DIRECTED_SPEED_CHANGE_OFF;
 +	dw_pcie_writel_dbi(pci, PCIE_PL_GEN2_CTRL_OFF, tmp);
 +	dw_pcie_dbi_ro_wr_dis(pci);
 +
-+	ret = fu740_pcie_wait_for_link(afp);
++	ret = dw_pcie_wait_for_link(pci);
 +	if (ret)
 +		goto err_reset_phy;
 +
@@ -365,18 +324,19 @@ index 00000000..afb0404
 +	dw_pcie_writel_dbi(pci, PCIE_PL_GEN2_CTRL_OFF, tmp);
 +	dw_pcie_dbi_ro_wr_dis(pci);
 +
-+	ret = fu740_pcie_wait_for_link(afp);
++	ret = dw_pcie_wait_for_link(pci);
 +	if (ret)
 +		goto err_reset_phy;
 +
-+	tmp = dw_pcie_readl_dbi(pci, PCIE_RC_LCSR);
-+	dev_info(dev, "Link up, Gen%i\n", (tmp >> 16) & 0xf);
++	tmp = dw_pcie_readw_dbi(pci, offset + PCI_EXP_LNKSTA);
++	dev_info(dev, "Link up, Gen%i\n", tmp & PCI_EXP_LNKSTA_CLS);
 +	return 0;
 +
 + err_reset_phy:
-+	dev_err(dev, "PHY DEBUG_R0=0x%08x DEBUG_R1=0x%08x\n",
-+		dw_pcie_readl_dbi(pci, PCIE_PHY_DEBUG_R0),
-+		dw_pcie_readl_dbi(pci, PCIE_PHY_DEBUG_R1));
++	dev_err(dev, "Failed to bring link up!\n"
++		"PHY DEBUG_R0=0x%08x DEBUG_R1=0x%08x\n",
++		dw_pcie_readl_dbi(pci, PCIE_PORT_DEBUG0),
++		dw_pcie_readl_dbi(pci, PCIE_PORT_DEBUG1));
 +	return ret;
 +}
 +
@@ -418,12 +378,6 @@ index 00000000..afb0404
 +	/* set RC mode */
 +	__raw_writel(0x4, afp->mgmt_base + PCIEX8MGMT_DEVICE_TYPE);
 +
-+	dw_pcie_setup_rc(pp);
-+	fu740_pcie_establish_link(afp);
-+
-+	if (IS_ENABLED(CONFIG_PCI_MSI))
-+		dw_pcie_msi_init(pp);
-+
 +	return 0;
 +}
 +
@@ -431,52 +385,9 @@ index 00000000..afb0404
 +	.host_init = fu740_pcie_host_init,
 +};
 +
-+static irqreturn_t fu740_pcie_msi_handler(int irq, void *arg)
-+{
-+	struct fu740_pcie *afp = arg;
-+	struct dw_pcie *pci = afp->pci;
-+	struct pcie_port *pp = &pci->pp;
-+
-+	return dw_handle_msi_irq(pp);
-+}
-+
-+static int fu740_pcie_add_pcie_port(struct fu740_pcie *afp,
-+				   struct platform_device *pdev)
-+{
-+	struct dw_pcie *pci = afp->pci;
-+	struct pcie_port *pp = &pci->pp;
-+	struct device *dev = &pdev->dev;
-+	int ret;
-+
-+	if (IS_ENABLED(CONFIG_PCI_MSI)) {
-+		pp->msi_irq = platform_get_irq_byname(pdev, "msi");
-+		if (pp->msi_irq <= 0) {
-+			dev_err(dev, "failed to get MSI irq\n");
-+			return -ENODEV;
-+		}
-+
-+		ret = devm_request_irq(dev, pp->msi_irq,
-+				       fu740_pcie_msi_handler,
-+				       IRQF_SHARED | IRQF_NO_THREAD,
-+				       "fu740-pcie-msi", afp);
-+		if (ret) {
-+			dev_err(dev, "failed to request MSI irq\n");
-+			return ret;
-+		}
-+	}
-+
-+	pp->ops = &fu740_pcie_host_ops;
-+
-+	ret = dw_pcie_host_init(pp);
-+	if (ret) {
-+		dev_err(dev, "failed to initialize host\n");
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static const struct dw_pcie_ops dw_pcie_ops = { };
++static const struct dw_pcie_ops dw_pcie_ops = {
++	.start_link = fu740_pcie_start_link,
++};
 +
 +static const struct dev_pm_ops fu740_pcie_pm_ops = {
 +	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(fu740_pcie_suspend_noirq,
@@ -488,7 +399,7 @@ index 00000000..afb0404
 +	struct device *dev = &pdev->dev;
 +	struct dw_pcie *pci;
 +	struct fu740_pcie *afp;
-+	struct resource *dbi_res, *mgmt_res;
++	struct resource *mgmt_res;
 +	struct device_node *node = dev->of_node;
 +	int ret;
 +	u16 val;
@@ -503,17 +414,9 @@ index 00000000..afb0404
 +
 +	pci->dev = dev;
 +	pci->ops = &dw_pcie_ops;
++	pci->pp.ops = &fu740_pcie_host_ops;
 +
 +	afp->pci = pci;
-+
-+	dbi_res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "dbi");
-+	if (!dbi_res) {
-+		dev_warn(dev, "missing required dbi address range");
-+		return -ENOENT;
-+	}
-+	pci->dbi_base = devm_ioremap_resource(dev, dbi_res);
-+	if (IS_ERR(pci->dbi_base))
-+		return PTR_ERR(pci->dbi_base);
 +
 +	mgmt_res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "mgmt");
 +	if (!mgmt_res) {
@@ -564,16 +467,16 @@ index 00000000..afb0404
 +
 +	platform_set_drvdata(pdev, afp);
 +
-+	ret = fu740_pcie_add_pcie_port(afp, pdev);
++	ret = dw_pcie_host_init(&pci->pp);
 +	if (ret < 0)
 +		return ret;
 +
 +	if (pci_msi_enabled()) {
-+		val = dw_pcie_readw_dbi(pci, PCI_MSI_CAP_ID_NEXT_CTRL_REG +
-+					PCI_MSI_FLAGS);
++		u8 offset = dw_pcie_find_capability(pci, PCI_CAP_ID_MSI);
++
++		val = dw_pcie_readw_dbi(pci, offset + PCI_MSI_FLAGS);
 +		val |= PCI_MSI_FLAGS_ENABLE;
-+		dw_pcie_writew_dbi(pci, PCI_MSI_CAP_ID_NEXT_CTRL_REG +
-+				   PCI_MSI_FLAGS, val);
++		dw_pcie_writew_dbi(pci, offset + PCI_MSI_FLAGS, val);
 +	}
 +
 +	return 0;

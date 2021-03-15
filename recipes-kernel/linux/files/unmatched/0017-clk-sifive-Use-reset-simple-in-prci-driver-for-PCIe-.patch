@@ -1,7 +1,7 @@
-From a9b30eacb76d59ea18f138e0ad2b66e8a50ef24d Mon Sep 17 00:00:00 2001
+From d480c8ff29868722fed3137be6eb836484ae7206 Mon Sep 17 00:00:00 2001
 From: Greentime Hu <greentime.hu@sifive.com>
-Date: Wed, 3 Feb 2021 11:07:16 +0800
-Subject: [PATCH 26/29] clk: sifive: Use reset-simple in prci driver for PCIe
+Date: Wed, 24 Feb 2021 10:45:14 +0800
+Subject: [PATCH 17/21] clk: sifive: Use reset-simple in prci driver for PCIe
  driver
 
 We use reset-simple in this patch so that pcie driver can use
@@ -85,10 +85,10 @@ index 022c67c..91658a8 100644
  };
  
 diff --git a/drivers/reset/Kconfig b/drivers/reset/Kconfig
-index 07d162b..124f4dc 100644
+index 71ab75a..f094df9 100644
 --- a/drivers/reset/Kconfig
 +++ b/drivers/reset/Kconfig
-@@ -165,7 +165,7 @@ config RESET_SCMI
+@@ -173,7 +173,7 @@ config RESET_SCMI
  
  config RESET_SIMPLE
  	bool "Simple Reset Controller Driver" if COMPILE_TEST
@@ -97,7 +97,7 @@ index 07d162b..124f4dc 100644
  	help
  	  This enables a simple reset controller driver for reset lines that
  	  that can be asserted and deasserted by toggling bits in a contiguous,
-@@ -179,6 +179,7 @@ config RESET_SIMPLE
+@@ -187,6 +187,7 @@ config RESET_SIMPLE
  	   - RCC reset controller in STM32 MCUs
  	   - Allwinner SoCs
  	   - ZTE's zx2967 family
