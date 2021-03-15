@@ -167,6 +167,10 @@ IMAGE_INSTALL = "\
     openssh-sftp-server \
     lmsensors \
     smartmontools \
+    cpupower \
+    libubootenv-bin \
+    u-boot-tools-mkimage \
+    u-boot-tools-mkenvimage \
     ${CORE_IMAGE_EXTRA_INSTALL} \
     "
 
