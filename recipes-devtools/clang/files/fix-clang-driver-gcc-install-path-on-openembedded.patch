@@ -1,8 +1,8 @@
 diff --git a/clang/lib/Driver/ToolChains/Gnu.cpp b/clang/lib/Driver/ToolChains/Gnu.cpp
-index 70fbcfd..8e607e7 100644
+index e56812145e6d..b02c228d40af 100644
 --- a/clang/lib/Driver/ToolChains/Gnu.cpp
 +++ b/clang/lib/Driver/ToolChains/Gnu.cpp
-@@ -1583,18 +1583,29 @@ static void findRISCVMultilibs(const Driver &D,
+@@ -1650,18 +1650,29 @@ static void findRISCVMultilibs(const Driver &D,
      return findRISCVBareMetalMultilibs(D, TargetTriple, Path, Args, Result);
  
    FilterNonExistent NonExistent(Path, "/crtbegin.o", D.getVFS());
@@ -42,35 +42,7 @@ index 70fbcfd..8e607e7 100644
  
    Multilib::flags_list Flags;
    bool IsRV64 = TargetTriple.getArch() == llvm::Triple::riscv64;
-@@ -2422,13 +2433,6 @@ void Generic_GCC::GCCInstallationDetector::ScanLibDirForGCCTriple(
-     // Whether this library suffix is relevant for the triple.
-     bool Active;
-   } Suffixes[] = {
--      // This is the normal place.
--      {"gcc/" + CandidateTriple.str(), "../..", true},
--
--      // Debian puts cross-compilers in gcc-cross.
--      {"gcc-cross/" + CandidateTriple.str(), "../..",
--       TargetTriple.getOS() != llvm::Triple::Solaris},
--
-       // OE cross-compilers path structures
-       {"/" + CandidateTriple.str(), "..", true},
- 
-@@ -2440,6 +2444,13 @@ void Generic_GCC::GCCInstallationDetector::ScanLibDirForGCCTriple(
-        TargetTriple.getVendor() == llvm::Triple::Freescale ||
-        TargetTriple.getVendor() == llvm::Triple::OpenEmbedded},
- 
-+      // This is the normal place.
-+      {"gcc/" + CandidateTriple.str(), "../..", true},
-+
-+      // Debian puts cross-compilers in gcc-cross.
-+      {"gcc-cross/" + CandidateTriple.str(), "../..",
-+       TargetTriple.getOS() != llvm::Triple::Solaris},
-+
-       // Natively multiarch systems sometimes put the GCC triple-specific
-       // directory within their multiarch lib directory, resulting in the
-       // triple appearing twice.
-@@ -2474,13 +2485,19 @@ void Generic_GCC::GCCInstallationDetector::ScanLibDirForGCCTriple(
+@@ -2563,13 +2574,19 @@ void Generic_GCC::GCCInstallationDetector::ScanLibDirForGCCTriple(
            continue; // Saw this path before; no need to look at it again.
        if (CandidateVersion.isOlderThan(4, 1, 1))
          continue;
