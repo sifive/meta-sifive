@@ -1,7 +1,7 @@
 From b7737239076ae5f0f05ac8353b1e3a29cfb7a374 Mon Sep 17 00:00:00 2001
 From: David Abdurachmanov <david.abdurachmanov@sifive.com>
 Date: Tue, 19 Jan 2021 04:34:26 -0800
-Subject: [PATCH 34/34] Unmathced/FU740 add NVME, USB and PXE to boot targets
+Subject: [PATCH 34/41] Unmathced/FU740 add NVME, USB and PXE to boot targets
 
 1st try NVMe, 2nd USB, 3rd MMC, 4th PXE, 5th/final DHCP
 

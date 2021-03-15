@@ -1,7 +1,7 @@
 From 84d7dffc522d9d72e09ff808df461409b2655771 Mon Sep 17 00:00:00 2001
 From: Pragnesh Patel <pragnesh.patel@sifive.com>
 Date: Wed, 21 Oct 2020 12:37:16 +0530
-Subject: [PATCH 10/34] riscv: Add SiFive HiFive Unmatched FU740 board support
+Subject: [PATCH 10/41] riscv: Add SiFive HiFive Unmatched FU740 board support
 
 This patch adds SiFive HiFive Unmatched FU740 board support.
 The SiFive HiFive Unmatched FU740 defconfig by default builds

@@ -1,7 +1,7 @@
 From 84fd726a035283257844e3ec39e6d95309a00c50 Mon Sep 17 00:00:00 2001
 From: Pragnesh Patel <pragnesh.patel@sifive.com>
 Date: Tue, 24 Nov 2020 18:36:54 +0530
-Subject: [PATCH 05/34] clk: sifive: select PLL clock as input source after
+Subject: [PATCH 05/41] clk: sifive: select PLL clock as input source after
  enabling PLL clock output
 
 PLL clock output needs to be enabled first and then any selection

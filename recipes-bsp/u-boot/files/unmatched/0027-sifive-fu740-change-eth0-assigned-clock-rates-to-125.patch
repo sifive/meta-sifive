@@ -1,7 +1,7 @@
 From 1ae57dee4f5457f90911d0b98a0bfb5fa2ec1700 Mon Sep 17 00:00:00 2001
 From: David Abdurachmanov <david.abdurachmanov@sifive.com>
 Date: Tue, 23 Feb 2021 06:16:17 -0800
-Subject: [PATCH 27/34] sifive: fu740: change eth0 assigned-clock-rates to
+Subject: [PATCH 27/41] sifive: fu740: change eth0 assigned-clock-rates to
  125125000
 
 GEMGXL PLL cannot generate required 125 000 000 Hz clock precisely

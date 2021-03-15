@@ -1,7 +1,7 @@
 From ffee242fab5ddaad3e27eb6728de88bf107f45f2 Mon Sep 17 00:00:00 2001
 From: Pragnesh Patel <pragnesh.patel@sifive.com>
 Date: Wed, 26 Aug 2020 20:24:27 +0530
-Subject: [PATCH 04/34] clk: sifive: fu740-prci: Add a driver for the SiFive
+Subject: [PATCH 04/41] clk: sifive: fu740-prci: Add a driver for the SiFive
  FU740 PRCI IP block
 
 Add driver code for the SiFive FU740 PRCI IP block. This IP block

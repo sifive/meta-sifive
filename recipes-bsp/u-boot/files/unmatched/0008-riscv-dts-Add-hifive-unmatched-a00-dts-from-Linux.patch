@@ -1,7 +1,7 @@
 From 6ab49aff1cb45450bff9985cef8ee0e91244fbd0 Mon Sep 17 00:00:00 2001
 From: Pragnesh Patel <pragnesh.patel@sifive.com>
 Date: Mon, 17 Feb 2020 18:25:38 +0530
-Subject: [PATCH 08/34] riscv: dts: Add hifive-unmatched-a00 dts from Linux
+Subject: [PATCH 08/41] riscv: dts: Add hifive-unmatched-a00 dts from Linux
 
 Sync the hifive-unmatched-a00 dts from Linux
 

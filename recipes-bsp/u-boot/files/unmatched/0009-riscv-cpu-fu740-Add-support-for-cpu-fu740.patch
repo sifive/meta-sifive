@@ -1,7 +1,7 @@
 From 502bdc0955f1f38ff93f3d9c1f2bb6c4cd771718 Mon Sep 17 00:00:00 2001
 From: Pragnesh Patel <pragnesh.patel@sifive.com>
 Date: Mon, 19 Oct 2020 18:34:50 +0530
-Subject: [PATCH 09/34] riscv: cpu: fu740: Add support for cpu fu740
+Subject: [PATCH 09/41] riscv: cpu: fu740: Add support for cpu fu740
 
 Add SiFive fu740 cpu to support RISC-V arch
 

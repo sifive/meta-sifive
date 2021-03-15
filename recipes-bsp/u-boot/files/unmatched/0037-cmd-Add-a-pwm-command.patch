@@ -1,0 +1,267 @@
+From 7afc1b96da3a02bef2260add64ac36111ab7558d Mon Sep 17 00:00:00 2001
+From: Pragnesh Patel <pragnesh.patel@sifive.com>
+Date: Tue, 22 Dec 2020 11:30:05 +0530
+Subject: [PATCH 37/41] cmd: Add a pwm command
+
+Add the command "pwm" for controlling the pwm channels. This
+command provides pwm invert/config/enable/disable functionalities
+via PWM uclass drivers
+
+Signed-off-by: Pragnesh Patel <pragnesh.patel@sifive.com>
+Reviewed-by: Simon Glass <sjg@chromium.org>
+(cherry picked from commit 9e9a530a61c01e412a239d8c211d5b1e26b578fa)
+Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>
+---
+ README                    |   1 +
+ cmd/Kconfig               |   6 +++
+ cmd/Makefile              |   1 +
+ cmd/pwm.c                 | 117 ++++++++++++++++++++++++++++++++++++++++++++++
+ configs/sandbox_defconfig |   1 +
+ test/cmd/Makefile         |   2 +
+ test/cmd/pwm.c            |  47 +++++++++++++++++++
+ 7 files changed, 175 insertions(+)
+ create mode 100644 cmd/pwm.c
+ create mode 100644 test/cmd/pwm.c
+
+diff --git a/README b/README
+index 7b73a1c..599b2a0 100644
+--- a/README
++++ b/README
+@@ -3160,6 +3160,7 @@ i2c	- I2C sub-system
+ sspi	- SPI utility commands
+ base	- print or set address offset
+ printenv- print environment variables
++pwm	- control pwm channels
+ setenv	- set environment variables
+ saveenv - save environment variables to persistent storage
+ protect - enable or disable FLASH write protection
+diff --git a/cmd/Kconfig b/cmd/Kconfig
+index 1595de9..0d08510 100644
+--- a/cmd/Kconfig
++++ b/cmd/Kconfig
+@@ -918,6 +918,12 @@ config CMD_GPIO
+ 	help
+ 	  GPIO support.
+ 
++config CMD_PWM
++	bool "pwm"
++	depends on DM_PWM
++	help
++	  Control PWM channels, this allows invert/config/enable/disable PWM channels.
++
+ config CMD_GPT
+ 	bool "GPT (GUID Partition Table) command"
+ 	select EFI_PARTITION
+diff --git a/cmd/Makefile b/cmd/Makefile
+index dd86675..75df3c1 100644
+--- a/cmd/Makefile
++++ b/cmd/Makefile
+@@ -120,6 +120,7 @@ endif
+ obj-$(CONFIG_CMD_PINMUX) += pinmux.o
+ obj-$(CONFIG_CMD_PMC) += pmc.o
+ obj-$(CONFIG_CMD_PSTORE) += pstore.o
++obj-$(CONFIG_CMD_PWM) += pwm.o
+ obj-$(CONFIG_CMD_PXE) += pxe.o pxe_utils.o
+ obj-$(CONFIG_CMD_WOL) += wol.o
+ obj-$(CONFIG_CMD_QFW) += qfw.o
+diff --git a/cmd/pwm.c b/cmd/pwm.c
+new file mode 100644
+index 0000000..5849fc5
+--- /dev/null
++++ b/cmd/pwm.c
+@@ -0,0 +1,117 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Control PWM channels
++ *
++ * Copyright (c) 2020 SiFive, Inc
++ * author: Pragnesh Patel <pragnesh.patel@sifive.com>
++ */
++
++#include <command.h>
++#include <dm.h>
++#include <pwm.h>
++
++enum pwm_cmd {
++	PWM_SET_INVERT,
++	PWM_SET_CONFIG,
++	PWM_SET_ENABLE,
++	PWM_SET_DISABLE,
++};
++
++static int do_pwm(struct cmd_tbl *cmdtp, int flag, int argc,
++		  char *const argv[])
++{
++	const char *str_cmd, *str_channel = NULL, *str_enable = NULL;
++	const char *str_pwm = NULL, *str_period = NULL, *str_duty = NULL;
++	enum pwm_cmd sub_cmd;
++	struct udevice *dev;
++	u32 channel, pwm_enable, pwm_dev, period_ns = 0, duty_ns = 0;
++	int ret;
++
++	if (argc < 4)
++		return CMD_RET_USAGE;
++
++	str_cmd = argv[1];
++	argc -= 2;
++	argv += 2;
++
++	if (argc > 0) {
++		str_pwm = *argv;
++		argc--;
++		argv++;
++	}
++
++	if (!str_pwm)
++		return CMD_RET_USAGE;
++
++	switch (*str_cmd) {
++	case 'i':
++		sub_cmd = PWM_SET_INVERT;
++		break;
++	case 'c':
++		sub_cmd = PWM_SET_CONFIG;
++		break;
++	case 'e':
++		sub_cmd = PWM_SET_ENABLE;
++		break;
++	case 'd':
++		sub_cmd = PWM_SET_DISABLE;
++		break;
++	default:
++		return CMD_RET_USAGE;
++	}
++
++	pwm_dev = simple_strtoul(str_pwm, NULL, 10);
++	ret = uclass_get_device(UCLASS_PWM, pwm_dev, &dev);
++	if (ret) {
++		printf("pwm: '%s' not found\n", str_pwm);
++		return cmd_process_error(cmdtp, ret);
++	}
++
++	if (argc > 0) {
++		str_channel = *argv;
++		channel = simple_strtoul(str_channel, NULL, 10);
++		argc--;
++		argv++;
++	} else {
++		return CMD_RET_USAGE;
++	}
++
++	if (sub_cmd == PWM_SET_INVERT && argc > 0) {
++		str_enable = *argv;
++		pwm_enable = simple_strtoul(str_enable, NULL, 10);
++		ret = pwm_set_invert(dev, channel, pwm_enable);
++	} else if (sub_cmd == PWM_SET_CONFIG && argc == 2) {
++		str_period = *argv;
++		argc--;
++		argv++;
++		period_ns = simple_strtoul(str_period, NULL, 10);
++
++		if (argc > 0) {
++			str_duty = *argv;
++			duty_ns = simple_strtoul(str_duty, NULL, 10);
++		}
++
++		ret = pwm_set_config(dev, channel, period_ns, duty_ns);
++	} else if (sub_cmd == PWM_SET_ENABLE) {
++		ret = pwm_set_enable(dev, channel, 1);
++	} else if (sub_cmd == PWM_SET_DISABLE) {
++		ret = pwm_set_enable(dev, channel, 0);
++	} else {
++		printf("PWM arguments missing\n");
++		return CMD_RET_FAILURE;
++	}
++
++	if (ret) {
++		printf("error(%d)\n", ret);
++		return CMD_RET_FAILURE;
++	}
++
++	return CMD_RET_SUCCESS;
++}
++
++U_BOOT_CMD(pwm, 6, 0, do_pwm,
++	   "control pwm channels",
++	   "pwm <invert> <pwm_dev_num> <channel> <polarity>\n"
++	   "pwm <config> <pwm_dev_num> <channel> <period_ns> <duty_ns>\n"
++	   "pwm <enable/disable> <pwm_dev_num> <channel>\n"
++	   "Note: All input values are in decimal");
+diff --git a/configs/sandbox_defconfig b/configs/sandbox_defconfig
+index f1ec701..c5eae32 100644
+--- a/configs/sandbox_defconfig
++++ b/configs/sandbox_defconfig
+@@ -58,6 +58,7 @@ CONFIG_CMD_LSBLK=y
+ CONFIG_CMD_MUX=y
+ CONFIG_CMD_OSD=y
+ CONFIG_CMD_PCI=y
++CONFIG_CMD_PWM=y
+ CONFIG_CMD_READ=y
+ CONFIG_CMD_REMOTEPROC=y
+ CONFIG_CMD_SPI=y
+diff --git a/test/cmd/Makefile b/test/cmd/Makefile
+index 859dcda..758bc14 100644
+--- a/test/cmd/Makefile
++++ b/test/cmd/Makefile
+@@ -4,3 +4,5 @@
+ 
+ obj-y += mem.o
+ obj-$(CONFIG_CMD_MEM_SEARCH) += mem_search.o
++obj-$(CONFIG_CMD_PWM) += pwm.o
++obj-y += setexpr.o
+diff --git a/test/cmd/pwm.c b/test/cmd/pwm.c
+new file mode 100644
+index 0000000..5343af8
+--- /dev/null
++++ b/test/cmd/pwm.c
+@@ -0,0 +1,47 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Test for pwm command
++ *
++ * Copyright 2020 SiFive, Inc
++ *
++ * Authors:
++ *   Pragnesh Patel <pragnesh.patel@sifive.com>
++ */
++
++#include <dm.h>
++#include <dm/test.h>
++#include <test/test.h>
++#include <test/ut.h>
++
++/* Basic test of 'pwm' command */
++static int dm_test_pwm_cmd(struct unit_test_state *uts)
++{
++	struct udevice *dev;
++
++	ut_assertok(uclass_get_device(UCLASS_PWM, 0, &dev));
++	ut_assertnonnull(dev);
++
++	ut_assertok(console_record_reset_enable());
++
++	/* pwm <invert> <pwm_dev_num> <channel> <polarity> */
++	ut_assertok(run_command("pwm invert 0 0 1", 0));
++	ut_assert_console_end();
++
++	ut_assertok(run_command("pwm invert 0 0 0", 0));
++	ut_assert_console_end();
++
++	/* pwm <config> <pwm_dev_num> <channel> <period_ns> <duty_ns> */
++	ut_assertok(run_command("pwm config 0 0 10 50", 0));
++	ut_assert_console_end();
++
++	/* pwm <enable/disable> <pwm_dev_num> <channel> */
++	ut_assertok(run_command("pwm enable 0 0", 0));
++	ut_assert_console_end();
++
++	ut_assertok(run_command("pwm disable 0 0", 0));
++	ut_assert_console_end();
++
++	return 0;
++}
++
++DM_TEST(dm_test_pwm_cmd, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT | UT_TESTF_CONSOLE_REC);
+-- 
+2.7.4
+

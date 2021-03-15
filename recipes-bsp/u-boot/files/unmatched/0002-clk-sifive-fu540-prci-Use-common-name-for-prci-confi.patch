@@ -1,7 +1,7 @@
 From 0607085796bda51e0bf4fbeb8b1ff1c40a6e4f2a Mon Sep 17 00:00:00 2001
 From: Pragnesh Patel <pragnesh.patel@sifive.com>
 Date: Wed, 26 Aug 2020 16:54:10 +0530
-Subject: [PATCH 02/34] clk: sifive: fu540-prci: Use common name for prci
+Subject: [PATCH 02/41] clk: sifive: fu540-prci: Use common name for prci
  configuration
 
 Use generic name CLK_SIFIVE_PRCI instead of CLK_SIFIVE_FU540_PRCI. This

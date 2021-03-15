@@ -1,7 +1,7 @@
 From 38aad675ad72d46faf4d4fc5af65b6a96fd81c4b Mon Sep 17 00:00:00 2001
 From: Pragnesh Patel <pragnesh.patel@sifive.com>
 Date: Wed, 21 Oct 2020 17:26:24 +0530
-Subject: [PATCH 20/34] sifive: fu740: Add U-Boot proper sector start
+Subject: [PATCH 20/41] sifive: fu740: Add U-Boot proper sector start
 
 Add U-Boot proper sector start offset for SiFive FU740.
 This value is based on the partition layout supported

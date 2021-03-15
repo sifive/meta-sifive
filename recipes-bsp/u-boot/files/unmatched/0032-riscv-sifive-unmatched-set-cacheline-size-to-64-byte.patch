@@ -1,7 +1,7 @@
 From 2d84c2e547bdcf8cd228d6259dce9826c49483be Mon Sep 17 00:00:00 2001
 From: David Abdurachmanov <david.abdurachmanov@sifive.com>
 Date: Tue, 23 Feb 2021 06:29:45 -0800
-Subject: [PATCH 32/34] riscv: sifive: unmatched: set cacheline size to 64
+Subject: [PATCH 32/41] riscv: sifive: unmatched: set cacheline size to 64
  bytes; max USB ports
 
 Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>

@@ -1,7 +1,7 @@
 From a8baf28b03f7c59fe839f2bd304e25cdc0d754b0 Mon Sep 17 00:00:00 2001
 From: Pragnesh Patel <pragnesh.patel@sifive.com>
 Date: Sat, 31 Oct 2020 19:10:44 +0530
-Subject: [PATCH 12/34] dt-bindings: sifive: fu740: add indexes for reset
+Subject: [PATCH 12/41] dt-bindings: sifive: fu740: add indexes for reset
  signals available in prci
 
 Add bit indexes for reset signals within the PRCI module

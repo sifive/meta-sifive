@@ -1,7 +1,7 @@
 From 5ce70ea7495d0febaa3671d16add996b49ecc329 Mon Sep 17 00:00:00 2001
 From: David Abdurachmanov <david.abdurachmanov@sifive.com>
 Date: Tue, 12 Jan 2021 20:32:50 +0200
-Subject: [PATCH 25/34] sifive: fu740: enable full L2 cache ways (16 ways
+Subject: [PATCH 25/41] sifive: fu740: enable full L2 cache ways (16 ways
  total)
 
 Linux reports now:

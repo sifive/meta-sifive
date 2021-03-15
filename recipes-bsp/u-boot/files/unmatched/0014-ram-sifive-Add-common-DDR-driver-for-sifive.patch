@@ -1,7 +1,7 @@
 From 6dc2c6aadec593c9aad2d9e976d9585cfca29c92 Mon Sep 17 00:00:00 2001
 From: Pragnesh Patel <pragnesh.patel@sifive.com>
 Date: Wed, 11 Nov 2020 18:49:20 +0530
-Subject: [PATCH 14/34] ram: sifive: Add common DDR driver for sifive
+Subject: [PATCH 14/41] ram: sifive: Add common DDR driver for sifive
 
 Rename fu540_ddr.c to sifive_ddr.c, so that it can be used
 by other SiFive SoCs

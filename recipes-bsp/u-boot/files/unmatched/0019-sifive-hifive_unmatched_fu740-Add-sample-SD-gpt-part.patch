@@ -1,7 +1,7 @@
 From 313410edaf2dcd7f2aa327c310ff50729d449333 Mon Sep 17 00:00:00 2001
 From: Pragnesh Patel <pragnesh.patel@sifive.com>
 Date: Wed, 21 Oct 2020 17:22:32 +0530
-Subject: [PATCH 19/34] sifive: hifive_unmatched_fu740: Add sample SD gpt
+Subject: [PATCH 19/41] sifive: hifive_unmatched_fu740: Add sample SD gpt
  partition layout
 
 This is a sample GPT partition layout for SD card,

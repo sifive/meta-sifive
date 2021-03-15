@@ -1,7 +1,7 @@
 From ef08f93f17b1a76037588bf642c7bd0af2a8df81 Mon Sep 17 00:00:00 2001
 From: David Abdurachmanov <david.abdurachmanov@sifive.com>
 Date: Tue, 12 Jan 2021 20:25:25 +0200
-Subject: [PATCH 24/34] sifive-fu740: set kernel_comp_addr_r and
+Subject: [PATCH 24/41] sifive-fu740: set kernel_comp_addr_r and
  kernel_comp_size
 
 These are required for compressed Image.{gz,xz,.} kernel images to work

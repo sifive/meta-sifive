@@ -1,7 +1,7 @@
 From 9ac67e3beb37730bf565c8fe6af32bcd791818b4 Mon Sep 17 00:00:00 2001
 From: Green Wan <green.wan@sifive.com>
 Date: Mon, 18 Jan 2021 00:28:45 -0800
-Subject: [PATCH 28/34] sifive: hifive_unmatched_fu740: Enable 64bit PCI
+Subject: [PATCH 28/41] sifive: hifive_unmatched_fu740: Enable 64bit PCI
  resources
 
 Enable 64bit PCI resources support to avoid address is truncated in

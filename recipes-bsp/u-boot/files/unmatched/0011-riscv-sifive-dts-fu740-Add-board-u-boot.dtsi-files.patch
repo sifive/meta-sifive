@@ -1,7 +1,7 @@
 From 61eb18411e58541899b98f922f1e56402e6166f7 Mon Sep 17 00:00:00 2001
 From: Pragnesh Patel <pragnesh.patel@sifive.com>
 Date: Mon, 19 Oct 2020 18:03:37 +0530
-Subject: [PATCH 11/34] riscv: sifive: dts: fu740: Add board -u-boot.dtsi files
+Subject: [PATCH 11/41] riscv: sifive: dts: fu740: Add board -u-boot.dtsi files
 
 Devicetree files in FU740 platform is synced from Linux, like other
 platforms does. Apart from these U-Boot in FU740 would also require

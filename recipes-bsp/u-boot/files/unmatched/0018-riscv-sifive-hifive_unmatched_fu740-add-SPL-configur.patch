@@ -1,7 +1,7 @@
 From 043af2665d5cea99a98137edff659fd1a144ef95 Mon Sep 17 00:00:00 2001
 From: Pragnesh Patel <pragnesh.patel@sifive.com>
 Date: Wed, 21 Oct 2020 17:14:03 +0530
-Subject: [PATCH 18/34] riscv: sifive: hifive_unmatched_fu740: add SPL
+Subject: [PATCH 18/41] riscv: sifive: hifive_unmatched_fu740: add SPL
  configuration
 
 Add a support for SPL which will boot from L2 LIM (0x0800_0000) and

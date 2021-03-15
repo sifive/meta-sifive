@@ -1,7 +1,7 @@
 From e46d8dbd2952ea9daa057a40472e09d84d1c1641 Mon Sep 17 00:00:00 2001
 From: Pragnesh Patel <pragnesh.patel@sifive.com>
 Date: Wed, 11 Nov 2020 18:50:19 +0530
-Subject: [PATCH 15/34] ram: sifive: Added compatible string for FU740-c000 ddr
+Subject: [PATCH 15/41] ram: sifive: Added compatible string for FU740-c000 ddr
 
 Added FU740-c000 ddr compatible string
 

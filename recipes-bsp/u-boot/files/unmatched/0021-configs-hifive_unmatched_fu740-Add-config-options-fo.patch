@@ -1,7 +1,7 @@
 From 5f116fff54e6c11a3e6b0462056019c353cce742 Mon Sep 17 00:00:00 2001
 From: Pragnesh Patel <pragnesh.patel@sifive.com>
 Date: Wed, 21 Oct 2020 17:41:18 +0530
-Subject: [PATCH 21/34] configs: hifive_unmatched_fu740: Add config options for
+Subject: [PATCH 21/41] configs: hifive_unmatched_fu740: Add config options for
  U-Boot SPL
 
 With u-boot-spl.bin,

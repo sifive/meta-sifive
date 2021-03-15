@@ -1,0 +1,24 @@
+From 4620fbafb454a858cf88c8a784513788cc11b6f1 Mon Sep 17 00:00:00 2001
+From: David Abdurachmanov <david.abdurachmanov@sifive.com>
+Date: Thu, 11 Mar 2021 05:42:07 -0800
+Subject: [PATCH 39/41] riscv: sifive: unmatched: enable PWM
+
+Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>
+---
+ configs/sifive_hifive_unmatched_fu740_defconfig | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/configs/sifive_hifive_unmatched_fu740_defconfig b/configs/sifive_hifive_unmatched_fu740_defconfig
+index a853177..14fb2f7 100644
+--- a/configs/sifive_hifive_unmatched_fu740_defconfig
++++ b/configs/sifive_hifive_unmatched_fu740_defconfig
+@@ -52,3 +52,6 @@ CONFIG_CMD_I2C=y
+ CONFIG_DM_I2C=y
+ CONFIG_SYS_I2C_OCORES=y
+ CONFIG_CLK_SIFIVE_PRCI=y
++CONFIG_DM_PWM=y
++CONFIG_PWM_SIFIVE=y
++CONFIG_CMD_PWM=y
+-- 
+2.7.4
+

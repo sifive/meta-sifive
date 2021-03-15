@@ -1,0 +1,116 @@
+From 70a5758c9428b2062408feee99931d40c334e351 Mon Sep 17 00:00:00 2001
+From: Tom Rini <trini@konsulko.com>
+Date: Tue, 26 Jan 2021 11:44:37 -0500
+Subject: [PATCH 38/41] cmd: pwm: Rework argc sanity checking
+
+Currently, we check argc in a number of places to make sure that we have
+all of the required arguments for each of the pwm sub-commands.
+However, there's at least one place where we've got dead code as we'll
+never have argc == 0, due to checking that argc was at least 4 earlier
+and having only subtracted 3.  Rework things so that when we have
+determined our subcommand make sure we have the right number of
+arguments for it, or error out.  This means we can stop checking against
+argc again later.
+
+Reported-by: Coverity (CID: 316601)
+Cc: Pragnesh Patel <pragnesh.patel@sifive.com>
+Signed-off-by: Tom Rini <trini@konsulko.com>
+(cherry picked from commit da7991b38e1f6d9b172a72650286be2558dc447f)
+Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>
+---
+ cmd/pwm.c | 41 +++++++++++++++++++----------------------
+ 1 file changed, 19 insertions(+), 22 deletions(-)
+
+diff --git a/cmd/pwm.c b/cmd/pwm.c
+index 5849fc5..e1f97c7 100644
+--- a/cmd/pwm.c
++++ b/cmd/pwm.c
+@@ -34,11 +34,9 @@ static int do_pwm(struct cmd_tbl *cmdtp, int flag, int argc,
+ 	argc -= 2;
+ 	argv += 2;
+ 
+-	if (argc > 0) {
+-		str_pwm = *argv;
+-		argc--;
+-		argv++;
+-	}
++	str_pwm = *argv;
++	argc--;
++	argv++;
+ 
+ 	if (!str_pwm)
+ 		return CMD_RET_USAGE;
+@@ -46,15 +44,23 @@ static int do_pwm(struct cmd_tbl *cmdtp, int flag, int argc,
+ 	switch (*str_cmd) {
+ 	case 'i':
+ 		sub_cmd = PWM_SET_INVERT;
++		if (argc != 2)
++			return CMD_RET_USAGE;
+ 		break;
+ 	case 'c':
+ 		sub_cmd = PWM_SET_CONFIG;
++		if (argc != 3)
++			return CMD_RET_USAGE;
+ 		break;
+ 	case 'e':
+ 		sub_cmd = PWM_SET_ENABLE;
++		if (argc != 1)
++			return CMD_RET_USAGE;
+ 		break;
+ 	case 'd':
+ 		sub_cmd = PWM_SET_DISABLE;
++		if (argc != 1)
++			return CMD_RET_USAGE;
+ 		break;
+ 	default:
+ 		return CMD_RET_USAGE;
+@@ -67,38 +73,29 @@ static int do_pwm(struct cmd_tbl *cmdtp, int flag, int argc,
+ 		return cmd_process_error(cmdtp, ret);
+ 	}
+ 
+-	if (argc > 0) {
+-		str_channel = *argv;
+-		channel = simple_strtoul(str_channel, NULL, 10);
+-		argc--;
+-		argv++;
+-	} else {
+-		return CMD_RET_USAGE;
+-	}
++	str_channel = *argv;
++	channel = simple_strtoul(str_channel, NULL, 10);
++	argc--;
++	argv++;
+ 
+-	if (sub_cmd == PWM_SET_INVERT && argc > 0) {
++	if (sub_cmd == PWM_SET_INVERT) {
+ 		str_enable = *argv;
+ 		pwm_enable = simple_strtoul(str_enable, NULL, 10);
+ 		ret = pwm_set_invert(dev, channel, pwm_enable);
+-	} else if (sub_cmd == PWM_SET_CONFIG && argc == 2) {
++	} else if (sub_cmd == PWM_SET_CONFIG) {
+ 		str_period = *argv;
+ 		argc--;
+ 		argv++;
+ 		period_ns = simple_strtoul(str_period, NULL, 10);
+ 
+-		if (argc > 0) {
+-			str_duty = *argv;
+-			duty_ns = simple_strtoul(str_duty, NULL, 10);
+-		}
++		str_duty = *argv;
++		duty_ns = simple_strtoul(str_duty, NULL, 10);
+ 
+ 		ret = pwm_set_config(dev, channel, period_ns, duty_ns);
+ 	} else if (sub_cmd == PWM_SET_ENABLE) {
+ 		ret = pwm_set_enable(dev, channel, 1);
+ 	} else if (sub_cmd == PWM_SET_DISABLE) {
+ 		ret = pwm_set_enable(dev, channel, 0);
+-	} else {
+-		printf("PWM arguments missing\n");
+-		return CMD_RET_FAILURE;
+ 	}
+ 
+ 	if (ret) {
+-- 
+2.7.4
+

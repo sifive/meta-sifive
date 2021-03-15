@@ -1,7 +1,7 @@
 From 1b4e3ab010b04dfe2142e03854b92dc55a2b5a09 Mon Sep 17 00:00:00 2001
 From: David Abdurachmanov <david.abdurachmanov@sifive.com>
 Date: Tue, 12 Jan 2021 20:36:24 +0200
-Subject: [PATCH 26/34] sifive: fu740: fix cache controller signals order
+Subject: [PATCH 26/41] sifive: fu740: fix cache controller signals order
 
 Cache controller in FU740 compared to FU540 has 4 signals instead of 3.
 DirFail is the last one. Signals are wired differently in FU740 thus

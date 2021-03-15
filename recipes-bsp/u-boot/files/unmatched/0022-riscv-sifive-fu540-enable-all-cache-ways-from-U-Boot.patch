@@ -1,7 +1,7 @@
 From 8c9f98720814046264c667a07865346cac650715 Mon Sep 17 00:00:00 2001
 From: Pragnesh Patel <pragnesh.patel@sifive.com>
 Date: Wed, 21 Oct 2020 18:20:14 +0530
-Subject: [PATCH 22/34] riscv: sifive: fu540: enable all cache ways from U-Boot
+Subject: [PATCH 22/41] riscv: sifive: fu540: enable all cache ways from U-Boot
  proper
 
 Add L2 cache node to enable all cache ways from U-Boot proper.

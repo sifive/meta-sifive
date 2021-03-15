@@ -1,7 +1,7 @@
 From f79b7968f72385487b0246e3cdaa269cf830985d Mon Sep 17 00:00:00 2001
 From: Pragnesh Patel <pragnesh.patel@sifive.com>
 Date: Tue, 24 Nov 2020 20:02:50 +0530
-Subject: [PATCH 03/34] clk: sifive: fu740: Sync-up DT bindings header with
+Subject: [PATCH 03/41] clk: sifive: fu740: Sync-up DT bindings header with
  upstream Linux
 
 Sync the SiFive FU740-C000 SoC DT bindings header from Linux

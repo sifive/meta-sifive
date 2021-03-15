@@ -1,7 +1,7 @@
 From a271d3339f9b1c5ec1e29f5e5bc9938c23afc213 Mon Sep 17 00:00:00 2001
 From: David Abdurachmanov <david.abdurachmanov@sifive.com>
 Date: Tue, 23 Feb 2021 06:28:24 -0800
-Subject: [PATCH 31/34] Update SiFive Unmatched defconfig
+Subject: [PATCH 31/41] Update SiFive Unmatched defconfig
 
 Expand defconfig to support NVMe, PCIe, USB.
 

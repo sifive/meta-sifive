@@ -1,7 +1,7 @@
 From 9d0d30253299f61a96f9ed59dfd2ed3ddaacf7fd Mon Sep 17 00:00:00 2001
 From: Green Wan <green.wan@sifive.com>
 Date: Fri, 15 Jan 2021 23:08:48 +0800
-Subject: [PATCH 29/34] clk: sifive: add pciaux clock
+Subject: [PATCH 29/41] clk: sifive: add pciaux clock
 
 pciaux clock has no parent and divider. Overwrite the default
 clock enable function in sifive_prci.c

@@ -1,7 +1,7 @@
 From 22b0d48143552fd24957178bf881fb8414ad5ff1 Mon Sep 17 00:00:00 2001
 From: David Abdurachmanov <david.abdurachmanov@sifive.com>
 Date: Thu, 21 Jan 2021 06:44:41 -0800
-Subject: [PATCH 33/34] fu740: add CONFIG_CMD_GPT and CONFIG_CMD_GPT_RENAME
+Subject: [PATCH 33/41] fu740: add CONFIG_CMD_GPT and CONFIG_CMD_GPT_RENAME
 
 Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>
 ---

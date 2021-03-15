@@ -1,7 +1,7 @@
 From c9f9042a2ffff252f5a80836b8f2f3acd6d0ffa5 Mon Sep 17 00:00:00 2001
 From: Pragnesh Patel <pragnesh.patel@sifive.com>
 Date: Mon, 17 Feb 2020 16:45:07 +0530
-Subject: [PATCH 07/34] riscv: dts: Add SiFive FU740-C000 SoC dts from Linux
+Subject: [PATCH 07/41] riscv: dts: Add SiFive FU740-C000 SoC dts from Linux
 
 Sync the SiFive FU740-C000 SoC dts from Linux
 

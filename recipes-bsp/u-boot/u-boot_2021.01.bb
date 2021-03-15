@@ -43,10 +43,15 @@ SRC_URI_append_unmatched = " \
     file://0030-pci-sifive-add-pcie-driver-for-fu740.patch \
     file://0031-Update-SiFive-Unmatched-defconfig.patch \
     file://0032-riscv-sifive-unmatched-set-cacheline-size-to-64-byte.patch \
-    file://0033-fu740-add-CONFIG_CMD_GPT-and-CONFIG_CMD_GPT_RENAME.patch \ 
+    file://0033-fu740-add-CONFIG_CMD_GPT-and-CONFIG_CMD_GPT_RENAME.patch \
     file://0034-Unmathced-FU740-add-NVME-USB-and-PXE-to-boot-targets.patch \
-    file://0001-riscv-clear-feature-disable-CSR.patch \
-    file://0001-riscv-sifive-unmatched-enable-SoC-FAN-on-rev2.patch \
+    file://0035-riscv-clear-feature-disable-CSR.patch \
+    file://0036-riscv-sifive-unmatched-add-I2C-EEPROM.patch \
+    file://0037-cmd-Add-a-pwm-command.patch \
+    file://0038-cmd-pwm-Rework-argc-sanity-checking.patch \
+    file://0039-riscv-sifive-unmatched-enable-PWM.patch \
+    file://0040-riscv-sifive-unmatched-update-for-rev3-16GB-1866.patch \
+    file://0041-Fix-CRC32-checksum-for-SiFive-HiFive-EEPROM.patch \
 "
 
 do_compile_prepend_riscv64() {

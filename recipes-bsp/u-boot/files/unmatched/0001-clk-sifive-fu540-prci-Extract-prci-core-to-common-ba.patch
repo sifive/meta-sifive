@@ -1,7 +1,7 @@
 From 0aa078320deda89f704a657f62a14768b562e733 Mon Sep 17 00:00:00 2001
 From: Pragnesh Patel <pragnesh.patel@sifive.com>
 Date: Wed, 26 Aug 2020 16:41:57 +0530
-Subject: [PATCH 01/34] clk: sifive: fu540-prci: Extract prci core to common
+Subject: [PATCH 01/41] clk: sifive: fu540-prci: Extract prci core to common
  base
 
 Extract common core of prci driver to an independent file, it could

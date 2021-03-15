@@ -1,7 +1,7 @@
 From d7a0143389875554621c27387537a1bd6a4e4e4f Mon Sep 17 00:00:00 2001
 From: Pragnesh Patel <pragnesh.patel@sifive.com>
 Date: Sat, 31 Oct 2020 19:54:53 +0530
-Subject: [PATCH 13/34] fu740: dtsi: add reset producer and consumer entries
+Subject: [PATCH 13/41] fu740: dtsi: add reset producer and consumer entries
 
 The resets to DDR, ethernet and Chiplink sub-system are
 connected to PRCI device reset control register, these reset

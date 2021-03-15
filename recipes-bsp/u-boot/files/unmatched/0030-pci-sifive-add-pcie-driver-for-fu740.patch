@@ -1,7 +1,7 @@
 From b8346c052d42fc8aa034e7ebbff1b04c3d8a300c Mon Sep 17 00:00:00 2001
 From: Green Wan <green.wan@sifive.com>
 Date: Fri, 15 Jan 2021 23:36:18 +0800
-Subject: [PATCH 30/34] pci: sifive: add pcie driver for fu740
+Subject: [PATCH 30/41] pci: sifive: add pcie driver for fu740
 
 Add pcie driver support root complex in Gen1 and depends on fu740 clock,
 reset and gpio drivers.
