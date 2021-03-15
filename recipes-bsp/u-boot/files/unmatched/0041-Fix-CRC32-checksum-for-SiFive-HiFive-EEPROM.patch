@@ -1,101 +1,28 @@
-From 16174c2ff403b804f613362dead6beb139a85714 Mon Sep 17 00:00:00 2001
+From c31930f5ab5a7637cb2af7ea56d99b1c262bd993 Mon Sep 17 00:00:00 2001
 From: David Abdurachmanov <david.abdurachmanov@sifive.com>
-Date: Fri, 12 Mar 2021 10:46:38 -0800
+Date: Mon, 15 Mar 2021 10:26:40 -0700
 Subject: [PATCH 41/41] Fix CRC32 checksum for SiFive HiFive EEPROM
 
 Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>
 ---
- .../hifive-platform-i2c-eeprom.c                   | 33 +++++++++-------------
- 1 file changed, 14 insertions(+), 19 deletions(-)
+ board/sifive/hifive_unmatched_fu740/hifive-platform-i2c-eeprom.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/board/sifive/hifive_unmatched_fu740/hifive-platform-i2c-eeprom.c b/board/sifive/hifive_unmatched_fu740/hifive-platform-i2c-eeprom.c
-index be7a4fe..4941235 100644
+index be7a4fe..851a313 100644
 --- a/board/sifive/hifive_unmatched_fu740/hifive-platform-i2c-eeprom.c
 +++ b/board/sifive/hifive_unmatched_fu740/hifive-platform-i2c-eeprom.c
-@@ -84,12 +84,6 @@ static int has_been_read = 0;
- static const unsigned char magic[MAGIC_NUMBER_BYTES] = { 0xf1, 0x5e, 0x50,
- 	0x45 };
+@@ -86,8 +86,8 @@ static const unsigned char magic[MAGIC_NUMBER_BYTES] = { 0xf1, 0x5e, 0x50,
  
--
--static u32 __compute_eeprom_crc(struct sifive_eeprom *eeprom) {
+ 
+ static u32 __compute_eeprom_crc(struct sifive_eeprom *eeprom) {
 -	return crc32(0, (void *)&eeprom,
 -		     sizeof(eeprom) - sizeof(eeprom->crc));
--}
--
++	return crc32(0, (void *)eeprom,
++		     sizeof(struct sifive_eeprom) - 4);
+ }
+ 
  /* Does the magic number match that of a SiFive EEPROM? */
- static int test_magic(struct sifive_eeprom *e)
- {
-@@ -136,7 +130,7 @@ static void show_raw_eeprom(void)
-  */
- static void show_eeprom(void)
- {
--	unsigned int crc;
-+	uint32_t crc;
- 
- 	if (!test_magic(&e)) {
- 		printf("Not a SiFive EEPROM data format - magic bytes don't match\n");
-@@ -146,12 +140,12 @@ static void show_eeprom(void)
- 
- 	show_parsed_eeprom();
- 
--	crc = __compute_eeprom_crc(&e);
--	if (crc == le32_to_cpu(e.crc))
--		printf("CRC: %08x\n", le32_to_cpu(e.crc));
-+	crc = crc32(0, (void *)&e, sizeof(e) - 4);
-+	if (crc == e.crc)
-+		printf("CRC: %08x\n", e.crc);
- 	else
- 		printf("CRC: %08x (should be %08x)\n",
--			le32_to_cpu(e.crc), crc);
-+			e.crc, crc);
- 
- #ifdef DEBUG
- 	show_raw_eeprom();
-@@ -204,8 +198,10 @@ static int read_eeprom(void)
-  *  to make sure the CRC is always correct.
-  */
- static void update_crc(void)
--{
--	e.crc = cpu_to_le32(__compute_eeprom_crc(&e));
-+{	
-+	uint32_t crc;
-+	crc = crc32(0, (void *)&e, sizeof(e) - 4);
-+	e.crc = crc;
- }
- 
- /**
-@@ -501,7 +497,7 @@ int do_mac(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
-  */
- int mac_read_from_eeprom(void)
- {
--	u32 crc;
-+	uint32_t  crc;
- 	char board_serial[SERIAL_NUMBER_BYTES + 1] = { 0 };
- 
- 	puts("EEPROM: ");
-@@ -517,10 +513,11 @@ int mac_read_from_eeprom(void)
- 		return 0;
- 	}
- 
--	crc = __compute_eeprom_crc(&e);
--	if (crc != le32_to_cpu(e.crc)) {
-+	crc = crc32(0, (void *)&e, sizeof(e) - 4);
-+	if (crc != e.crc) {
- 		printf("CRC mismatch (%08x != %08x)\n", crc,
--		       le32_to_cpu(e.crc));
-+		       e.crc);
-+		return 0;
- 	}
- 
- 	eth_env_set_enetaddr("ethaddr", e.mac_addr);
-@@ -530,7 +527,5 @@ int mac_read_from_eeprom(void)
- 		env_set("serial#", board_serial);
- 	}
- 
--	printf("found SiFive v%u\n", le32_to_cpu(e.format_ver));
--
- 	return 0;
- }
 -- 
 2.7.4
 
