@@ -56,4 +56,6 @@ SRC_URI_append_unmatched = " \
 
 do_compile_prepend_riscv64() {
     export OPENSBI=${DEPLOY_DIR_IMAGE}/fw_dynamic.bin
+
+do_configure[depends] += "opensbi:do_deploy"
 }
