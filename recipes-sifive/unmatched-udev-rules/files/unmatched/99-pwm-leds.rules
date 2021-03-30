@@ -1,0 +1,2 @@
+# D12 LED: heartbeat
+SUBSYSTEM=="leds", KERNEL=="green:d12", ACTION=="add", ATTR{trigger}="heartbeat"
