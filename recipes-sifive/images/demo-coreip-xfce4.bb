@@ -222,6 +222,10 @@ IMAGE_INSTALL_append_freedom-u540 = " \
     unleashed-udev-rules \
     "
 
+IMAGE_INSTALL_append_unmatched = " \
+    unmatched-udev-rules \
+    "
+
 inherit core-image features_check extrausers
 
 REQUIRED_DISTRO_FEATURES = "\
