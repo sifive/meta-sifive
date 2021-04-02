@@ -225,6 +225,7 @@ IMAGE_INSTALL_append_freedom-u540 = " \
 
 IMAGE_INSTALL_append_unmatched = " \
     unmatched-udev-rules \
+    unmatched-systemd-units \
     "
 
 inherit core-image features_check extrausers
