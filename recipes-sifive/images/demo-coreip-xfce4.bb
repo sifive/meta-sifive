@@ -144,7 +144,7 @@ IMAGE_INSTALL = "\
     libcxx-dev \
     libcxx-staticdev \
     openmp \
-    wireless-regdb \
+    wireless-regdb-static \
     info \
     gettext-runtime \
     gperf \
