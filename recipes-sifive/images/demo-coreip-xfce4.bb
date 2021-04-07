@@ -68,7 +68,6 @@ IMAGE_INSTALL = "\
     xrandr \
     mesa-demos \
     read-edid \
-    xscreensaver \
     mesa-megadriver \
     mesa-vulkan-drivers \
     vulkan-tools \
