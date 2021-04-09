@@ -1,7 +1,7 @@
-From a312bc150ec77d09c2bd1dee90bdc1cc2a3c69dc Mon Sep 17 00:00:00 2001
+From c51df307129d65a8f198b3b0337bee4e9d60ee3e Mon Sep 17 00:00:00 2001
 From: David Abdurachmanov <david.abdurachmanov@sifive.com>
 Date: Wed, 3 Feb 2021 07:00:15 -0800
-Subject: [PATCH 09/21] riscv: dts: fu740: fix cache-controller interrupts
+Subject: [PATCH 09/26] riscv: dts: fu740: fix cache-controller interrupts
 
 The order of interrupt numbers is incorrect.
 
@@ -19,10 +19,10 @@ Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/riscv/boot/dts/sifive/fu740-c000.dtsi b/arch/riscv/boot/dts/sifive/fu740-c000.dtsi
-index eeb4f8c3..d0d206c 100644
+index eeb4f8c3e0e7..d0d206cdb999 100644
 --- a/arch/riscv/boot/dts/sifive/fu740-c000.dtsi
 +++ b/arch/riscv/boot/dts/sifive/fu740-c000.dtsi
-@@ -272,7 +272,7 @@
+@@ -272,7 +272,7 @@ ccache: cache-controller@2010000 {
  			cache-size = <2097152>;
  			cache-unified;
  			interrupt-parent = <&plic0>;
@@ -32,5 +32,5 @@ index eeb4f8c3..d0d206c 100644
  		};
  		gpio: gpio@10060000 {
 -- 
-2.7.4
+2.30.2
 

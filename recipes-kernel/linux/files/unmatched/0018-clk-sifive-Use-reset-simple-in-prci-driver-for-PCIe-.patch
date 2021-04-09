@@ -1,23 +1,24 @@
-From d480c8ff29868722fed3137be6eb836484ae7206 Mon Sep 17 00:00:00 2001
+From e606f17d963967fd1d69ffe8ddcdaf77efafb593 Mon Sep 17 00:00:00 2001
 From: Greentime Hu <greentime.hu@sifive.com>
-Date: Wed, 24 Feb 2021 10:45:14 +0800
-Subject: [PATCH 17/21] clk: sifive: Use reset-simple in prci driver for PCIe
+Date: Thu, 18 Mar 2021 14:08:09 +0800
+Subject: [PATCH 18/26] clk: sifive: Use reset-simple in prci driver for PCIe
  driver
 
 We use reset-simple in this patch so that pcie driver can use
 devm_reset_control_get() to get this reset data structure and use
 reset_control_deassert() to deassert pcie_power_up_rst_n.
 
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
 Signed-off-by: Greentime Hu <greentime.hu@sifive.com>
 ---
  drivers/clk/sifive/Kconfig       |  2 ++
- drivers/clk/sifive/sifive-prci.c | 14 ++++++++++++++
+ drivers/clk/sifive/sifive-prci.c | 13 +++++++++++++
  drivers/clk/sifive/sifive-prci.h |  4 ++++
  drivers/reset/Kconfig            |  3 ++-
- 4 files changed, 22 insertions(+), 1 deletion(-)
+ 4 files changed, 21 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/clk/sifive/Kconfig b/drivers/clk/sifive/Kconfig
-index 1c14eb2..9132c3c 100644
+index 1c14eb20c066..9132c3c4aa86 100644
 --- a/drivers/clk/sifive/Kconfig
 +++ b/drivers/clk/sifive/Kconfig
 @@ -10,6 +10,8 @@ if CLK_SIFIVE
@@ -30,10 +31,10 @@ index 1c14eb2..9132c3c 100644
  	help
  	  Supports the Power Reset Clock interface (PRCI) IP block found in
 diff --git a/drivers/clk/sifive/sifive-prci.c b/drivers/clk/sifive/sifive-prci.c
-index baf7313..925affc 100644
+index baf7313dac92..871ccb287993 100644
 --- a/drivers/clk/sifive/sifive-prci.c
 +++ b/drivers/clk/sifive/sifive-prci.c
-@@ -583,7 +583,21 @@ static int sifive_prci_probe(struct platform_device *pdev)
+@@ -583,6 +583,19 @@ static int sifive_prci_probe(struct platform_device *pdev)
  	if (IS_ERR(pd->va))
  		return PTR_ERR(pd->va);
  
@@ -51,12 +52,10 @@ index baf7313..925affc 100644
 +		return r;
 +	}
  	r = __prci_register_clocks(dev, pd, desc);
-+
  	if (r) {
  		dev_err(dev, "could not register clocks: %d\n", r);
- 		return r;
 diff --git a/drivers/clk/sifive/sifive-prci.h b/drivers/clk/sifive/sifive-prci.h
-index 022c67c..91658a8 100644
+index 022c67cf053c..91658a88af4e 100644
 --- a/drivers/clk/sifive/sifive-prci.h
 +++ b/drivers/clk/sifive/sifive-prci.h
 @@ -11,6 +11,7 @@
@@ -85,7 +84,7 @@ index 022c67c..91658a8 100644
  };
  
 diff --git a/drivers/reset/Kconfig b/drivers/reset/Kconfig
-index 71ab75a..f094df9 100644
+index 71ab75a46491..f094df93d911 100644
 --- a/drivers/reset/Kconfig
 +++ b/drivers/reset/Kconfig
 @@ -173,7 +173,7 @@ config RESET_SCMI
@@ -106,5 +105,5 @@ index 71ab75a..f094df9 100644
  config RESET_STM32MP157
  	bool "STM32MP157 Reset Driver" if COMPILE_TEST
 -- 
-2.7.4
+2.30.2
 

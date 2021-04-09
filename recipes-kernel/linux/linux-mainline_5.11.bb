@@ -4,7 +4,7 @@ LINUX_VERSION ?= "5.11.x"
 KERNEL_VERSION_SANITY_SKIP="1"
 
 BRANCH = "linux-5.11.y"
-SRCREV = "v5.11.5"
+SRCREV = "v5.11.10"
 SRC_URI = " \
     git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git;branch=${BRANCH} \
 "
@@ -24,15 +24,20 @@ SRC_URI_append_unmatched = " \
     file://0010-riscv-sifive-fu740-cpu-1-2-3-4-set-compatible-to-sif.patch \
     file://0011-riscv-sifive-unmatched-update-for-16GB-rev3.patch \
     file://0012-riscv-Add-3-SBI-wrapper-functions-to-get-cpu-manufac.patch \
-    file://0013-riscv-Get-CPU-manufacturer-information.patch \
-    file://0014-riscv-Introduce-alternative-mechanism-to-apply-errat.patch \
-    file://0015-riscv-sifive-apply-errata-cip-453-patch.patch \
-    file://0016-clk-sifive-Add-pcie_aux-clock-in-prci-driver-for-PCI.patch \
-    file://0017-clk-sifive-Use-reset-simple-in-prci-driver-for-PCIe-.patch \
-    file://0018-MAINTAINERS-Add-maintainers-for-SiFive-FU740-PCIe-dr.patch \
-    file://0019-dt-bindings-PCI-Add-SiFive-FU740-PCIe-host-controlle.patch \
-    file://0020-PCI-designware-Add-SiFive-FU740-PCIe-host-controller.patch \
-    file://0021-riscv-dts-Add-PCIe-support-for-the-SiFive-FU740-C000.patch \
+    file://0013-riscv-Introduce-alternative-mechanism-to-apply-errat.patch \
+    file://0014-riscv-sifive-Add-SiFive-alternative-ports.patch \
+    file://0015-riscv-sifive-Apply-errata-cip-453-patch.patch \
+    file://0016-riscv-sifive-Apply-errata-cip-1200-patch.patch \
+    file://0017-clk-sifive-Add-pcie_aux-clock-in-prci-driver-for-PCI.patch \
+    file://0018-clk-sifive-Use-reset-simple-in-prci-driver-for-PCIe-.patch \
+    file://0019-MAINTAINERS-Add-maintainers-for-SiFive-FU740-PCIe-dr.patch \
+    file://0020-dt-bindings-PCI-Add-SiFive-FU740-PCIe-host-controlle.patch \
+    file://0021-PCI-fu740-Add-SiFive-FU740-PCIe-host-controller-driv.patch \
+    file://0022-riscv-dts-Add-PCIe-support-for-the-SiFive-FU740-C000.patch \
+    file://0023-riscv-sifive-unmatched-add-D12-PWM-LED.patch \
+    file://0024-riscv-sifive-unmatched-add-gpio-poweroff-node.patch \
+    file://0025-riscv-sifive-unmatched-add-D2-RGB-LED.patch \
+    file://0026-riscv-sifive-unmatched-remove-A00-from-model.patch \
 "
 
 # For unmatched use out-of-tree defconfig

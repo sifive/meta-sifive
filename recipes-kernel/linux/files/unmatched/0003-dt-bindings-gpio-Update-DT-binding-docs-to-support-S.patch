@@ -1,7 +1,7 @@
-From adc9c087acf3768766e1382ab7a1d2f3ad0930c1 Mon Sep 17 00:00:00 2001
+From bfb6bf5e772a132bccb021e882ea92ac58b4ce90 Mon Sep 17 00:00:00 2001
 From: Yash Shah <yash.shah@sifive.com>
 Date: Tue, 8 Dec 2020 10:25:37 +0530
-Subject: [PATCH 03/21] dt-bindings: gpio: Update DT binding docs to support
+Subject: [PATCH 03/26] dt-bindings: gpio: Update DT binding docs to support
  SiFive FU740 SoC
 
 Add new compatible strings to the DT binding documents to support SiFive
@@ -14,7 +14,7 @@ Reviewed-by: Rob Herring <robh@kernel.org>
  1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/Documentation/devicetree/bindings/gpio/sifive,gpio.yaml b/Documentation/devicetree/bindings/gpio/sifive,gpio.yaml
-index a0efd8d..ab22056 100644
+index a0efd8dc2538..ab22056f8b44 100644
 --- a/Documentation/devicetree/bindings/gpio/sifive,gpio.yaml
 +++ b/Documentation/devicetree/bindings/gpio/sifive,gpio.yaml
 @@ -13,7 +13,9 @@ maintainers:
@@ -29,5 +29,5 @@ index a0efd8d..ab22056 100644
  
    reg:
 -- 
-2.7.4
+2.30.2
 

@@ -1,19 +1,19 @@
-From d56ffde261948f404b818167d14347d7ea71df98 Mon Sep 17 00:00:00 2001
+From c32c39dd31b237e41f03601ff4092f47c4b82bad Mon Sep 17 00:00:00 2001
 From: Greentime Hu <greentime.hu@sifive.com>
-Date: Wed, 24 Feb 2021 10:45:16 +0800
-Subject: [PATCH 19/21] dt-bindings: PCI: Add SiFive FU740 PCIe host controller
+Date: Thu, 18 Mar 2021 14:08:11 +0800
+Subject: [PATCH 20/26] dt-bindings: PCI: Add SiFive FU740 PCIe host controller
 
 Add PCIe host controller DT bindings of SiFive FU740.
 
 Signed-off-by: Greentime Hu <greentime.hu@sifive.com>
 ---
- .../devicetree/bindings/pci/sifive,fu740-pcie.yaml | 119 +++++++++++++++++++++
+ .../bindings/pci/sifive,fu740-pcie.yaml       | 119 ++++++++++++++++++
  1 file changed, 119 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/pci/sifive,fu740-pcie.yaml
 
 diff --git a/Documentation/devicetree/bindings/pci/sifive,fu740-pcie.yaml b/Documentation/devicetree/bindings/pci/sifive,fu740-pcie.yaml
 new file mode 100644
-index 0000000..879ab4f
+index 000000000000..c25a91b18cd7
 --- /dev/null
 +++ b/Documentation/devicetree/bindings/pci/sifive,fu740-pcie.yaml
 @@ -0,0 +1,119 @@
@@ -25,7 +25,7 @@ index 0000000..879ab4f
 +
 +title: SiFive fu740 PCIe host controller
 +
-+description: |
++description:
 +  SiFive fu740 PCIe host controller is based on the Synopsys DesignWare
 +  PCI core. It shares common features with the PCIe DesignWare core and
 +  inherits common properties defined in
@@ -130,12 +130,12 @@ index 0000000..879ab4f
 +                        <0x0 0x0 0x0 0x2 &plic0 58>,
 +                        <0x0 0x0 0x0 0x3 &plic0 59>,
 +                        <0x0 0x0 0x0 0x4 &plic0 60>;
-+	clock-names = "pcie_aux";
++        clock-names = "pcie_aux";
 +        clocks = <&prci PRCI_CLK_PCIE_AUX>;
 +        resets = <&prci 4>;
 +        pwren-gpios = <&gpio 5 0>;
 +        perstn-gpios = <&gpio 8 0>;
 +    };
 -- 
-2.7.4
+2.30.2
 

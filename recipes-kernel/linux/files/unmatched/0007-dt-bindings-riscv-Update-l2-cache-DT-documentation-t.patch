@@ -1,7 +1,7 @@
-From fc5b05e8e76e87fba66200799d0e3a320099093e Mon Sep 17 00:00:00 2001
+From ca651696f8773a0cff31903ccdef62b8f32c0fcd Mon Sep 17 00:00:00 2001
 From: Yash Shah <yash.shah@sifive.com>
 Date: Thu, 10 Dec 2020 15:58:02 +0530
-Subject: [PATCH 07/21] dt-bindings: riscv: Update l2 cache DT documentation to
+Subject: [PATCH 07/26] dt-bindings: riscv: Update l2 cache DT documentation to
  add support for SiFive FU740
 
 The L2 cache controller in SiFive FU740 has 4 ECC interrupt sources as
@@ -13,11 +13,11 @@ Reviewed-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Acked-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Reviewed-by: Rob Herring <robh@kernel.org>
 ---
- .../devicetree/bindings/riscv/sifive-l2-cache.yaml | 34 +++++++++++++++++++---
+ .../bindings/riscv/sifive-l2-cache.yaml       | 34 ++++++++++++++++---
  1 file changed, 30 insertions(+), 4 deletions(-)
 
 diff --git a/Documentation/devicetree/bindings/riscv/sifive-l2-cache.yaml b/Documentation/devicetree/bindings/riscv/sifive-l2-cache.yaml
-index efc0198..6a576dc 100644
+index efc0198eeb74..6a576dce1f31 100644
 --- a/Documentation/devicetree/bindings/riscv/sifive-l2-cache.yaml
 +++ b/Documentation/devicetree/bindings/riscv/sifive-l2-cache.yaml
 @@ -27,6 +27,7 @@ select:
@@ -84,5 +84,5 @@ index efc0198..6a576dc 100644
  
  required:
 -- 
-2.7.4
+2.30.2
 

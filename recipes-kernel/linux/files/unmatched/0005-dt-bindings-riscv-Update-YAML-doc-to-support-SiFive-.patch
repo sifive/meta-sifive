@@ -1,7 +1,7 @@
-From 1d702b922b93f5eb6ea06a6b8af13007104628dc Mon Sep 17 00:00:00 2001
+From a0b952cdfe0d7aec7a0dfb26e167d054ee542919 Mon Sep 17 00:00:00 2001
 From: Yash Shah <yash.shah@sifive.com>
 Date: Tue, 8 Dec 2020 10:25:40 +0530
-Subject: [PATCH 05/21] dt-bindings: riscv: Update YAML doc to support SiFive
+Subject: [PATCH 05/26] dt-bindings: riscv: Update YAML doc to support SiFive
  HiFive Unmatched board
 
 Add new compatible strings to the YAML DT binding document to support
@@ -11,11 +11,11 @@ Signed-off-by: Yash Shah <yash.shah@sifive.com>
 Reviewed-by: Rob Herring <robh@kernel.org>
 Reviewed-by: Bin Meng <bin.meng@windriver.com>
 ---
- Documentation/devicetree/bindings/riscv/sifive.yaml | 17 ++++++++++++-----
+ .../devicetree/bindings/riscv/sifive.yaml       | 17 ++++++++++++-----
  1 file changed, 12 insertions(+), 5 deletions(-)
 
 diff --git a/Documentation/devicetree/bindings/riscv/sifive.yaml b/Documentation/devicetree/bindings/riscv/sifive.yaml
-index 3a8647d..ee0a239 100644
+index 3a8647d1da4c..ee0a239af4c2 100644
 --- a/Documentation/devicetree/bindings/riscv/sifive.yaml
 +++ b/Documentation/devicetree/bindings/riscv/sifive.yaml
 @@ -17,11 +17,18 @@ properties:
@@ -43,5 +43,5 @@ index 3a8647d..ee0a239 100644
  additionalProperties: true
  
 -- 
-2.7.4
+2.30.2
 

@@ -1,7 +1,7 @@
-From e0bde106ab0dd29a7ef58b67d73075b8826b0978 Mon Sep 17 00:00:00 2001
+From e256590da8407f8d8cb54addf2b30c19c30063e2 Mon Sep 17 00:00:00 2001
 From: Yash Shah <yash.shah@sifive.com>
 Date: Tue, 8 Dec 2020 10:25:35 +0530
-Subject: [PATCH 02/21] dt-bindings: pwm: Update DT binding docs to support
+Subject: [PATCH 02/26] dt-bindings: pwm: Update DT binding docs to support
  SiFive FU740 SoC
 
 Add new compatible strings to the DT binding documents to support SiFive
@@ -13,7 +13,7 @@ Signed-off-by: Yash Shah <yash.shah@sifive.com>
  1 file changed, 6 insertions(+), 3 deletions(-)
 
 diff --git a/Documentation/devicetree/bindings/pwm/pwm-sifive.yaml b/Documentation/devicetree/bindings/pwm/pwm-sifive.yaml
-index 5ac2527..84e6691 100644
+index 5ac25275d8bf..84e66913d042 100644
 --- a/Documentation/devicetree/bindings/pwm/pwm-sifive.yaml
 +++ b/Documentation/devicetree/bindings/pwm/pwm-sifive.yaml
 @@ -25,12 +25,15 @@ description:
@@ -36,5 +36,5 @@ index 5ac2527..84e6691 100644
        Please refer to sifive-blocks-ip-versioning.txt for details.
  
 -- 
-2.7.4
+2.30.2
 

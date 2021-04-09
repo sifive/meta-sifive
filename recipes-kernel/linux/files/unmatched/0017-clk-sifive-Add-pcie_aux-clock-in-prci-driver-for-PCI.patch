@@ -1,7 +1,7 @@
-From 469209c204b5beda9b608121572a1a891a030550 Mon Sep 17 00:00:00 2001
+From 9d13983343d6b593e0d95313925ae24c80b5c65e Mon Sep 17 00:00:00 2001
 From: Greentime Hu <greentime.hu@sifive.com>
-Date: Wed, 24 Feb 2021 10:45:13 +0800
-Subject: [PATCH 16/21] clk: sifive: Add pcie_aux clock in prci driver for PCIe
+Date: Thu, 18 Mar 2021 14:08:08 +0800
+Subject: [PATCH 17/26] clk: sifive: Add pcie_aux clock in prci driver for PCIe
  driver
 
 We add pcie_aux clock in this patch so that pcie driver can use
@@ -10,15 +10,15 @@ pcie_aux clock.
 
 Signed-off-by: Greentime Hu <greentime.hu@sifive.com>
 ---
- drivers/clk/sifive/fu740-prci.c               | 11 +++++++
+ drivers/clk/sifive/fu740-prci.c               | 11 +++++
  drivers/clk/sifive/fu740-prci.h               |  2 +-
- drivers/clk/sifive/sifive-prci.c              | 41 +++++++++++++++++++++++++++
- drivers/clk/sifive/sifive-prci.h              |  9 ++++++
+ drivers/clk/sifive/sifive-prci.c              | 41 +++++++++++++++++++
+ drivers/clk/sifive/sifive-prci.h              |  9 ++++
  include/dt-bindings/clock/sifive-fu740-prci.h |  1 +
  5 files changed, 63 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/clk/sifive/fu740-prci.c b/drivers/clk/sifive/fu740-prci.c
-index 764d109..53f6e00 100644
+index 764d1097aa51..53f6e00a03b9 100644
 --- a/drivers/clk/sifive/fu740-prci.c
 +++ b/drivers/clk/sifive/fu740-prci.c
 @@ -72,6 +72,12 @@ static const struct clk_ops sifive_fu740_prci_hfpclkplldiv_clk_ops = {
@@ -45,7 +45,7 @@ index 764d109..53f6e00 100644
 +	},
  };
 diff --git a/drivers/clk/sifive/fu740-prci.h b/drivers/clk/sifive/fu740-prci.h
-index 13ef971f7..511a0bf 100644
+index 13ef971f7764..511a0bf7ba2b 100644
 --- a/drivers/clk/sifive/fu740-prci.h
 +++ b/drivers/clk/sifive/fu740-prci.h
 @@ -9,7 +9,7 @@
@@ -58,7 +58,7 @@ index 13ef971f7..511a0bf 100644
  extern struct __prci_clock __prci_init_clocks_fu740[NUM_CLOCK_FU740];
  
 diff --git a/drivers/clk/sifive/sifive-prci.c b/drivers/clk/sifive/sifive-prci.c
-index c78b042..baf7313 100644
+index c78b042750e2..baf7313dac92 100644
 --- a/drivers/clk/sifive/sifive-prci.c
 +++ b/drivers/clk/sifive/sifive-prci.c
 @@ -448,6 +448,47 @@ void sifive_prci_hfpclkpllsel_use_hfpclkpll(struct __prci_data *pd)
@@ -110,7 +110,7 @@ index c78b042..baf7313 100644
   * __prci_register_clocks() - register clock controls in the PRCI
   * @dev: Linux struct device
 diff --git a/drivers/clk/sifive/sifive-prci.h b/drivers/clk/sifive/sifive-prci.h
-index dbdbd17..022c67c 100644
+index dbdbd1722688..022c67cf053c 100644
 --- a/drivers/clk/sifive/sifive-prci.h
 +++ b/drivers/clk/sifive/sifive-prci.h
 @@ -67,6 +67,11 @@
@@ -135,7 +135,7 @@ index dbdbd17..022c67c 100644
 +
  #endif /* __SIFIVE_CLK_SIFIVE_PRCI_H */
 diff --git a/include/dt-bindings/clock/sifive-fu740-prci.h b/include/dt-bindings/clock/sifive-fu740-prci.h
-index cd7706e..7899b7f 100644
+index cd7706ea5677..7899b7fee7db 100644
 --- a/include/dt-bindings/clock/sifive-fu740-prci.h
 +++ b/include/dt-bindings/clock/sifive-fu740-prci.h
 @@ -19,5 +19,6 @@
@@ -146,5 +146,5 @@ index cd7706e..7899b7f 100644
  
  #endif	/* __DT_BINDINGS_CLOCK_SIFIVE_FU740_PRCI_H */
 -- 
-2.7.4
+2.30.2
 

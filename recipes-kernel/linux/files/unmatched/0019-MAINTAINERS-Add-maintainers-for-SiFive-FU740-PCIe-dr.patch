@@ -1,7 +1,7 @@
-From eae8e04156a39e2690093aef24ae3bf2b351f405 Mon Sep 17 00:00:00 2001
+From 987066160469c5d629972b877baa747c4d3378f4 Mon Sep 17 00:00:00 2001
 From: Greentime Hu <greentime.hu@sifive.com>
-Date: Wed, 24 Feb 2021 10:45:15 +0800
-Subject: [PATCH 18/21] MAINTAINERS: Add maintainers for SiFive FU740 PCIe
+Date: Thu, 18 Mar 2021 14:08:10 +0800
+Subject: [PATCH 19/26] MAINTAINERS: Add maintainers for SiFive FU740 PCIe
  driver
 
 Here add maintainer information for SiFive FU740 PCIe driver.
@@ -12,10 +12,10 @@ Signed-off-by: Greentime Hu <greentime.hu@sifive.com>
  1 file changed, 8 insertions(+)
 
 diff --git a/MAINTAINERS b/MAINTAINERS
-index bfc1b86..4da888b 100644
+index b6ab9c1a2119..a01c2ca213dd 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
-@@ -13592,6 +13592,14 @@ S:	Maintained
+@@ -13591,6 +13591,14 @@ S:	Maintained
  F:	Documentation/devicetree/bindings/pci/fsl,imx6q-pcie.txt
  F:	drivers/pci/controller/dwc/*imx6*
  
@@ -31,5 +31,5 @@ index bfc1b86..4da888b 100644
  M:	Jonathan Derrick <jonathan.derrick@intel.com>
  L:	linux-pci@vger.kernel.org
 -- 
-2.7.4
+2.30.2
 

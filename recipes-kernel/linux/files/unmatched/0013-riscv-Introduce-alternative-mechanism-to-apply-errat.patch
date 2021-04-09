@@ -1,7 +1,7 @@
-From 5457741332ba1c8f38612a90d041a60fb42e11e7 Mon Sep 17 00:00:00 2001
+From 8a9d470c9a10e7da72cb2b66ddce1d401348a1e6 Mon Sep 17 00:00:00 2001
 From: Vincent Chen <vincent.chen@sifive.com>
-Date: Tue, 2 Mar 2021 18:21:52 +0800
-Subject: [PATCH 14/21] riscv: Introduce alternative mechanism to apply errata
+Date: Mon, 22 Mar 2021 22:26:03 +0800
+Subject: [PATCH 13/26] riscv: Introduce alternative mechanism to apply errata
  solution
 
 Introduce the "alternative" mechanism from ARM64 and x86 to apply the CPU
@@ -17,7 +17,7 @@ information(vendorid, archid, and impid) for this errata. Therefore, kernel
 will know this errata is suitable for which CPU core. During the booting
 procedure, kernel will select the errata required by the CPU core and then
 patch it. It means that the kernel only applies the errata to the specified
-CPU core. In this case the vendor's errata does not affect each other at
+CPU core. In this case, the vendor's errata does not affect each other at
 runtime. The above patching procedure only occurs during the booting phase,
 so we only take the overhead of the "alternative" mechanism once.
 
@@ -26,21 +26,23 @@ required errata will be applied. However, users can disable this feature by
 the Kconfig "CONFIG_RISCV_ERRATA_ALTERNATIVE".
 
 Signed-off-by: Vincent Chen <vincent.chen@sifive.com>
+Reviewed-by: Anup Patel <anup@brainfault.org>
 ---
  arch/riscv/Kconfig                          |   1 +
- arch/riscv/Kconfig.erratas                  |  12 +++
+ arch/riscv/Kconfig.erratas                  |  12 ++
  arch/riscv/Makefile                         |   1 +
  arch/riscv/errata/Makefile                  |   1 +
- arch/riscv/errata/alternative.c             |  69 +++++++++++++++++
- arch/riscv/include/asm/alternative-macros.h | 110 ++++++++++++++++++++++++++++
- arch/riscv/include/asm/alternative.h        |  44 +++++++++++
+ arch/riscv/errata/alternative.c             |  69 ++++++++++
+ arch/riscv/include/asm/alternative-macros.h | 142 ++++++++++++++++++++
+ arch/riscv/include/asm/alternative.h        |  36 +++++
  arch/riscv/include/asm/asm.h                |   1 +
- arch/riscv/include/asm/errata_list.h        |   8 ++
- arch/riscv/include/asm/sections.h           |   2 +
- arch/riscv/include/asm/vendorid_list.h      |   6 ++
+ arch/riscv/include/asm/csr.h                |   3 +
+ arch/riscv/include/asm/errata_list.h        |  12 ++
+ arch/riscv/include/asm/sections.h           |   1 +
+ arch/riscv/include/asm/vendorid_list.h      |  10 ++
  arch/riscv/kernel/smpboot.c                 |   4 +
- arch/riscv/kernel/vmlinux.lds.S             |  14 ++++
- 13 files changed, 273 insertions(+)
+ arch/riscv/kernel/vmlinux.lds.S             |   7 +
+ 14 files changed, 300 insertions(+)
  create mode 100644 arch/riscv/Kconfig.erratas
  create mode 100644 arch/riscv/errata/Makefile
  create mode 100644 arch/riscv/errata/alternative.c
@@ -50,7 +52,7 @@ Signed-off-by: Vincent Chen <vincent.chen@sifive.com>
  create mode 100644 arch/riscv/include/asm/vendorid_list.h
 
 diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
-index e0a34eb..06dada6 100644
+index e6d569ae817d..3c6695741090 100644
 --- a/arch/riscv/Kconfig
 +++ b/arch/riscv/Kconfig
 @@ -195,6 +195,7 @@ config LOCKDEP_SUPPORT
@@ -63,7 +65,7 @@ index e0a34eb..06dada6 100644
  
 diff --git a/arch/riscv/Kconfig.erratas b/arch/riscv/Kconfig.erratas
 new file mode 100644
-index 0000000..4d0bafc
+index 000000000000..4d0bafc536df
 --- /dev/null
 +++ b/arch/riscv/Kconfig.erratas
 @@ -0,0 +1,12 @@
@@ -80,7 +82,7 @@ index 0000000..4d0bafc
 +
 +endmenu
 diff --git a/arch/riscv/Makefile b/arch/riscv/Makefile
-index 8c29e55..2bff64c 100644
+index 8c29e553ef7f..2bff64c40a57 100644
 --- a/arch/riscv/Makefile
 +++ b/arch/riscv/Makefile
 @@ -75,6 +75,7 @@ KBUILD_IMAGE	:= $(boot)/Image.gz
@@ -93,14 +95,14 @@ index 8c29e55..2bff64c 100644
  libs-$(CONFIG_EFI_STUB) += $(objtree)/drivers/firmware/efi/libstub/lib.a
 diff --git a/arch/riscv/errata/Makefile b/arch/riscv/errata/Makefile
 new file mode 100644
-index 0000000..43e6d54
+index 000000000000..43e6d5424367
 --- /dev/null
 +++ b/arch/riscv/errata/Makefile
 @@ -0,0 +1 @@
 +obj-y	+= alternative.o
 diff --git a/arch/riscv/errata/alternative.c b/arch/riscv/errata/alternative.c
 new file mode 100644
-index 0000000..052affd
+index 000000000000..8efa60ad69b7
 --- /dev/null
 +++ b/arch/riscv/errata/alternative.c
 @@ -0,0 +1,69 @@
@@ -115,39 +117,41 @@ index 0000000..052affd
 +#include <linux/init.h>
 +#include <linux/cpu.h>
 +#include <linux/uaccess.h>
-+#include <asm/patch.h>
 +#include <asm/alternative.h>
 +#include <asm/sections.h>
++#include <asm/vendorid_list.h>
++#include <asm/sbi.h>
++#include <asm/csr.h>
 +
-+struct alt_region {
-+	struct alt_entry *begin;
-+	struct alt_entry *end;
-+};
++static struct cpu_manufacturer_info_t {
++	unsigned long vendor_id;
++	unsigned long arch_id;
++	unsigned long imp_id;
++} cpu_mfr_info;
 +
-+static bool (*errata_checkfunc)(struct alt_entry *alt);
-+typedef int (*patch_func_t)(void *addr, const void *insn, size_t size);
++static void (*vendor_patch_func)(struct alt_entry *begin, struct alt_entry *end,
++				 unsigned long archid, unsigned long impid);
 +
-+static void __apply_alternatives(void *alt_region, void *alt_patch_func)
++static inline void __init riscv_fill_cpu_mfr_info(void)
 +{
-+	struct alt_entry *alt;
-+	struct alt_region *region = alt_region;
-+
-+	for (alt = region->begin; alt < region->end; alt++) {
-+		if (!errata_checkfunc(alt))
-+			continue;
-+		((patch_func_t)alt_patch_func)(alt->old_ptr, alt->alt_ptr, alt->alt_len);
-+	}
++#ifdef CONFIG_RISCV_M_MODE
++	cpu_mfr_info.vendor_id = csr_read(CSR_MVENDORID);
++	cpu_mfr_info.arch_id = csr_read(CSR_MARCHID);
++	cpu_mfr_info.imp_id = csr_read(CSR_MIMPID);
++#else
++	cpu_mfr_info.vendor_id = sbi_get_mvendorid();
++	cpu_mfr_info.arch_id = sbi_get_marchid();
++	cpu_mfr_info.imp_id = sbi_get_mimpid();
++#endif
 +}
 +
 +static void __init init_alternative(void)
 +{
-+	struct errata_checkfunc_id *ptr;
++	riscv_fill_cpu_mfr_info();
 +
-+	for (ptr = (struct errata_checkfunc_id *)__alt_checkfunc_table;
-+	     ptr < (struct errata_checkfunc_id *)__alt_checkfunc_table_end;
-+	     ptr++) {
-+		if (cpu_mfr_info.vendor_id == ptr->vendor_id)
-+			errata_checkfunc = ptr->func;
++	switch (cpu_mfr_info.vendor_id) {
++	default:
++		vendor_patch_func = NULL;
 +	}
 +}
 +
@@ -158,86 +162,49 @@ index 0000000..052affd
 + */
 +void __init apply_boot_alternatives(void)
 +{
-+	struct alt_region region;
-+
 +	/* If called on non-boot cpu things could go wrong */
 +	WARN_ON(smp_processor_id() != 0);
 +
 +	init_alternative();
 +
-+	if (!errata_checkfunc)
++	if (!vendor_patch_func)
 +		return;
 +
-+	region.begin = (struct alt_entry *)__alt_start;
-+	region.end = (struct alt_entry *)__alt_end;
-+	__apply_alternatives(&region, patch_text_nosync);
++	vendor_patch_func((struct alt_entry *)__alt_start,
++			  (struct alt_entry *)__alt_end,
++			  cpu_mfr_info.arch_id, cpu_mfr_info.imp_id);
 +}
 +
 diff --git a/arch/riscv/include/asm/alternative-macros.h b/arch/riscv/include/asm/alternative-macros.h
 new file mode 100644
-index 0000000..7b6f0c9
+index 000000000000..88c08705f64a
 --- /dev/null
 +++ b/arch/riscv/include/asm/alternative-macros.h
-@@ -0,0 +1,110 @@
+@@ -0,0 +1,142 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +#ifndef __ASM_ALTERNATIVE_MACROS_H
 +#define __ASM_ALTERNATIVE_MACROS_H
 +
 +#ifdef CONFIG_RISCV_ERRATA_ALTERNATIVE
 +
-+#ifndef __ASSEMBLY__
++#ifdef __ASSEMBLY__
 +
-+#include <asm/asm.h>
-+#include <linux/stringify.h>
-+
-+#define ALT_ENTRY(oldptr, altptr, vendor_id, errata_id, altlen) \
-+	RISCV_PTR " " oldptr "\n" \
-+	RISCV_PTR " " altptr "\n" \
-+	REG_ASM " " vendor_id "\n" \
-+	REG_ASM " " altlen "\n" \
-+	".word " errata_id "\n"
-+
-+#define __ALTERNATIVE_CFG(oldinsn, altinsn, vendor_id, errata_id, enable) \
-+	"886 :\n"							\
-+	oldinsn "\n"							\
-+	".if " __stringify(enable) " == 1\n"				\
-+	"887 :\n"							\
-+	".pushsection .alternative, \"a\"\n"				\
-+	ALT_ENTRY("886b", "888f", __stringify(vendor_id), __stringify(errata_id), "889f - 888f") \
-+	".popsection\n"							\
-+	".subsection 1\n"						\
-+	"888 :\n"							\
-+	altinsn "\n"							\
-+	"889 :\n"							\
-+	".previous\n"							\
-+	".org	. - (887b - 886b) + (889b - 888b)\n"			\
-+	".org	. - (889b - 888b) + (887b - 886b)\n"			\
-+	".endif\n"
-+
-+#define _ALTERNATIVE_CFG(oldinsn, altinsn, vendor_id, errata_id, CONFIG_k)	\
-+	__ALTERNATIVE_CFG(oldinsn, altinsn, vendor_id, errata_id, IS_ENABLED(CONFIG_k))
-+
-+#else /* __ASSEMBLY__ */
-+
-+.macro ALT_ENTRY oldptr altptr vendor_id errata_id alt_len
++.macro ALT_ENTRY oldptr newptr vendor_id errata_id new_len
 +	RISCV_PTR \oldptr
-+	RISCV_PTR \altptr
++	RISCV_PTR \newptr
 +	REG_ASM \vendor_id
-+	REG_ASM \alt_len
++	REG_ASM \new_len
 +	.word	\errata_id
 +.endm
 +
-+.macro __ALTERNATIVE_CFG insn1 insn2 vendor_id errata_id enable = 1
-+886 :
-+	\insn1
++.macro ALT_NEW_CONTENT vendor_id, errata_id, enable = 1, new_c : vararg
 +	.if \enable
-+887 :
 +	.pushsection .alternative, "a"
 +	ALT_ENTRY 886b, 888f, \vendor_id, \errata_id, 889f - 888f
 +	.popsection
 +	.subsection 1
 +888 :
-+	\insn2
++	\new_c
 +889 :
 +	.previous
 +	.org    . - (889b - 888b) + (887b - 886b)
@@ -245,56 +212,123 @@ index 0000000..7b6f0c9
 +	.endif
 +.endm
 +
-+#define _ALTERNATIVE_CFG(oldinsn, altinsn, vendor_id, errata_id, CONFIG_k) \
-+	__ALTERNATIVE_CFG oldinsn, altinsn, vendor_id, errata_id, IS_ENABLED(CONFIG_k)
-+
-+#endif /* !__ASSEMBLY__ */
-+
-+#else /* !CONFIG_RISCV_ERRATA_ALTERNATIVE*/
-+#ifndef __ASSEMBLY__
-+
-+#define __ALTERNATIVE_CFG(oldinsn)  \
-+	oldinsn "\n"
-+
-+#define _ALTERNATIVE_CFG(oldinsn, altinsn, vendor_id, errata_id, CONFIG_k) \
-+	__ALTERNATIVE_CFG(oldinsn)
-+
-+#else /* __ASSEMBLY__ */
-+
-+.macro __ALTERNATIVE_CFG insn1
-+	\insn1
++.macro __ALTERNATIVE_CFG old_c, new_c, vendor_id, errata_id, enable
++886 :
++	\old_c
++887 :
++	ALT_NEW_CONTENT \vendor_id, \errata_id, \enable, \new_c
 +.endm
 +
-+#define _ALTERNATIVE_CFG(oldinsn, altinsn, vendor_id, errata_id, CONFIG_k) \
-+	__ALTERNATIVE_CFG oldinsn
++#define _ALTERNATIVE_CFG(old_c, new_c, vendor_id, errata_id, CONFIG_k) \
++	__ALTERNATIVE_CFG old_c, new_c, vendor_id, errata_id, IS_ENABLED(CONFIG_k)
 +
-+#endif /* !__ASSEMBLY__ */
++#else /* !__ASSEMBLY__ */
++
++#include <asm/asm.h>
++#include <linux/stringify.h>
++
++#define ALT_ENTRY(oldptr, newptr, vendor_id, errata_id, newlen) \
++	RISCV_PTR " " oldptr "\n" \
++	RISCV_PTR " " newptr "\n" \
++	REG_ASM " " vendor_id "\n" \
++	REG_ASM " " newlen "\n" \
++	".word " errata_id "\n"
++
++#define ALT_NEW_CONSTENT(vendor_id, errata_id, enable, new_c) \
++	".if " __stringify(enable) " == 1\n"				\
++	".pushsection .alternative, \"a\"\n"				\
++	ALT_ENTRY("886b", "888f", __stringify(vendor_id), __stringify(errata_id), "889f - 888f") \
++	".popsection\n"							\
++	".subsection 1\n"						\
++	"888 :\n"							\
++	new_c "\n"							\
++	"889 :\n"							\
++	".previous\n"							\
++	".org	. - (887b - 886b) + (889b - 888b)\n"			\
++	".org	. - (889b - 888b) + (887b - 886b)\n"			\
++	".endif\n"
++
++#define __ALTERNATIVE_CFG(old_c, new_c, vendor_id, errata_id, enable) \
++	"886 :\n"	\
++	old_c "\n"	\
++	"887 :\n"	\
++	ALT_NEW_CONSTENT(vendor_id, errata_id, enable, new_c)
++
++#define _ALTERNATIVE_CFG(old_c, new_c, vendor_id, errata_id, CONFIG_k)	\
++	__ALTERNATIVE_CFG(old_c, new_c, vendor_id, errata_id, IS_ENABLED(CONFIG_k))
++
++#endif /* __ASSEMBLY__ */
++
++#else /* !CONFIG_RISCV_ERRATA_ALTERNATIVE*/
++#ifdef __ASSEMBLY__
++
++.macro __ALTERNATIVE_CFG old_c
++	\old_c
++.endm
++
++#define _ALTERNATIVE_CFG(old_c, new_c, vendor_id, errata_id, CONFIG_k) \
++	__ALTERNATIVE_CFG old_c
++
++#else /* !__ASSEMBLY__ */
++
++#define __ALTERNATIVE_CFG(old_c)  \
++	old_c "\n"
++
++#define _ALTERNATIVE_CFG(old_c, new_c, vendor_id, errata_id, CONFIG_k) \
++	__ALTERNATIVE_CFG(old_c)
++
++#endif /* __ASSEMBLY__ */
 +#endif /* CONFIG_RISCV_ERRATA_ALTERNATIVE */
-+
 +/*
 + * Usage:
-+ *	ALTERNATIVE(oldinsn, altinsn, vendor_id, errata_id, CONFIG_k)
-+ *  in the assembly code. Otherwise,
-+ *	asm(ALTERNATIVE(oldinsn, altinsn, vendor_id, errata_id, CONFIG_k));
++ *   ALTERNATIVE(old_content, new_content, vendor_id, errata_id, CONFIG_k)
++ * in the assembly code. Otherwise,
++ *   asm(ALTERNATIVE(old_content, new_content, vendor_id, errata_id, CONFIG_k));
 + *
-+ * oldinsn: The old instruction which will be replaced.
-+ * altinsn: The replacement instruction.
++ * old_content: The old content which is probably replaced with new content.
++ * new_content: The new content.
 + * vendor_id: The CPU vendor ID.
 + * errata_id: The errata ID.
-+ * CONFIG_k: The Kconfig of this errata. The instructions replacement can
-+ *           be disabled by this Kconfig. When Kconfig is disabled, the
-+ *           oldinsn will always be executed.
++ * CONFIG_k: The Kconfig of this errata. When Kconfig is disabled, the old
++ *	     content will alwyas be executed.
 + */
-+#define ALTERNATIVE(oldinsn, altinsn, vendor_id, errata_id, CONFIG_k)   \
-+	_ALTERNATIVE_CFG(oldinsn, altinsn, vendor_id, errata_id, CONFIG_k)
++#define ALTERNATIVE(old_content, new_content, vendor_id, errata_id, CONFIG_k) \
++	_ALTERNATIVE_CFG(old_content, new_content, vendor_id, errata_id, CONFIG_k)
 +
++/*
++ * A vendor wants to replace an old_content, but another vendor has used
++ * ALTERNATIVE() to patch its customized content at the same location. In
++ * this case, this vendor can create a new macro ALTERNATIVE_2() based
++ * on the following sample code and then replace ALTERNATIVE() with
++ * ALTERNATIVE_2() to append its customized content.
++ *
++ * .macro __ALTERNATIVE_CFG_2 old_c, new_c_1, vendor_id_1, errata_id_1, enable_1, \
++ *                                   new_c_2, vendor_id_2, errata_id_2, enable_2
++ * 886 :
++ *      \old_c
++ * 887 :
++ *      ALT_NEW_CONTENT \vendor_id_1, \errata_id_1, \enable_1, \new_c_1
++ *      ALT_NEW_CONTENT \vendor_id_2, \errata_id_2, \enable_2, \new_c_2
++ * .endm
++ *
++ * #define _ALTERNATIVE_CFG_2(old_c, new_c_1, vendor_id_1, errata_id_1, CONFIG_k_1, \
++ *                                   new_c_2, vendor_id_2, errata_id_2, CONFIG_k_2) \
++ *        __ALTERNATIVE_CFG_2 old_c, new_c_1, vendor_id_1, errata_id_1, IS_ENABLED(CONFIG_k_1), \
++ *                                   new_c_2, vendor_id_2, errata_id_2, IS_ENABLED(CONFIG_k_2) \
++ *
++ * #define ALTERNATIVE_2(old_content, new_content_1, vendor_id_1, errata_id_1, CONFIG_k_1, \
++ *                                    new_content_2, vendor_id_2, errata_id_2, CONFIG_k_2) \
++ *         _ALTERNATIVE_CFG_2(old_content, new_content_1, vendor_id_1, errata_id_1, CONFIG_k_1, \
++ *                                         new_content_2, vendor_id_2, errata_id_2, CONFIG_k_2)
++ *
++ */
 +#endif
 diff --git a/arch/riscv/include/asm/alternative.h b/arch/riscv/include/asm/alternative.h
 new file mode 100644
-index 0000000..98a0ea3
+index 000000000000..430bc4fea133
 --- /dev/null
 +++ b/arch/riscv/include/asm/alternative.h
-@@ -0,0 +1,44 @@
+@@ -0,0 +1,36 @@
 +/* SPDX-License-Identifier: GPL-2.0-only */
 +/*
 + * Copyright (C) 2021 Sifive.
@@ -329,18 +363,10 @@ index 0000000..98a0ea3
 +	bool (*func)(struct alt_entry *alt);
 +};
 +
-+extern struct cpu_manufacturer_info_t cpu_mfr_info;
-+
-+#define REGISTER_ERRATA_CHECKFUNC(checkfunc, vendorid)			  \
-+	static const struct errata_checkfunc_id _errata_check_##vendorid  \
-+	__used __section(".alt_checkfunc_table")			  \
-+	__aligned(__alignof__(struct errata_checkfunc_id)) =		  \
-+	{ .vendor_id = vendorid,					  \
-+	  .func = checkfunc }
 +#endif
 +#endif
 diff --git a/arch/riscv/include/asm/asm.h b/arch/riscv/include/asm/asm.h
-index 9c992a8..618d7c5 100644
+index 9c992a88d858..618d7c5af1a2 100644
 --- a/arch/riscv/include/asm/asm.h
 +++ b/arch/riscv/include/asm/asm.h
 @@ -23,6 +23,7 @@
@@ -351,46 +377,67 @@ index 9c992a8..618d7c5 100644
  #define SZREG		__REG_SEL(8, 4)
  #define LGREG		__REG_SEL(3, 2)
  
+diff --git a/arch/riscv/include/asm/csr.h b/arch/riscv/include/asm/csr.h
+index cec462e198ce..076beb9447c1 100644
+--- a/arch/riscv/include/asm/csr.h
++++ b/arch/riscv/include/asm/csr.h
+@@ -109,6 +109,9 @@
+ #define CSR_MIP			0x344
+ #define CSR_PMPCFG0		0x3a0
+ #define CSR_PMPADDR0		0x3b0
++#define CSR_MVENDORID		0xf11
++#define CSR_MARCHID		0xf12
++#define CSR_MIMPID		0xf13
+ #define CSR_MHARTID		0xf14
+ 
+ #ifdef CONFIG_RISCV_M_MODE
 diff --git a/arch/riscv/include/asm/errata_list.h b/arch/riscv/include/asm/errata_list.h
 new file mode 100644
-index 0000000..5e5a1fc
+index 000000000000..1b56131431c9
 --- /dev/null
 +++ b/arch/riscv/include/asm/errata_list.h
-@@ -0,0 +1,8 @@
+@@ -0,0 +1,12 @@
 +/* SPDX-License-Identifier: GPL-2.0-only */
 +/*
 + * Copyright (C) 2021 Sifive.
 + */
++#ifndef ASM_ERRATA_LIST_H
++#define ASM_ERRATA_LIST_H
 +
-+#ifdef CONFIG_SOC_SIFIVE
-+#define	ERRATA_NUMBER 0
++#ifdef CONFIG_ERRATA_SIFIVE
++#define	ERRATA_SIFIVE_NUMBER 0
++#endif
++
 +#endif
 diff --git a/arch/riscv/include/asm/sections.h b/arch/riscv/include/asm/sections.h
-index 1595c5b..d13160f 100644
+index 1595c5b60cfd..8a303fb1ee3b 100644
 --- a/arch/riscv/include/asm/sections.h
 +++ b/arch/riscv/include/asm/sections.h
-@@ -11,5 +11,7 @@ extern char _start[];
+@@ -11,5 +11,6 @@ extern char _start[];
  extern char _start_kernel[];
  extern char __init_data_begin[], __init_data_end[];
  extern char __init_text_begin[], __init_text_end[];
-+extern char __alt_checkfunc_table[], __alt_checkfunc_table_end[];
 +extern char __alt_start[], __alt_end[];
  
  #endif /* __ASM_SECTIONS_H */
 diff --git a/arch/riscv/include/asm/vendorid_list.h b/arch/riscv/include/asm/vendorid_list.h
 new file mode 100644
-index 0000000..1f3be47
+index 000000000000..9d934215b3c8
 --- /dev/null
 +++ b/arch/riscv/include/asm/vendorid_list.h
-@@ -0,0 +1,6 @@
+@@ -0,0 +1,10 @@
 +/* SPDX-License-Identifier: GPL-2.0-only */
 +/*
 + * Copyright (C) 2021 SiFive
 + */
++#ifndef ASM_VENDOR_LIST_H
++#define ASM_VENDOR_LIST_H
 +
 +#define SIFIVE_VENDOR_ID	0x489
++
++#endif
 diff --git a/arch/riscv/kernel/smpboot.c b/arch/riscv/kernel/smpboot.c
-index 96167d5..79788d2 100644
+index 96167d55ed98..79788d275bbe 100644
 --- a/arch/riscv/kernel/smpboot.c
 +++ b/arch/riscv/kernel/smpboot.c
 @@ -31,6 +31,7 @@
@@ -412,20 +459,13 @@ index 96167d5..79788d2 100644
  
  void __init smp_prepare_cpus(unsigned int max_cpus)
 diff --git a/arch/riscv/kernel/vmlinux.lds.S b/arch/riscv/kernel/vmlinux.lds.S
-index de03cb2..6503dfc 100644
+index de03cb22d0e9..7e61bc1dc36e 100644
 --- a/arch/riscv/kernel/vmlinux.lds.S
 +++ b/arch/riscv/kernel/vmlinux.lds.S
-@@ -90,6 +90,20 @@ SECTIONS
+@@ -90,6 +90,13 @@ SECTIONS
  	}
  
  	__init_data_end = .;
-+
-+	. = ALIGN(8);
-+	.alt_checkfunc_table : {
-+		__alt_checkfunc_table = .;
-+		*(.alt_checkfunc_table)
-+		__alt_checkfunc_table_end = .;
-+	}
 +
 +	. = ALIGN(8);
 +	.alternative : {
@@ -437,5 +477,5 @@ index de03cb2..6503dfc 100644
  
  	/* Start of data section */
 -- 
-2.7.4
+2.30.2
 

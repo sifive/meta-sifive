@@ -1,19 +1,19 @@
-From 7bb9df2b80184de91a10e62c0bbaa370306680a3 Mon Sep 17 00:00:00 2001
+From 30816e62fdfa3d8418d31cbe392899e666caf57b Mon Sep 17 00:00:00 2001
 From: Greentime Hu <greentime.hu@sifive.com>
-Date: Wed, 24 Feb 2021 10:45:18 +0800
-Subject: [PATCH 21/21] riscv: dts: Add PCIe support for the SiFive FU740-C000
+Date: Thu, 18 Mar 2021 14:08:13 +0800
+Subject: [PATCH 22/26] riscv: dts: Add PCIe support for the SiFive FU740-C000
  SoC
 
 Signed-off-by: Greentime Hu <greentime.hu@sifive.com>
 ---
- arch/riscv/boot/dts/sifive/fu740-c000.dtsi | 34 ++++++++++++++++++++++++++++++
+ arch/riscv/boot/dts/sifive/fu740-c000.dtsi | 34 ++++++++++++++++++++++
  1 file changed, 34 insertions(+)
 
 diff --git a/arch/riscv/boot/dts/sifive/fu740-c000.dtsi b/arch/riscv/boot/dts/sifive/fu740-c000.dtsi
-index cd9cc02..04fe1b5 100644
+index cd9cc025777d..04fe1b5dad0d 100644
 --- a/arch/riscv/boot/dts/sifive/fu740-c000.dtsi
 +++ b/arch/riscv/boot/dts/sifive/fu740-c000.dtsi
-@@ -159,6 +159,7 @@
+@@ -159,6 +159,7 @@ prci: clock-controller@10000000 {
  			reg = <0x0 0x10000000 0x0 0x1000>;
  			clocks = <&hfclk>, <&rtcclk>;
  			#clock-cells = <1>;
@@ -21,7 +21,7 @@ index cd9cc02..04fe1b5 100644
  		};
  		uart0: serial@10010000 {
  			compatible = "sifive,fu740-c000-uart", "sifive,uart0";
-@@ -289,5 +290,38 @@
+@@ -289,5 +290,38 @@ gpio: gpio@10060000 {
  			clocks = <&prci PRCI_CLK_PCLK>;
  			status = "disabled";
  		};
@@ -61,5 +61,5 @@ index cd9cc02..04fe1b5 100644
  	};
  };
 -- 
-2.7.4
+2.30.2
 
