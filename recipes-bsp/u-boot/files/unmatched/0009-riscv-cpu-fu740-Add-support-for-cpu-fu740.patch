@@ -1,20 +1,20 @@
-From 502bdc0955f1f38ff93f3d9c1f2bb6c4cd771718 Mon Sep 17 00:00:00 2001
+From 2c8f3ef14eca2f399a2be26f73fb0a57c0059e3c Mon Sep 17 00:00:00 2001
 From: Pragnesh Patel <pragnesh.patel@sifive.com>
 Date: Mon, 19 Oct 2020 18:34:50 +0530
-Subject: [PATCH 09/41] riscv: cpu: fu740: Add support for cpu fu740
+Subject: [PATCH 09/52] riscv: cpu: fu740: Add support for cpu fu740
 
 Add SiFive fu740 cpu to support RISC-V arch
 
 Signed-off-by: Pragnesh Patel <pragnesh.patel@sifive.com>
 ---
  arch/riscv/Kconfig                        |  1 +
- arch/riscv/cpu/fu740/Kconfig              | 37 ++++++++++++++++++++++++++++++
- arch/riscv/cpu/fu740/Makefile             |  7 ++++++
- arch/riscv/cpu/fu740/cpu.c                | 22 ++++++++++++++++++
- arch/riscv/cpu/fu740/dram.c               | 38 +++++++++++++++++++++++++++++++
- arch/riscv/include/asm/arch-fu740/clk.h   | 14 ++++++++++++
- arch/riscv/include/asm/arch-fu740/gpio.h  | 38 +++++++++++++++++++++++++++++++
- arch/riscv/include/asm/arch-fu740/reset.h | 13 +++++++++++
+ arch/riscv/cpu/fu740/Kconfig              | 37 ++++++++++++++++++++++
+ arch/riscv/cpu/fu740/Makefile             |  7 +++++
+ arch/riscv/cpu/fu740/cpu.c                | 22 +++++++++++++
+ arch/riscv/cpu/fu740/dram.c               | 38 +++++++++++++++++++++++
+ arch/riscv/include/asm/arch-fu740/clk.h   | 14 +++++++++
+ arch/riscv/include/asm/arch-fu740/gpio.h  | 38 +++++++++++++++++++++++
+ arch/riscv/include/asm/arch-fu740/reset.h | 13 ++++++++
  8 files changed, 170 insertions(+)
  create mode 100644 arch/riscv/cpu/fu740/Kconfig
  create mode 100644 arch/riscv/cpu/fu740/Makefile
@@ -25,7 +25,7 @@ Signed-off-by: Pragnesh Patel <pragnesh.patel@sifive.com>
  create mode 100644 arch/riscv/include/asm/arch-fu740/reset.h
 
 diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
-index 30b0540..00791d9 100644
+index 30b05408b1..00791d9de5 100644
 --- a/arch/riscv/Kconfig
 +++ b/arch/riscv/Kconfig
 @@ -61,6 +61,7 @@ source "board/sipeed/maix/Kconfig"
@@ -38,7 +38,7 @@ index 30b0540..00791d9 100644
  # architecture-specific options below
 diff --git a/arch/riscv/cpu/fu740/Kconfig b/arch/riscv/cpu/fu740/Kconfig
 new file mode 100644
-index 0000000..b62fba6
+index 0000000000..b62fba6343
 --- /dev/null
 +++ b/arch/riscv/cpu/fu740/Kconfig
 @@ -0,0 +1,37 @@
@@ -81,7 +81,7 @@ index 0000000..b62fba6
 +	imply PWM_SIFIVE
 diff --git a/arch/riscv/cpu/fu740/Makefile b/arch/riscv/cpu/fu740/Makefile
 new file mode 100644
-index 0000000..44700d9
+index 0000000000..44700d998c
 --- /dev/null
 +++ b/arch/riscv/cpu/fu740/Makefile
 @@ -0,0 +1,7 @@
@@ -94,7 +94,7 @@ index 0000000..44700d9
 +obj-y += cpu.o
 diff --git a/arch/riscv/cpu/fu740/cpu.c b/arch/riscv/cpu/fu740/cpu.c
 new file mode 100644
-index 0000000..f13c189
+index 0000000000..f13c18942f
 --- /dev/null
 +++ b/arch/riscv/cpu/fu740/cpu.c
 @@ -0,0 +1,22 @@
@@ -122,7 +122,7 @@ index 0000000..f13c189
 +}
 diff --git a/arch/riscv/cpu/fu740/dram.c b/arch/riscv/cpu/fu740/dram.c
 new file mode 100644
-index 0000000..1dc77ef
+index 0000000000..1dc77efeca
 --- /dev/null
 +++ b/arch/riscv/cpu/fu740/dram.c
 @@ -0,0 +1,38 @@
@@ -166,7 +166,7 @@ index 0000000..1dc77ef
 +}
 diff --git a/arch/riscv/include/asm/arch-fu740/clk.h b/arch/riscv/include/asm/arch-fu740/clk.h
 new file mode 100644
-index 0000000..d71ed43
+index 0000000000..d71ed4357c
 --- /dev/null
 +++ b/arch/riscv/include/asm/arch-fu740/clk.h
 @@ -0,0 +1,14 @@
@@ -186,7 +186,7 @@ index 0000000..d71ed43
 +#endif
 diff --git a/arch/riscv/include/asm/arch-fu740/gpio.h b/arch/riscv/include/asm/arch-fu740/gpio.h
 new file mode 100644
-index 0000000..9edc39c
+index 0000000000..9edc39c844
 --- /dev/null
 +++ b/arch/riscv/include/asm/arch-fu740/gpio.h
 @@ -0,0 +1,38 @@
@@ -230,7 +230,7 @@ index 0000000..9edc39c
 +#endif /* _GPIO_SIFIVE_H */
 diff --git a/arch/riscv/include/asm/arch-fu740/reset.h b/arch/riscv/include/asm/arch-fu740/reset.h
 new file mode 100644
-index 0000000..e42797a
+index 0000000000..e42797a395
 --- /dev/null
 +++ b/arch/riscv/include/asm/arch-fu740/reset.h
 @@ -0,0 +1,13 @@
@@ -248,5 +248,5 @@ index 0000000..e42797a
 +
 +#endif
 -- 
-2.7.4
+2.30.2
 

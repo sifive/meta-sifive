@@ -1,7 +1,7 @@
-From a271d3339f9b1c5ec1e29f5e5bc9938c23afc213 Mon Sep 17 00:00:00 2001
+From b67946f6c61437b73f75aeb5718ee4782dcbf83e Mon Sep 17 00:00:00 2001
 From: David Abdurachmanov <david.abdurachmanov@sifive.com>
 Date: Tue, 23 Feb 2021 06:28:24 -0800
-Subject: [PATCH 31/41] Update SiFive Unmatched defconfig
+Subject: [PATCH 31/52] Update SiFive Unmatched defconfig
 
 Expand defconfig to support NVMe, PCIe, USB.
 
@@ -13,7 +13,7 @@ Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>
  1 file changed, 17 insertions(+)
 
 diff --git a/configs/sifive_hifive_unmatched_fu740_defconfig b/configs/sifive_hifive_unmatched_fu740_defconfig
-index bf274eb..2a5ff39 100644
+index bf274eb583..2a5ff399b5 100644
 --- a/configs/sifive_hifive_unmatched_fu740_defconfig
 +++ b/configs/sifive_hifive_unmatched_fu740_defconfig
 @@ -26,3 +26,20 @@ CONFIG_PCI=y
@@ -38,5 +38,5 @@ index bf274eb..2a5ff39 100644
 +CONFIG_CMD_NVME=y
 +CONFIG_SYS_USB_EVENT_POLL=y
 -- 
-2.7.4
+2.30.2
 

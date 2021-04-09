@@ -1,7 +1,7 @@
-From 84d7dffc522d9d72e09ff808df461409b2655771 Mon Sep 17 00:00:00 2001
+From df208a9ba8212b9c8614de73b420c19641cb7627 Mon Sep 17 00:00:00 2001
 From: Pragnesh Patel <pragnesh.patel@sifive.com>
 Date: Wed, 21 Oct 2020 12:37:16 +0530
-Subject: [PATCH 10/41] riscv: Add SiFive HiFive Unmatched FU740 board support
+Subject: [PATCH 10/52] riscv: Add SiFive HiFive Unmatched FU740 board support
 
 This patch adds SiFive HiFive Unmatched FU740 board support.
 The SiFive HiFive Unmatched FU740 defconfig by default builds
@@ -9,14 +9,14 @@ U-Boot for S-Mode.
 
 Signed-off-by: Pragnesh Patel <pragnesh.patel@sifive.com>
 ---
- arch/riscv/Kconfig                                 |  4 ++
- board/sifive/hifive_unmatched_fu740/Kconfig        | 39 ++++++++++++++++++
- board/sifive/hifive_unmatched_fu740/MAINTAINERS    |  8 ++++
- board/sifive/hifive_unmatched_fu740/Makefile       |  5 +++
- .../hifive-unmatched-fu740.c                       | 17 ++++++++
- configs/sifive_hifive_unmatched_fu740_defconfig    | 12 ++++++
- drivers/reset/Kconfig                              |  2 +-
- include/configs/sifive-hifive-unmatched-fu740.h    | 47 ++++++++++++++++++++++
+ arch/riscv/Kconfig                            |  4 ++
+ board/sifive/hifive_unmatched_fu740/Kconfig   | 39 +++++++++++++++
+ .../sifive/hifive_unmatched_fu740/MAINTAINERS |  8 ++++
+ board/sifive/hifive_unmatched_fu740/Makefile  |  5 ++
+ .../hifive-unmatched-fu740.c                  | 17 +++++++
+ .../sifive_hifive_unmatched_fu740_defconfig   | 12 +++++
+ drivers/reset/Kconfig                         |  2 +-
+ .../configs/sifive-hifive-unmatched-fu740.h   | 47 +++++++++++++++++++
  8 files changed, 133 insertions(+), 1 deletion(-)
  create mode 100644 board/sifive/hifive_unmatched_fu740/Kconfig
  create mode 100644 board/sifive/hifive_unmatched_fu740/MAINTAINERS
@@ -26,7 +26,7 @@ Signed-off-by: Pragnesh Patel <pragnesh.patel@sifive.com>
  create mode 100644 include/configs/sifive-hifive-unmatched-fu740.h
 
 diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
-index 00791d9..e1c57ca 100644
+index 00791d9de5..e1c57ca839 100644
 --- a/arch/riscv/Kconfig
 +++ b/arch/riscv/Kconfig
 @@ -20,6 +20,9 @@ config TARGET_QEMU_VIRT
@@ -49,7 +49,7 @@ index 00791d9..e1c57ca 100644
  # platform-specific options below
 diff --git a/board/sifive/hifive_unmatched_fu740/Kconfig b/board/sifive/hifive_unmatched_fu740/Kconfig
 new file mode 100644
-index 0000000..3b9b0ae
+index 0000000000..3b9b0ae5a4
 --- /dev/null
 +++ b/board/sifive/hifive_unmatched_fu740/Kconfig
 @@ -0,0 +1,39 @@
@@ -94,7 +94,7 @@ index 0000000..3b9b0ae
 +endif
 diff --git a/board/sifive/hifive_unmatched_fu740/MAINTAINERS b/board/sifive/hifive_unmatched_fu740/MAINTAINERS
 new file mode 100644
-index 0000000..2d3a89b
+index 0000000000..2d3a89b2a5
 --- /dev/null
 +++ b/board/sifive/hifive_unmatched_fu740/MAINTAINERS
 @@ -0,0 +1,8 @@
@@ -108,7 +108,7 @@ index 0000000..2d3a89b
 +F:	configs/sifive_hifive_unmatched_fu740_defconfig
 diff --git a/board/sifive/hifive_unmatched_fu740/Makefile b/board/sifive/hifive_unmatched_fu740/Makefile
 new file mode 100644
-index 0000000..8f65118
+index 0000000000..8f651180d1
 --- /dev/null
 +++ b/board/sifive/hifive_unmatched_fu740/Makefile
 @@ -0,0 +1,5 @@
@@ -119,7 +119,7 @@ index 0000000..8f65118
 +obj-y   += hifive-unmatched-fu740.o
 diff --git a/board/sifive/hifive_unmatched_fu740/hifive-unmatched-fu740.c b/board/sifive/hifive_unmatched_fu740/hifive-unmatched-fu740.c
 new file mode 100644
-index 0000000..febfa51
+index 0000000000..febfa51390
 --- /dev/null
 +++ b/board/sifive/hifive_unmatched_fu740/hifive-unmatched-fu740.c
 @@ -0,0 +1,17 @@
@@ -142,7 +142,7 @@ index 0000000..febfa51
 +}
 diff --git a/configs/sifive_hifive_unmatched_fu740_defconfig b/configs/sifive_hifive_unmatched_fu740_defconfig
 new file mode 100644
-index 0000000..93ceeed
+index 0000000000..93ceeed63a
 --- /dev/null
 +++ b/configs/sifive_hifive_unmatched_fu740_defconfig
 @@ -0,0 +1,12 @@
@@ -159,7 +159,7 @@ index 0000000..93ceeed
 +CONFIG_SYS_RELOC_GD_ENV_ADDR=y
 +CONFIG_DM_RESET=y
 diff --git a/drivers/reset/Kconfig b/drivers/reset/Kconfig
-index 8b40e9e..d51ccaa 100644
+index 8b40e9e33b..d51ccaa95d 100644
 --- a/drivers/reset/Kconfig
 +++ b/drivers/reset/Kconfig
 @@ -157,7 +157,7 @@ config RESET_IPQ419
@@ -173,7 +173,7 @@ index 8b40e9e..d51ccaa 100644
  	  PRCI module within SiFive SoC's provides mechanism to reset
 diff --git a/include/configs/sifive-hifive-unmatched-fu740.h b/include/configs/sifive-hifive-unmatched-fu740.h
 new file mode 100644
-index 0000000..dc75d25
+index 0000000000..dc75d25970
 --- /dev/null
 +++ b/include/configs/sifive-hifive-unmatched-fu740.h
 @@ -0,0 +1,47 @@
@@ -225,5 +225,5 @@ index 0000000..dc75d25
 +
 +#endif /* __SIFIVE_HIFIVE_UNMATCHED_FU740_H */
 -- 
-2.7.4
+2.30.2
 

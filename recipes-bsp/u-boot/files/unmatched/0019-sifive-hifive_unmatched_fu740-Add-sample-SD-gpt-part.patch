@@ -1,7 +1,7 @@
-From 313410edaf2dcd7f2aa327c310ff50729d449333 Mon Sep 17 00:00:00 2001
+From e327e0f73ba0e3226809eff57788c7904758d21b Mon Sep 17 00:00:00 2001
 From: Pragnesh Patel <pragnesh.patel@sifive.com>
 Date: Wed, 21 Oct 2020 17:22:32 +0530
-Subject: [PATCH 19/41] sifive: hifive_unmatched_fu740: Add sample SD gpt
+Subject: [PATCH 19/52] sifive: hifive_unmatched_fu740: Add sample SD gpt
  partition layout
 
 This is a sample GPT partition layout for SD card,
@@ -39,7 +39,7 @@ Signed-off-by: Pragnesh Patel <pragnesh.patel@sifive.com>
  2 files changed, 15 insertions(+)
 
 diff --git a/board/sifive/hifive_unmatched_fu740/Kconfig b/board/sifive/hifive_unmatched_fu740/Kconfig
-index 9857330..19b6413 100644
+index 9857330dc5..19b6413d53 100644
 --- a/board/sifive/hifive_unmatched_fu740/Kconfig
 +++ b/board/sifive/hifive_unmatched_fu740/Kconfig
 @@ -32,6 +32,8 @@ config BOARD_SPECIFIC_OPTIONS # dummy
@@ -52,7 +52,7 @@ index 9857330..19b6413 100644
  	imply CMD_PING
  	imply CMD_SF
 diff --git a/include/configs/sifive-hifive-unmatched-fu740.h b/include/configs/sifive-hifive-unmatched-fu740.h
-index 59088a0..d3fc373 100644
+index 59088a0b9a..d3fc37305d 100644
 --- a/include/configs/sifive-hifive-unmatched-fu740.h
 +++ b/include/configs/sifive-hifive-unmatched-fu740.h
 @@ -45,6 +45,15 @@
@@ -83,5 +83,5 @@ index 59088a0..d3fc373 100644
  
  #define CONFIG_PREBOOT \
 -- 
-2.7.4
+2.30.2
 

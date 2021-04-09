@@ -1,0 +1,59 @@
+From 9cd7c19ba52252e495298d79768bc41547746a3c Mon Sep 17 00:00:00 2001
+From: Vincent Chen <vincent.chen@sifive.com>
+Date: Fri, 26 Mar 2021 14:10:02 +0800
+Subject: [PATCH 46/52] board: sifive: Set LED's color to purple in the U-boot
+ stage
+
+Set LED's color to purple in the U-boot stage. Because there are still
+some functions to be executed before board_early_init_f(), it means
+the LED's is not changed to purple instantly when entering the U-boot
+stage.
+---
+ .../hifive-unmatched-fu740.c                       | 14 ++++++++++++++
+ configs/sifive_hifive_unmatched_fu740_defconfig    |  1 +
+ 2 files changed, 15 insertions(+)
+
+diff --git a/board/sifive/hifive_unmatched_fu740/hifive-unmatched-fu740.c b/board/sifive/hifive_unmatched_fu740/hifive-unmatched-fu740.c
+index 86f5e09a3f..d118cc4085 100644
+--- a/board/sifive/hifive_unmatched_fu740/hifive-unmatched-fu740.c
++++ b/board/sifive/hifive_unmatched_fu740/hifive-unmatched-fu740.c
+@@ -38,6 +38,7 @@ void pwm_device_init(void)
+ 	struct pwm_sifive_regs *pwm0, *pwm1;
+ 	pwm0 = (struct pwm_sifive_regs *)PWM0_BASE;
+ 	pwm1 = (struct pwm_sifive_regs *)PWM1_BASE;
++#ifdef CONFIG_SPL_BUILD
+ 	writel(PWM_CMP_DISABLE_VAL, (void *)&pwm0->cmp0);
+ 	/* Set the 3-color PWM LEDs to yellow in SPL */
+ 	writel(PWM_CMP_ENABLE_VAL, (void *)&pwm0->cmp1);
+@@ -56,6 +57,19 @@ void pwm_device_init(void)
+ 	writel(PWM_CMP_ENABLE_VAL, (void *)&pwm1->cmp2);
+ 	writel(PWM_CMP_ENABLE_VAL, (void *)&pwm1->cmp3);
+ 	writel(PWM_CFG_INIT, (void *)&pwm1->cfg);
++#else
++	/* Set the 3-color PWM LEDs to purple in U-boot */
++	writel(PWM_CMP_DISABLE_VAL, (void *)&pwm0->cmp1);
++	writel(PWM_CMP_ENABLE_VAL, (void *)&pwm0->cmp2);
++	writel(PWM_CMP_ENABLE_VAL, (void *)&pwm0->cmp3);
++#endif
++
++}
++
++int board_early_init_f(void)
++{
++	pwm_device_init();
++	return 0;
+ }
+ 
+ int board_init(void)
+diff --git a/configs/sifive_hifive_unmatched_fu740_defconfig b/configs/sifive_hifive_unmatched_fu740_defconfig
+index 14fb2f7038..fac1d7b894 100644
+--- a/configs/sifive_hifive_unmatched_fu740_defconfig
++++ b/configs/sifive_hifive_unmatched_fu740_defconfig
+@@ -55,3 +55,4 @@ CONFIG_CLK_SIFIVE_PRCI=y
+ CONFIG_DM_PWM=y
+ CONFIG_PWM_SIFIVE=y
+ CONFIG_CMD_PWM=y
++CONFIG_BOARD_EARLY_INIT_F=y
+-- 
+2.30.2
+

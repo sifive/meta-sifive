@@ -1,7 +1,7 @@
-From 9edcb33fe4b9faba329165e5642b0f216f745577 Mon Sep 17 00:00:00 2001
+From dc2d854df1acb25cbef9a0430232709b829ad840 Mon Sep 17 00:00:00 2001
 From: Pragnesh Patel <pragnesh.patel@sifive.com>
 Date: Tue, 24 Nov 2020 19:06:44 +0530
-Subject: [PATCH 06/41] clk: sifive: fu740-prci: set HFPCLKPLL rate to 260 Mhz
+Subject: [PATCH 06/52] clk: sifive: fu740-prci: set HFPCLKPLL rate to 260 Mhz
 
 HFPCLKPLL is a intermediate clock PLL so no peripheral driver is able
 to set the rate of HFPCLKPLL, so setting the same in probe function.
@@ -12,7 +12,7 @@ Signed-off-by: Pragnesh Patel <pragnesh.patel@sifive.com>
  1 file changed, 27 insertions(+)
 
 diff --git a/drivers/clk/sifive/sifive-prci.c b/drivers/clk/sifive/sifive-prci.c
-index 2fc426e..5858004 100644
+index 2fc426eed7..5858004b83 100644
 --- a/drivers/clk/sifive/sifive-prci.c
 +++ b/drivers/clk/sifive/sifive-prci.c
 @@ -32,6 +32,7 @@
@@ -57,5 +57,5 @@ index 2fc426e..5858004 100644
  }
  
 -- 
-2.7.4
+2.30.2
 

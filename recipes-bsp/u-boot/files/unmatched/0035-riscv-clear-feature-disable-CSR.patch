@@ -1,7 +1,7 @@
-From 7e19c3e209a4acfd9698702ddaa3a724c59edc7a Mon Sep 17 00:00:00 2001
+From 91ca6d049f7d676069d7ff2c8b1ffa070da5aaa6 Mon Sep 17 00:00:00 2001
 From: Green Wan <green.wan@sifive.com>
 Date: Mon, 22 Feb 2021 10:56:35 +0000
-Subject: [PATCH 35/41] riscv: clear feature disable CSR
+Subject: [PATCH 35/52] riscv: clear feature disable CSR
 
 feature disable CSR should be cleared for each core to gain
 performance.
@@ -12,7 +12,7 @@ Signed-off-by: Green Wan <green.wan@sifive.com>
  1 file changed, 1 insertion(+)
 
 diff --git a/arch/riscv/cpu/start.S b/arch/riscv/cpu/start.S
-index 8589509..c3d4647 100644
+index 8589509e01..c3d4647074 100644
 --- a/arch/riscv/cpu/start.S
 +++ b/arch/riscv/cpu/start.S
 @@ -41,6 +41,7 @@ secondary_harts_relocation_error:
@@ -24,5 +24,5 @@ index 8589509..c3d4647 100644
  
  	/*
 -- 
-2.7.4
+2.30.2
 

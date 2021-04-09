@@ -1,20 +1,20 @@
-From 8c9f98720814046264c667a07865346cac650715 Mon Sep 17 00:00:00 2001
+From 15886b55ea769d1636aef3685e1810cba7aeb608 Mon Sep 17 00:00:00 2001
 From: Pragnesh Patel <pragnesh.patel@sifive.com>
 Date: Wed, 21 Oct 2020 18:20:14 +0530
-Subject: [PATCH 22/41] riscv: sifive: fu540: enable all cache ways from U-Boot
+Subject: [PATCH 22/52] riscv: sifive: fu540: enable all cache ways from U-Boot
  proper
 
 Add L2 cache node to enable all cache ways from U-Boot proper.
 
 Signed-off-by: Pragnesh Patel <pragnesh.patel@sifive.com>
 ---
- arch/riscv/cpu/fu740/cache.c | 54 ++++++++++++++++++++++++++++++++++++++++++++
+ arch/riscv/cpu/fu740/cache.c | 54 ++++++++++++++++++++++++++++++++++++
  1 file changed, 54 insertions(+)
  create mode 100644 arch/riscv/cpu/fu740/cache.c
 
 diff --git a/arch/riscv/cpu/fu740/cache.c b/arch/riscv/cpu/fu740/cache.c
 new file mode 100644
-index 0000000..347528a
+index 0000000000..347528a39b
 --- /dev/null
 +++ b/arch/riscv/cpu/fu740/cache.c
 @@ -0,0 +1,54 @@
@@ -73,5 +73,5 @@ index 0000000..347528a
 +	return 0;
 +}
 -- 
-2.7.4
+2.30.2
 

@@ -1,7 +1,7 @@
-From b8346c052d42fc8aa034e7ebbff1b04c3d8a300c Mon Sep 17 00:00:00 2001
+From 9b5316bfadf4bd6ad5f0ad0490e62b0c52b32992 Mon Sep 17 00:00:00 2001
 From: Green Wan <green.wan@sifive.com>
 Date: Fri, 15 Jan 2021 23:36:18 +0800
-Subject: [PATCH 30/41] pci: sifive: add pcie driver for fu740
+Subject: [PATCH 30/52] pci: sifive: add pcie driver for fu740
 
 Add pcie driver support root complex in Gen1 and depends on fu740 clock,
 reset and gpio drivers.
@@ -13,18 +13,18 @@ Tested adapter:
 
 Signed-off-by: Green Wan <green.wan@sifive.com>
 ---
- arch/riscv/dts/fu740-c000.dtsi                  |  38 ++
- configs/sifive_hifive_unmatched_fu740_defconfig |   5 +
- drivers/pci/Kconfig                             |   9 +
- drivers/pci/Makefile                            |   1 +
- drivers/pci/pcie_sifive.c                       | 797 ++++++++++++++++++++++++
- drivers/pci/pcie_sifive.h                       | 374 +++++++++++
+ arch/riscv/dts/fu740-c000.dtsi                |  38 +
+ .../sifive_hifive_unmatched_fu740_defconfig   |   5 +
+ drivers/pci/Kconfig                           |   9 +
+ drivers/pci/Makefile                          |   1 +
+ drivers/pci/pcie_sifive.c                     | 797 ++++++++++++++++++
+ drivers/pci/pcie_sifive.h                     | 374 ++++++++
  6 files changed, 1224 insertions(+)
  create mode 100644 drivers/pci/pcie_sifive.c
  create mode 100644 drivers/pci/pcie_sifive.h
 
 diff --git a/arch/riscv/dts/fu740-c000.dtsi b/arch/riscv/dts/fu740-c000.dtsi
-index c5964a6..7847879 100644
+index c5964a6812..78478790b2 100644
 --- a/arch/riscv/dts/fu740-c000.dtsi
 +++ b/arch/riscv/dts/fu740-c000.dtsi
 @@ -4,6 +4,7 @@
@@ -86,7 +86,7 @@ index c5964a6..7847879 100644
  	};
  };
 diff --git a/configs/sifive_hifive_unmatched_fu740_defconfig b/configs/sifive_hifive_unmatched_fu740_defconfig
-index 17cc047..bf274eb 100644
+index 17cc047cb7..bf274eb583 100644
 --- a/configs/sifive_hifive_unmatched_fu740_defconfig
 +++ b/configs/sifive_hifive_unmatched_fu740_defconfig
 @@ -21,3 +21,8 @@ CONFIG_SPL_YMODEM_SUPPORT=y
@@ -99,7 +99,7 @@ index 17cc047..bf274eb 100644
 +CONFIG_PCI_PNP=y
 +CONFIG_PCIE_SIFIVE_FU740=y
 diff --git a/drivers/pci/Kconfig b/drivers/pci/Kconfig
-index 65498bc..2f221ed 100644
+index 65498bce1d..2f221ede18 100644
 --- a/drivers/pci/Kconfig
 +++ b/drivers/pci/Kconfig
 @@ -97,6 +97,15 @@ config PCIE_DW_MVEBU
@@ -119,7 +119,7 @@ index 65498bc..2f221ed 100644
  	bool "FSL PowerPC PCIe support"
  	depends on DM_PCI
 diff --git a/drivers/pci/Makefile b/drivers/pci/Makefile
-index 8b4d49a..0b8b278 100644
+index 8b4d49a590..0b8b278e84 100644
 --- a/drivers/pci/Makefile
 +++ b/drivers/pci/Makefile
 @@ -50,3 +50,4 @@ obj-$(CONFIG_PCIE_MEDIATEK) += pcie_mediatek.o
@@ -129,7 +129,7 @@ index 8b4d49a..0b8b278 100644
 +obj-$(CONFIG_PCIE_SIFIVE_FU740) += pcie_sifive.o
 diff --git a/drivers/pci/pcie_sifive.c b/drivers/pci/pcie_sifive.c
 new file mode 100644
-index 0000000..70bc2e1
+index 0000000000..70bc2e138e
 --- /dev/null
 +++ b/drivers/pci/pcie_sifive.c
 @@ -0,0 +1,797 @@
@@ -932,7 +932,7 @@ index 0000000..70bc2e1
 +};
 diff --git a/drivers/pci/pcie_sifive.h b/drivers/pci/pcie_sifive.h
 new file mode 100644
-index 0000000..45070f7
+index 0000000000..45070f7198
 --- /dev/null
 +++ b/drivers/pci/pcie_sifive.h
 @@ -0,0 +1,374 @@
@@ -1311,5 +1311,5 @@ index 0000000..45070f7
 +
 +#endif /* __PCIE_SIFIVE_H__ */
 -- 
-2.7.4
+2.30.2
 
