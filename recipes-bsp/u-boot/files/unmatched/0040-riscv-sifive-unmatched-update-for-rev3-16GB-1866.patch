@@ -1,20 +1,20 @@
-From 1d048519a48540a674817c338f047f96eae6b2f2 Mon Sep 17 00:00:00 2001
+From e3ecd587bf5a5da2a1d9aba78b1f7b8b65ff203e Mon Sep 17 00:00:00 2001
 From: David Abdurachmanov <david.abdurachmanov@sifive.com>
 Date: Thu, 11 Mar 2021 05:48:30 -0800
-Subject: [PATCH 40/41] riscv: sifive: unmatched: update for rev3 (16GB, 1866)
+Subject: [PATCH 40/52] riscv: sifive: unmatched: update for rev3 (16GB, 1866)
 
 The DDR clock-frequency should be 933 MHz.
 
 Signed-off-by: Zong Li <zong.li@sifive.com>
 Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>
 ---
- arch/riscv/dts/fu740-c000-u-boot.dtsi              |    2 +-
- arch/riscv/dts/fu740-hifive-unmatched-a00-ddr.dtsi | 2962 ++++++++++----------
- arch/riscv/dts/hifive-unmatched-a00.dts            |   36 +-
+ arch/riscv/dts/fu740-c000-u-boot.dtsi         |    2 +-
+ .../dts/fu740-hifive-unmatched-a00-ddr.dtsi   | 2962 ++++++++---------
+ arch/riscv/dts/hifive-unmatched-a00.dts       |   36 +-
  3 files changed, 1500 insertions(+), 1500 deletions(-)
 
 diff --git a/arch/riscv/dts/fu740-c000-u-boot.dtsi b/arch/riscv/dts/fu740-c000-u-boot.dtsi
-index 2817b6d..b6f7545 100644
+index 2817b6d4a6..b6f7545c40 100644
 --- a/arch/riscv/dts/fu740-c000-u-boot.dtsi
 +++ b/arch/riscv/dts/fu740-c000-u-boot.dtsi
 @@ -77,7 +77,7 @@
@@ -27,7 +27,7 @@ index 2817b6d..b6f7545 100644
  		};
  	};
 diff --git a/arch/riscv/dts/fu740-hifive-unmatched-a00-ddr.dtsi b/arch/riscv/dts/fu740-hifive-unmatched-a00-ddr.dtsi
-index 0c4dedd..06559d9 100644
+index 0c4dedd166..06559d9698 100644
 --- a/arch/riscv/dts/fu740-hifive-unmatched-a00-ddr.dtsi
 +++ b/arch/riscv/dts/fu740-hifive-unmatched-a00-ddr.dtsi
 @@ -1,1489 +1,1489 @@
@@ -3002,7 +3002,7 @@ index 0c4dedd..06559d9 100644
  	>;
  };
 diff --git a/arch/riscv/dts/hifive-unmatched-a00.dts b/arch/riscv/dts/hifive-unmatched-a00.dts
-index 6588512..c2f9bf0 100644
+index 6588512cf9..c2f9bf0796 100644
 --- a/arch/riscv/dts/hifive-unmatched-a00.dts
 +++ b/arch/riscv/dts/hifive-unmatched-a00.dts
 @@ -1,5 +1,5 @@
@@ -3104,5 +3104,5 @@ index 6588512..c2f9bf0 100644
  				regulator-max-microamp = <200000>;
  				regulator-always-on;
 -- 
-2.7.4
+2.30.2
 

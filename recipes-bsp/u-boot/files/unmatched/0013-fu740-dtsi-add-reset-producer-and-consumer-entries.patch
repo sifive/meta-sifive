@@ -1,7 +1,7 @@
-From d7a0143389875554621c27387537a1bd6a4e4e4f Mon Sep 17 00:00:00 2001
+From e5b520b9750ce204b92b9f8f81350e36bd1f32e7 Mon Sep 17 00:00:00 2001
 From: Pragnesh Patel <pragnesh.patel@sifive.com>
 Date: Sat, 31 Oct 2020 19:54:53 +0530
-Subject: [PATCH 13/41] fu740: dtsi: add reset producer and consumer entries
+Subject: [PATCH 13/52] fu740: dtsi: add reset producer and consumer entries
 
 The resets to DDR, ethernet and Chiplink sub-system are
 connected to PRCI device reset control register, these reset
@@ -14,7 +14,7 @@ Signed-off-by: Pragnesh Patel <pragnesh.patel@sifive.com>
  1 file changed, 13 insertions(+)
 
 diff --git a/arch/riscv/dts/fu740-c000-u-boot.dtsi b/arch/riscv/dts/fu740-c000-u-boot.dtsi
-index c7df15b..d38d573 100644
+index c7df15be85..d38d573965 100644
 --- a/arch/riscv/dts/fu740-c000-u-boot.dtsi
 +++ b/arch/riscv/dts/fu740-c000-u-boot.dtsi
 @@ -3,6 +3,8 @@
@@ -45,5 +45,5 @@ index c7df15b..d38d573 100644
  };
  
 -- 
-2.7.4
+2.30.2
 

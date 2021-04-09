@@ -1,19 +1,19 @@
-From 6ab49aff1cb45450bff9985cef8ee0e91244fbd0 Mon Sep 17 00:00:00 2001
+From d5c76c858f17d7aa7e512853a5eadc60aa92644a Mon Sep 17 00:00:00 2001
 From: Pragnesh Patel <pragnesh.patel@sifive.com>
 Date: Mon, 17 Feb 2020 18:25:38 +0530
-Subject: [PATCH 08/41] riscv: dts: Add hifive-unmatched-a00 dts from Linux
+Subject: [PATCH 08/52] riscv: dts: Add hifive-unmatched-a00 dts from Linux
 
 Sync the hifive-unmatched-a00 dts from Linux
 
 Signed-off-by: Pragnesh Patel <pragnesh.patel@sifive.com>
 ---
  arch/riscv/dts/Makefile                 |   1 +
- arch/riscv/dts/hifive-unmatched-a00.dts | 253 ++++++++++++++++++++++++++++++++
+ arch/riscv/dts/hifive-unmatched-a00.dts | 253 ++++++++++++++++++++++++
  2 files changed, 254 insertions(+)
  create mode 100644 arch/riscv/dts/hifive-unmatched-a00.dts
 
 diff --git a/arch/riscv/dts/Makefile b/arch/riscv/dts/Makefile
-index 3a6f96c..895382f 100644
+index 3a6f96c67d..895382f020 100644
 --- a/arch/riscv/dts/Makefile
 +++ b/arch/riscv/dts/Makefile
 @@ -2,6 +2,7 @@
@@ -26,7 +26,7 @@ index 3a6f96c..895382f 100644
  targets += $(dtb-y)
 diff --git a/arch/riscv/dts/hifive-unmatched-a00.dts b/arch/riscv/dts/hifive-unmatched-a00.dts
 new file mode 100644
-index 0000000..6588512
+index 0000000000..6588512cf9
 --- /dev/null
 +++ b/arch/riscv/dts/hifive-unmatched-a00.dts
 @@ -0,0 +1,253 @@
@@ -284,5 +284,5 @@ index 0000000..6588512
 +	status = "okay";
 +};
 -- 
-2.7.4
+2.30.2
 

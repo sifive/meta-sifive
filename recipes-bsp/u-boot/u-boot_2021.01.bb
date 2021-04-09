@@ -52,6 +52,17 @@ SRC_URI_append_unmatched = " \
     file://0039-riscv-sifive-unmatched-enable-PWM.patch \
     file://0040-riscv-sifive-unmatched-update-for-rev3-16GB-1866.patch \
     file://0041-Fix-CRC32-checksum-for-SiFive-HiFive-EEPROM.patch \
+    file://0042-riscv-sifive-unmatched-add-gpio-poweroff.patch \
+    file://0043-board-sifive-spl-refine-GEMGXL-initialized-function.patch \
+    file://0044-board-sifive-spl-reset-USB-hub-PCIe-USB-bridge-and-U.patch \
+    file://0045-board-sifive-spl-Initialized-the-PWM-setting-in-the-.patch \
+    file://0046-board-sifive-Set-LED-s-color-to-purple-in-the-U-boot.patch \
+    file://0047-board-sifive-Set-LED-s-color-to-blue-before-jumping-.patch \
+    file://0048-pwm-sifive-ensure-the-pwm_ops.set_config-and-.set_en.patch \
+    file://0049-riscv-sifive-fu740-kconfig-Enable-support-for-Openco.patch \
+    file://0050-riscv-sifive-fu740-Support-i2c-in-spl.patch \
+    file://0051-board-sifive-Add-an-interface-to-get-PCB-revision.patch \
+    file://0052-riscv-sifive-unmatched-set-default-clock-to-1.2GHz.patch \
 "
 
 do_compile_prepend_riscv64() {

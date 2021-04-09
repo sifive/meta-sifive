@@ -1,7 +1,7 @@
-From 61eb18411e58541899b98f922f1e56402e6166f7 Mon Sep 17 00:00:00 2001
+From 65623b79f1dbbb78145a8b1013a83f486a8ee20b Mon Sep 17 00:00:00 2001
 From: Pragnesh Patel <pragnesh.patel@sifive.com>
 Date: Mon, 19 Oct 2020 18:03:37 +0530
-Subject: [PATCH 11/41] riscv: sifive: dts: fu740: Add board -u-boot.dtsi files
+Subject: [PATCH 11/52] riscv: sifive: dts: fu740: Add board -u-boot.dtsi files
 
 Devicetree files in FU740 platform is synced from Linux, like other
 platforms does. Apart from these U-Boot in FU740 would also require
@@ -14,15 +14,15 @@ releases.
 
 Signed-off-by: Pragnesh Patel <pragnesh.patel@sifive.com>
 ---
- arch/riscv/dts/fu740-c000-u-boot.dtsi           | 74 +++++++++++++++++++++++++
- arch/riscv/dts/hifive-unmatched-a00-u-boot.dtsi | 39 +++++++++++++
+ arch/riscv/dts/fu740-c000-u-boot.dtsi         | 74 +++++++++++++++++++
+ .../dts/hifive-unmatched-a00-u-boot.dtsi      | 39 ++++++++++
  2 files changed, 113 insertions(+)
  create mode 100644 arch/riscv/dts/fu740-c000-u-boot.dtsi
  create mode 100644 arch/riscv/dts/hifive-unmatched-a00-u-boot.dtsi
 
 diff --git a/arch/riscv/dts/fu740-c000-u-boot.dtsi b/arch/riscv/dts/fu740-c000-u-boot.dtsi
 new file mode 100644
-index 0000000..c7df15b
+index 0000000000..c7df15be85
 --- /dev/null
 +++ b/arch/riscv/dts/fu740-c000-u-boot.dtsi
 @@ -0,0 +1,74 @@
@@ -102,7 +102,7 @@ index 0000000..c7df15b
 +};
 diff --git a/arch/riscv/dts/hifive-unmatched-a00-u-boot.dtsi b/arch/riscv/dts/hifive-unmatched-a00-u-boot.dtsi
 new file mode 100644
-index 0000000..7171e25
+index 0000000000..7171e25061
 --- /dev/null
 +++ b/arch/riscv/dts/hifive-unmatched-a00-u-boot.dtsi
 @@ -0,0 +1,39 @@
@@ -146,5 +146,5 @@ index 0000000..7171e25
 +	u-boot,dm-spl;
 +};
 -- 
-2.7.4
+2.30.2
 

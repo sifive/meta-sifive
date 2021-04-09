@@ -1,7 +1,7 @@
-From ffee242fab5ddaad3e27eb6728de88bf107f45f2 Mon Sep 17 00:00:00 2001
+From 80f2e45998770cd48819e2c63d338a6982814731 Mon Sep 17 00:00:00 2001
 From: Pragnesh Patel <pragnesh.patel@sifive.com>
 Date: Wed, 26 Aug 2020 20:24:27 +0530
-Subject: [PATCH 04/41] clk: sifive: fu740-prci: Add a driver for the SiFive
+Subject: [PATCH 04/52] clk: sifive: fu740-prci: Add a driver for the SiFive
  FU740 PRCI IP block
 
 Add driver code for the SiFive FU740 PRCI IP block. This IP block
@@ -12,16 +12,16 @@ Signed-off-by: Pragnesh Patel <pragnesh.patel@sifive.com>
 ---
  drivers/clk/sifive/Kconfig       |   4 +-
  drivers/clk/sifive/Makefile      |   2 +-
- drivers/clk/sifive/fu740-prci.c  | 127 +++++++++++++++++++++++++++++++++
- drivers/clk/sifive/fu740-prci.h  |  22 ++++++
- drivers/clk/sifive/sifive-prci.c | 148 ++++++++++++++++++++++++++++++++++++++-
- drivers/clk/sifive/sifive-prci.h |  96 ++++++++++++++++++++++++-
+ drivers/clk/sifive/fu740-prci.c  | 127 ++++++++++++++++++++++++++
+ drivers/clk/sifive/fu740-prci.h  |  22 +++++
+ drivers/clk/sifive/sifive-prci.c | 148 ++++++++++++++++++++++++++++++-
+ drivers/clk/sifive/sifive-prci.h |  96 +++++++++++++++++++-
  6 files changed, 392 insertions(+), 7 deletions(-)
  create mode 100644 drivers/clk/sifive/fu740-prci.c
  create mode 100644 drivers/clk/sifive/fu740-prci.h
 
 diff --git a/drivers/clk/sifive/Kconfig b/drivers/clk/sifive/Kconfig
-index 2836904..20fc004 100644
+index 283690434b..20fc004b59 100644
 --- a/drivers/clk/sifive/Kconfig
 +++ b/drivers/clk/sifive/Kconfig
 @@ -12,5 +12,5 @@ config CLK_SIFIVE_PRCI
@@ -33,7 +33,7 @@ index 2836904..20fc004 100644
 +	  FU540/FU740 SoCs. If this kernel is meant to run on a SiFive FU540/
 +	  FU740 SoCs, enable this driver.
 diff --git a/drivers/clk/sifive/Makefile b/drivers/clk/sifive/Makefile
-index c4cee5b..51348b1 100644
+index c4cee5b6ca..51348b1ddc 100644
 --- a/drivers/clk/sifive/Makefile
 +++ b/drivers/clk/sifive/Makefile
 @@ -2,4 +2,4 @@
@@ -44,7 +44,7 @@ index c4cee5b..51348b1 100644
 +obj-$(CONFIG_CLK_SIFIVE_PRCI) += fu540-prci.o fu740-prci.o
 diff --git a/drivers/clk/sifive/fu740-prci.c b/drivers/clk/sifive/fu740-prci.c
 new file mode 100644
-index 0000000..218029b
+index 0000000000..218029bde8
 --- /dev/null
 +++ b/drivers/clk/sifive/fu740-prci.c
 @@ -0,0 +1,127 @@
@@ -177,7 +177,7 @@ index 0000000..218029b
 +};
 diff --git a/drivers/clk/sifive/fu740-prci.h b/drivers/clk/sifive/fu740-prci.h
 new file mode 100644
-index 0000000..4db6b79
+index 0000000000..4db6b79496
 --- /dev/null
 +++ b/drivers/clk/sifive/fu740-prci.h
 @@ -0,0 +1,22 @@
@@ -204,7 +204,7 @@ index 0000000..4db6b79
 +
 +#endif /* __SIFIVE_CLK_FU740_PRCI_H */
 diff --git a/drivers/clk/sifive/sifive-prci.c b/drivers/clk/sifive/sifive-prci.c
-index b96491b..514bd36 100644
+index b96491b784..514bd3621f 100644
 --- a/drivers/clk/sifive/sifive-prci.c
 +++ b/drivers/clk/sifive/sifive-prci.c
 @@ -27,7 +27,6 @@
@@ -400,7 +400,7 @@ index b96491b..514bd36 100644
  };
  
 diff --git a/drivers/clk/sifive/sifive-prci.h b/drivers/clk/sifive/sifive-prci.h
-index 7ea77aa..af81ff8 100644
+index 7ea77aaca2..af81ff8526 100644
 --- a/drivers/clk/sifive/sifive-prci.h
 +++ b/drivers/clk/sifive/sifive-prci.h
 @@ -102,7 +102,7 @@
@@ -532,5 +532,5 @@ index 7ea77aa..af81ff8 100644
  
  #endif /* __SIFIVE_CLK_SIFIVE_PRCI_H */
 -- 
-2.7.4
+2.30.2
 

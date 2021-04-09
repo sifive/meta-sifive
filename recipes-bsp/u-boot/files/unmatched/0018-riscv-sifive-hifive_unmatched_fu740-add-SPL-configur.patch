@@ -1,7 +1,7 @@
-From 043af2665d5cea99a98137edff659fd1a144ef95 Mon Sep 17 00:00:00 2001
+From 8382a175a8f7ea40355d0c3021002942c085bcc2 Mon Sep 17 00:00:00 2001
 From: Pragnesh Patel <pragnesh.patel@sifive.com>
 Date: Wed, 21 Oct 2020 17:14:03 +0530
-Subject: [PATCH 18/41] riscv: sifive: hifive_unmatched_fu740: add SPL
+Subject: [PATCH 18/52] riscv: sifive: hifive_unmatched_fu740: add SPL
  configuration
 
 Add a support for SPL which will boot from L2 LIM (0x0800_0000) and
@@ -10,20 +10,20 @@ from MMC boot devices.
 
 Signed-off-by: Pragnesh Patel <pragnesh.patel@sifive.com>
 ---
- arch/riscv/cpu/fu740/Makefile                   |  4 ++
- arch/riscv/cpu/fu740/spl.c                      | 23 +++++++
- arch/riscv/include/asm/arch-fu740/spl.h         | 14 ++++
- board/sifive/hifive_unmatched_fu740/Kconfig     |  8 +++
- board/sifive/hifive_unmatched_fu740/Makefile    |  4 ++
- board/sifive/hifive_unmatched_fu740/spl.c       | 85 +++++++++++++++++++++++++
- include/configs/sifive-hifive-unmatched-fu740.h | 16 +++++
+ arch/riscv/cpu/fu740/Makefile                 |  4 +
+ arch/riscv/cpu/fu740/spl.c                    | 23 +++++
+ arch/riscv/include/asm/arch-fu740/spl.h       | 14 +++
+ board/sifive/hifive_unmatched_fu740/Kconfig   |  8 ++
+ board/sifive/hifive_unmatched_fu740/Makefile  |  4 +
+ board/sifive/hifive_unmatched_fu740/spl.c     | 85 +++++++++++++++++++
+ .../configs/sifive-hifive-unmatched-fu740.h   | 16 ++++
  7 files changed, 154 insertions(+)
  create mode 100644 arch/riscv/cpu/fu740/spl.c
  create mode 100644 arch/riscv/include/asm/arch-fu740/spl.h
  create mode 100644 board/sifive/hifive_unmatched_fu740/spl.c
 
 diff --git a/arch/riscv/cpu/fu740/Makefile b/arch/riscv/cpu/fu740/Makefile
-index 44700d9..043fb96 100644
+index 44700d998c..043fb961a5 100644
 --- a/arch/riscv/cpu/fu740/Makefile
 +++ b/arch/riscv/cpu/fu740/Makefile
 @@ -3,5 +3,9 @@
@@ -38,7 +38,7 @@ index 44700d9..043fb96 100644
 +endif
 diff --git a/arch/riscv/cpu/fu740/spl.c b/arch/riscv/cpu/fu740/spl.c
 new file mode 100644
-index 0000000..45657b7
+index 0000000000..45657b7909
 --- /dev/null
 +++ b/arch/riscv/cpu/fu740/spl.c
 @@ -0,0 +1,23 @@
@@ -67,7 +67,7 @@ index 0000000..45657b7
 +}
 diff --git a/arch/riscv/include/asm/arch-fu740/spl.h b/arch/riscv/include/asm/arch-fu740/spl.h
 new file mode 100644
-index 0000000..4697279
+index 0000000000..4697279f43
 --- /dev/null
 +++ b/arch/riscv/include/asm/arch-fu740/spl.h
 @@ -0,0 +1,14 @@
@@ -86,7 +86,7 @@ index 0000000..4697279
 +
 +#endif /* _SPL_SIFIVE_H */
 diff --git a/board/sifive/hifive_unmatched_fu740/Kconfig b/board/sifive/hifive_unmatched_fu740/Kconfig
-index 3b9b0ae..9857330 100644
+index 3b9b0ae5a4..9857330dc5 100644
 --- a/board/sifive/hifive_unmatched_fu740/Kconfig
 +++ b/board/sifive/hifive_unmatched_fu740/Kconfig
 @@ -13,12 +13,20 @@ config SYS_CONFIG_NAME
@@ -111,7 +111,7 @@ index 3b9b0ae..9857330 100644
  	imply CMD_EXT2
  	imply CMD_EXT4
 diff --git a/board/sifive/hifive_unmatched_fu740/Makefile b/board/sifive/hifive_unmatched_fu740/Makefile
-index 8f65118..aeab025 100644
+index 8f651180d1..aeab025f32 100644
 --- a/board/sifive/hifive_unmatched_fu740/Makefile
 +++ b/board/sifive/hifive_unmatched_fu740/Makefile
 @@ -3,3 +3,7 @@
@@ -124,7 +124,7 @@ index 8f65118..aeab025 100644
 +endif
 diff --git a/board/sifive/hifive_unmatched_fu740/spl.c b/board/sifive/hifive_unmatched_fu740/spl.c
 new file mode 100644
-index 0000000..d8ee934
+index 0000000000..d8ee93422f
 --- /dev/null
 +++ b/board/sifive/hifive_unmatched_fu740/spl.c
 @@ -0,0 +1,85 @@
@@ -214,7 +214,7 @@ index 0000000..d8ee934
 +}
 +#endif
 diff --git a/include/configs/sifive-hifive-unmatched-fu740.h b/include/configs/sifive-hifive-unmatched-fu740.h
-index dc75d25..59088a0 100644
+index dc75d25970..59088a0b9a 100644
 --- a/include/configs/sifive-hifive-unmatched-fu740.h
 +++ b/include/configs/sifive-hifive-unmatched-fu740.h
 @@ -11,6 +11,20 @@
@@ -254,5 +254,5 @@ index dc75d25..59088a0 100644
  
  #endif /* __SIFIVE_HIFIVE_UNMATCHED_FU740_H */
 -- 
-2.7.4
+2.30.2
 

@@ -1,7 +1,7 @@
-From 1ae57dee4f5457f90911d0b98a0bfb5fa2ec1700 Mon Sep 17 00:00:00 2001
+From b9e2f0cec7e91f90141407f7abe29e0088f0243a Mon Sep 17 00:00:00 2001
 From: David Abdurachmanov <david.abdurachmanov@sifive.com>
 Date: Tue, 23 Feb 2021 06:16:17 -0800
-Subject: [PATCH 27/41] sifive: fu740: change eth0 assigned-clock-rates to
+Subject: [PATCH 27/52] sifive: fu740: change eth0 assigned-clock-rates to
  125125000
 
 GEMGXL PLL cannot generate required 125 000 000 Hz clock precisely
@@ -14,7 +14,7 @@ Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>
  3 files changed, 10 insertions(+), 5 deletions(-)
 
 diff --git a/arch/riscv/dts/fu740-c000-u-boot.dtsi b/arch/riscv/dts/fu740-c000-u-boot.dtsi
-index ae1d607..2817b6d 100644
+index ae1d60789f..2817b6d4a6 100644
 --- a/arch/riscv/dts/fu740-c000-u-boot.dtsi
 +++ b/arch/riscv/dts/fu740-c000-u-boot.dtsi
 @@ -97,7 +97,7 @@
@@ -27,7 +27,7 @@ index ae1d607..2817b6d 100644
  &ccache {
  	status = "okay";
 diff --git a/arch/riscv/dts/fu740-c000.dtsi b/arch/riscv/dts/fu740-c000.dtsi
-index 72564c2..c5964a6 100644
+index 72564c22e5..c5964a6812 100644
 --- a/arch/riscv/dts/fu740-c000.dtsi
 +++ b/arch/riscv/dts/fu740-c000.dtsi
 @@ -232,7 +232,7 @@
@@ -40,7 +40,7 @@ index 72564c2..c5964a6 100644
  			interrupts = <55>;
  			reg = <0x0 0x10090000 0x0 0x2000
 diff --git a/drivers/net/macb.c b/drivers/net/macb.c
-index b80a259..179477a 100644
+index b80a259ff7..179477a3e9 100644
 --- a/drivers/net/macb.c
 +++ b/drivers/net/macb.c
 @@ -515,7 +515,12 @@ static int macb_sifive_clk_init(struct udevice *dev, ulong rate)
@@ -69,5 +69,5 @@ index b80a259..179477a 100644
  };
  
 -- 
-2.7.4
+2.30.2
 

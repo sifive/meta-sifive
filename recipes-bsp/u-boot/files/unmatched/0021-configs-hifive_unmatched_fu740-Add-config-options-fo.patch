@@ -1,7 +1,7 @@
-From 5f116fff54e6c11a3e6b0462056019c353cce742 Mon Sep 17 00:00:00 2001
+From 3f3e4dfa67e0ca94eac34fd934a3a7502e475b1a Mon Sep 17 00:00:00 2001
 From: Pragnesh Patel <pragnesh.patel@sifive.com>
 Date: Wed, 21 Oct 2020 17:41:18 +0530
-Subject: [PATCH 21/41] configs: hifive_unmatched_fu740: Add config options for
+Subject: [PATCH 21/52] configs: hifive_unmatched_fu740: Add config options for
  U-Boot SPL
 
 With u-boot-spl.bin,
@@ -20,7 +20,7 @@ Signed-off-by: Pragnesh Patel <pragnesh.patel@sifive.com>
  1 file changed, 11 insertions(+)
 
 diff --git a/configs/sifive_hifive_unmatched_fu740_defconfig b/configs/sifive_hifive_unmatched_fu740_defconfig
-index 93ceeed..17cc047 100644
+index 93ceeed63a..17cc047cb7 100644
 --- a/configs/sifive_hifive_unmatched_fu740_defconfig
 +++ b/configs/sifive_hifive_unmatched_fu740_defconfig
 @@ -1,12 +1,23 @@
@@ -48,5 +48,5 @@ index 93ceeed..17cc047 100644
 +CONFIG_SPL_CLK=y
  CONFIG_DM_RESET=y
 -- 
-2.7.4
+2.30.2
 

@@ -1,7 +1,7 @@
-From 47f6cf8d33518b925b6fa36333e6c5e92b762c00 Mon Sep 17 00:00:00 2001
+From 9fd816d3e2870f36b91281eeb48a40b11792255c Mon Sep 17 00:00:00 2001
 From: Pragnesh Patel <pragnesh.patel@sifive.com>
 Date: Sat, 31 Oct 2020 19:57:12 +0530
-Subject: [PATCH 17/41] riscv: sifive: dts: fu740: add U-Boot dmc node
+Subject: [PATCH 17/52] riscv: sifive: dts: fu740: add U-Boot dmc node
 
 Add dmc node to enable ddr driver. dmc is used to
 initialize the memory controller.
@@ -12,7 +12,7 @@ Signed-off-by: Pragnesh Patel <pragnesh.patel@sifive.com>
  1 file changed, 9 insertions(+)
 
 diff --git a/arch/riscv/dts/fu740-c000-u-boot.dtsi b/arch/riscv/dts/fu740-c000-u-boot.dtsi
-index d38d573..1cc8cd4 100644
+index d38d573965..1cc8cd4cb8 100644
 --- a/arch/riscv/dts/fu740-c000-u-boot.dtsi
 +++ b/arch/riscv/dts/fu740-c000-u-boot.dtsi
 @@ -71,6 +71,15 @@
@@ -32,5 +32,5 @@ index d38d573..1cc8cd4 100644
  };
  
 -- 
-2.7.4
+2.30.2
 

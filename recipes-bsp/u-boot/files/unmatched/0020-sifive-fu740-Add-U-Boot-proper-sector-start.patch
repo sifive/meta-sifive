@@ -1,7 +1,7 @@
-From 38aad675ad72d46faf4d4fc5af65b6a96fd81c4b Mon Sep 17 00:00:00 2001
+From c5dbd56d4cdf694921ba13c88e33e61e2624b926 Mon Sep 17 00:00:00 2001
 From: Pragnesh Patel <pragnesh.patel@sifive.com>
 Date: Wed, 21 Oct 2020 17:26:24 +0530
-Subject: [PATCH 20/41] sifive: fu740: Add U-Boot proper sector start
+Subject: [PATCH 20/52] sifive: fu740: Add U-Boot proper sector start
 
 Add U-Boot proper sector start offset for SiFive FU740.
 This value is based on the partition layout supported
@@ -16,7 +16,7 @@ Signed-off-by: Pragnesh Patel <pragnesh.patel@sifive.com>
  1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/common/spl/Kconfig b/common/spl/Kconfig
-index d8086bd..e78c1f5 100644
+index d8086bd9e8..e78c1f5a84 100644
 --- a/common/spl/Kconfig
 +++ b/common/spl/Kconfig
 @@ -308,7 +308,8 @@ config SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR
@@ -39,5 +39,5 @@ index d8086bd..e78c1f5 100644
  	  Address on the MMC to load U-Boot from, when the MMC is being used
  	  in raw mode. Units: MMC sectors (1 sector = 512 bytes).
 -- 
-2.7.4
+2.30.2
 

@@ -1,7 +1,7 @@
-From 79e471393ecb48d21f2e28a349f63dc54781d456 Mon Sep 17 00:00:00 2001
+From 2f18f710b3d4b747594601a249479c478f770907 Mon Sep 17 00:00:00 2001
 From: David Abdurachmanov <david.abdurachmanov@sifive.com>
 Date: Thu, 11 Mar 2021 05:36:41 -0800
-Subject: [PATCH 36/41] riscv: sifive: unmatched: add I2C EEPROM
+Subject: [PATCH 36/52] riscv: sifive: unmatched: add I2C EEPROM
 
 - Print board serial number of the board
 - Print PCB revision
@@ -10,15 +10,15 @@ Subject: [PATCH 36/41] riscv: sifive: unmatched: add I2C EEPROM
 
 Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>
 ---
- board/sifive/hifive_unmatched_fu740/Makefile       |   1 +
- .../hifive-platform-i2c-eeprom.c                   | 536 +++++++++++++++++++++
- configs/sifive_hifive_unmatched_fu740_defconfig    |   7 +
- include/configs/sifive-hifive-unmatched-fu740.h    |   6 +
+ board/sifive/hifive_unmatched_fu740/Makefile  |   1 +
+ .../hifive-platform-i2c-eeprom.c              | 536 ++++++++++++++++++
+ .../sifive_hifive_unmatched_fu740_defconfig   |   7 +
+ .../configs/sifive-hifive-unmatched-fu740.h   |   6 +
  4 files changed, 550 insertions(+)
  create mode 100644 board/sifive/hifive_unmatched_fu740/hifive-platform-i2c-eeprom.c
 
 diff --git a/board/sifive/hifive_unmatched_fu740/Makefile b/board/sifive/hifive_unmatched_fu740/Makefile
-index aeab025..cd173da 100644
+index aeab025f32..cd173da495 100644
 --- a/board/sifive/hifive_unmatched_fu740/Makefile
 +++ b/board/sifive/hifive_unmatched_fu740/Makefile
 @@ -3,6 +3,7 @@
@@ -31,7 +31,7 @@ index aeab025..cd173da 100644
  obj-y += spl.o
 diff --git a/board/sifive/hifive_unmatched_fu740/hifive-platform-i2c-eeprom.c b/board/sifive/hifive_unmatched_fu740/hifive-platform-i2c-eeprom.c
 new file mode 100644
-index 0000000..be7a4fe
+index 0000000000..be7a4fef03
 --- /dev/null
 +++ b/board/sifive/hifive_unmatched_fu740/hifive-platform-i2c-eeprom.c
 @@ -0,0 +1,536 @@
@@ -572,7 +572,7 @@ index 0000000..be7a4fe
 +	return 0;
 +}
 diff --git a/configs/sifive_hifive_unmatched_fu740_defconfig b/configs/sifive_hifive_unmatched_fu740_defconfig
-index 5a1b8b0..a853177 100644
+index 5a1b8b0ff1..a8531774bb 100644
 --- a/configs/sifive_hifive_unmatched_fu740_defconfig
 +++ b/configs/sifive_hifive_unmatched_fu740_defconfig
 @@ -15,6 +15,7 @@ CONFIG_FIT=y
@@ -594,7 +594,7 @@ index 5a1b8b0..a853177 100644
 +CONFIG_SYS_I2C_OCORES=y
 +CONFIG_CLK_SIFIVE_PRCI=y
 diff --git a/include/configs/sifive-hifive-unmatched-fu740.h b/include/configs/sifive-hifive-unmatched-fu740.h
-index f915000..deb3414 100644
+index f915000054..deb34142fc 100644
 --- a/include/configs/sifive-hifive-unmatched-fu740.h
 +++ b/include/configs/sifive-hifive-unmatched-fu740.h
 @@ -43,6 +43,12 @@
@@ -611,5 +611,5 @@ index f915000..deb3414 100644
  
  #ifndef CONFIG_SPL_BUILD
 -- 
-2.7.4
+2.30.2
 

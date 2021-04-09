@@ -1,7 +1,7 @@
-From 43ddc5a21593c4b6a51cd0a47ce1193cf7a1b590 Mon Sep 17 00:00:00 2001
+From 9d741aa383701c35ad592771f3b043d9811475ed Mon Sep 17 00:00:00 2001
 From: Pragnesh Patel <pragnesh.patel@sifive.com>
 Date: Tue, 10 Nov 2020 18:53:06 +0530
-Subject: [PATCH 16/41] sifive: dts: fu740: Add DDR controller and phy register
+Subject: [PATCH 16/52] sifive: dts: fu740: Add DDR controller and phy register
  settings
 
 Add DDR controller and phy register settings for
@@ -9,14 +9,14 @@ SiFive hifive-unmatched board
 
 Signed-off-by: Pragnesh Patel <pragnesh.patel@sifive.com>
 ---
- arch/riscv/dts/fu740-hifive-unmatched-a00-ddr.dtsi | 1489 ++++++++++++++++++++
- arch/riscv/dts/hifive-unmatched-a00-u-boot.dtsi    |    1 +
+ .../dts/fu740-hifive-unmatched-a00-ddr.dtsi   | 1489 +++++++++++++++++
+ .../dts/hifive-unmatched-a00-u-boot.dtsi      |    1 +
  2 files changed, 1490 insertions(+)
  create mode 100644 arch/riscv/dts/fu740-hifive-unmatched-a00-ddr.dtsi
 
 diff --git a/arch/riscv/dts/fu740-hifive-unmatched-a00-ddr.dtsi b/arch/riscv/dts/fu740-hifive-unmatched-a00-ddr.dtsi
 new file mode 100644
-index 0000000..0c4dedd
+index 0000000000..0c4dedd166
 --- /dev/null
 +++ b/arch/riscv/dts/fu740-hifive-unmatched-a00-ddr.dtsi
 @@ -0,0 +1,1489 @@
@@ -1510,7 +1510,7 @@ index 0000000..0c4dedd
 +	>;
 +};
 diff --git a/arch/riscv/dts/hifive-unmatched-a00-u-boot.dtsi b/arch/riscv/dts/hifive-unmatched-a00-u-boot.dtsi
-index 7171e25..ee0e010 100644
+index 7171e25061..ee0e01008d 100644
 --- a/arch/riscv/dts/hifive-unmatched-a00-u-boot.dtsi
 +++ b/arch/riscv/dts/hifive-unmatched-a00-u-boot.dtsi
 @@ -4,6 +4,7 @@
@@ -1522,5 +1522,5 @@ index 7171e25..ee0e010 100644
  / {
  	aliases {
 -- 
-2.7.4
+2.30.2
 

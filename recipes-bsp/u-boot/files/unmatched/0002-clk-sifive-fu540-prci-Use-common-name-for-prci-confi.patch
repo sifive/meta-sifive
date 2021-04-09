@@ -1,7 +1,7 @@
-From 0607085796bda51e0bf4fbeb8b1ff1c40a6e4f2a Mon Sep 17 00:00:00 2001
+From b90e99594741462f3219c5920bb7478116def011 Mon Sep 17 00:00:00 2001
 From: Pragnesh Patel <pragnesh.patel@sifive.com>
 Date: Wed, 26 Aug 2020 16:54:10 +0530
-Subject: [PATCH 02/41] clk: sifive: fu540-prci: Use common name for prci
+Subject: [PATCH 02/52] clk: sifive: fu540-prci: Use common name for prci
  configuration
 
 Use generic name CLK_SIFIVE_PRCI instead of CLK_SIFIVE_FU540_PRCI. This
@@ -16,7 +16,7 @@ Signed-off-by: Pragnesh Patel <pragnesh.patel@sifive.com>
  4 files changed, 6 insertions(+), 6 deletions(-)
 
 diff --git a/arch/riscv/cpu/fu540/Kconfig b/arch/riscv/cpu/fu540/Kconfig
-index 61bd5c4..ecdc7f4 100644
+index 61bd5c426e..ecdc7f4dbd 100644
 --- a/arch/riscv/cpu/fu540/Kconfig
 +++ b/arch/riscv/cpu/fu540/Kconfig
 @@ -18,7 +18,7 @@ config SIFIVE_FU540
@@ -29,7 +29,7 @@ index 61bd5c4..ecdc7f4 100644
  	imply MACB
  	imply MII
 diff --git a/drivers/clk/sifive/Kconfig b/drivers/clk/sifive/Kconfig
-index c4d0a1f..2836904 100644
+index c4d0a1f9b1..283690434b 100644
 --- a/drivers/clk/sifive/Kconfig
 +++ b/drivers/clk/sifive/Kconfig
 @@ -6,11 +6,11 @@ config CLK_SIFIVE
@@ -48,7 +48,7 @@ index c4d0a1f..2836904 100644
 +	  FU540 SoCs. If this kernel is meant to run on a SiFive FU540 SoC,
  	  enable this driver.
 diff --git a/drivers/clk/sifive/Makefile b/drivers/clk/sifive/Makefile
-index ea03494..c4cee5b 100644
+index ea03494b6d..c4cee5b6ca 100644
 --- a/drivers/clk/sifive/Makefile
 +++ b/drivers/clk/sifive/Makefile
 @@ -2,4 +2,4 @@
@@ -58,7 +58,7 @@ index ea03494..c4cee5b 100644
 -obj-$(CONFIG_CLK_SIFIVE_FU540_PRCI)		+= fu540-prci.o
 +obj-$(CONFIG_CLK_SIFIVE_PRCI) += fu540-prci.o
 diff --git a/drivers/reset/Kconfig b/drivers/reset/Kconfig
-index 33c2736..8b40e9e 100644
+index 33c2736554..8b40e9e33b 100644
 --- a/drivers/reset/Kconfig
 +++ b/drivers/reset/Kconfig
 @@ -157,7 +157,7 @@ config RESET_IPQ419
@@ -71,5 +71,5 @@ index 33c2736..8b40e9e 100644
  	help
  	  PRCI module within SiFive SoC's provides mechanism to reset
 -- 
-2.7.4
+2.30.2
 

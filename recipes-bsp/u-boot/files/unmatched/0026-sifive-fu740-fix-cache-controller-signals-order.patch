@@ -1,7 +1,7 @@
-From 1b4e3ab010b04dfe2142e03854b92dc55a2b5a09 Mon Sep 17 00:00:00 2001
+From 252f16d89ba73449cb0ccf2e637886f0b570d2fa Mon Sep 17 00:00:00 2001
 From: David Abdurachmanov <david.abdurachmanov@sifive.com>
 Date: Tue, 12 Jan 2021 20:36:24 +0200
-Subject: [PATCH 26/41] sifive: fu740: fix cache controller signals order
+Subject: [PATCH 26/52] sifive: fu740: fix cache controller signals order
 
 Cache controller in FU740 compared to FU540 has 4 signals instead of 3.
 DirFail is the last one. Signals are wired differently in FU740 thus
@@ -13,7 +13,7 @@ Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/riscv/dts/fu740-c000.dtsi b/arch/riscv/dts/fu740-c000.dtsi
-index ee0ab3f..72564c2 100644
+index ee0ab3f32c..72564c22e5 100644
 --- a/arch/riscv/dts/fu740-c000.dtsi
 +++ b/arch/riscv/dts/fu740-c000.dtsi
 @@ -271,7 +271,7 @@
@@ -26,5 +26,5 @@ index ee0ab3f..72564c2 100644
  		};
  		gpio: gpio@10060000 {
 -- 
-2.7.4
+2.30.2
 

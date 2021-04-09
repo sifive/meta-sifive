@@ -1,7 +1,7 @@
-From 70a5758c9428b2062408feee99931d40c334e351 Mon Sep 17 00:00:00 2001
+From 7937e90d5d3438266893d43140b9edda93e77ea5 Mon Sep 17 00:00:00 2001
 From: Tom Rini <trini@konsulko.com>
 Date: Tue, 26 Jan 2021 11:44:37 -0500
-Subject: [PATCH 38/41] cmd: pwm: Rework argc sanity checking
+Subject: [PATCH 38/52] cmd: pwm: Rework argc sanity checking
 
 Currently, we check argc in a number of places to make sure that we have
 all of the required arguments for each of the pwm sub-commands.
@@ -22,7 +22,7 @@ Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>
  1 file changed, 19 insertions(+), 22 deletions(-)
 
 diff --git a/cmd/pwm.c b/cmd/pwm.c
-index 5849fc5..e1f97c7 100644
+index 5849fc57b6..e1f97c759d 100644
 --- a/cmd/pwm.c
 +++ b/cmd/pwm.c
 @@ -34,11 +34,9 @@ static int do_pwm(struct cmd_tbl *cmdtp, int flag, int argc,
@@ -112,5 +112,5 @@ index 5849fc5..e1f97c7 100644
  
  	if (ret) {
 -- 
-2.7.4
+2.30.2
 

@@ -1,20 +1,20 @@
-From f79b7968f72385487b0246e3cdaa269cf830985d Mon Sep 17 00:00:00 2001
+From 924b2c1e29af809a6070f95308de8ccbaeb0c17e Mon Sep 17 00:00:00 2001
 From: Pragnesh Patel <pragnesh.patel@sifive.com>
 Date: Tue, 24 Nov 2020 20:02:50 +0530
-Subject: [PATCH 03/41] clk: sifive: fu740: Sync-up DT bindings header with
+Subject: [PATCH 03/52] clk: sifive: fu740: Sync-up DT bindings header with
  upstream Linux
 
 Sync the SiFive FU740-C000 SoC DT bindings header from Linux
 
 Signed-off-by: Pragnesh Patel <pragnesh.patel@sifive.com>
 ---
- include/dt-bindings/clock/sifive-fu740-prci.h | 24 ++++++++++++++++++++++++
+ include/dt-bindings/clock/sifive-fu740-prci.h | 24 +++++++++++++++++++
  1 file changed, 24 insertions(+)
  create mode 100644 include/dt-bindings/clock/sifive-fu740-prci.h
 
 diff --git a/include/dt-bindings/clock/sifive-fu740-prci.h b/include/dt-bindings/clock/sifive-fu740-prci.h
 new file mode 100644
-index 0000000..6ee4c6d
+index 0000000000..6ee4c6db85
 --- /dev/null
 +++ b/include/dt-bindings/clock/sifive-fu740-prci.h
 @@ -0,0 +1,24 @@
@@ -43,5 +43,5 @@ index 0000000..6ee4c6d
 +
 +#endif
 -- 
-2.7.4
+2.30.2
 

@@ -1,7 +1,7 @@
-From 84fd726a035283257844e3ec39e6d95309a00c50 Mon Sep 17 00:00:00 2001
+From f65e85b5b658ef059be5761360e4b36f5a8e2af4 Mon Sep 17 00:00:00 2001
 From: Pragnesh Patel <pragnesh.patel@sifive.com>
 Date: Tue, 24 Nov 2020 18:36:54 +0530
-Subject: [PATCH 05/41] clk: sifive: select PLL clock as input source after
+Subject: [PATCH 05/52] clk: sifive: select PLL clock as input source after
  enabling PLL clock output
 
 PLL clock output needs to be enabled first and then any selection
@@ -13,7 +13,7 @@ Signed-off-by: Pragnesh Patel <pragnesh.patel@sifive.com>
  1 file changed, 6 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/clk/sifive/sifive-prci.c b/drivers/clk/sifive/sifive-prci.c
-index 514bd36..2fc426e 100644
+index 514bd3621f..2fc426eed7 100644
 --- a/drivers/clk/sifive/sifive-prci.c
 +++ b/drivers/clk/sifive/sifive-prci.c
 @@ -232,9 +232,6 @@ int sifive_prci_wrpll_set_rate(struct __prci_clock *pc,
@@ -45,5 +45,5 @@ index 514bd36..2fc426e 100644
  		r &= ~PRCI_COREPLLCFG1_CKE_MASK;
  
 -- 
-2.7.4
+2.30.2
 

@@ -1,7 +1,7 @@
-From c9f9042a2ffff252f5a80836b8f2f3acd6d0ffa5 Mon Sep 17 00:00:00 2001
+From ba5367c44e40f57ae540a07ff793dc8a083310df Mon Sep 17 00:00:00 2001
 From: Pragnesh Patel <pragnesh.patel@sifive.com>
 Date: Mon, 17 Feb 2020 16:45:07 +0530
-Subject: [PATCH 07/41] riscv: dts: Add SiFive FU740-C000 SoC dts from Linux
+Subject: [PATCH 07/52] riscv: dts: Add SiFive FU740-C000 SoC dts from Linux
 
 Sync the SiFive FU740-C000 SoC dts from Linux
 
@@ -13,13 +13,13 @@ reusing device tree files from Linux.
 
 Signed-off-by: Pragnesh Patel <pragnesh.patel@sifive.com>
 ---
- arch/riscv/dts/fu740-c000.dtsi | 292 +++++++++++++++++++++++++++++++++++++++++
+ arch/riscv/dts/fu740-c000.dtsi | 292 +++++++++++++++++++++++++++++++++
  1 file changed, 292 insertions(+)
  create mode 100644 arch/riscv/dts/fu740-c000.dtsi
 
 diff --git a/arch/riscv/dts/fu740-c000.dtsi b/arch/riscv/dts/fu740-c000.dtsi
 new file mode 100644
-index 0000000..ee0ab3f
+index 0000000000..ee0ab3f32c
 --- /dev/null
 +++ b/arch/riscv/dts/fu740-c000.dtsi
 @@ -0,0 +1,292 @@
@@ -316,5 +316,5 @@ index 0000000..ee0ab3f
 +	};
 +};
 -- 
-2.7.4
+2.30.2
 
