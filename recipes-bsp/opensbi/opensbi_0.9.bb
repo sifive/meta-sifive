@@ -11,7 +11,9 @@ SRC_URI = "git://github.com/riscv/opensbi.git \
           "
 
 SRC_URI_append_unmatched = " \
-           file://0001-generic-fu740-add-workaround-for-CIP-1200-errata.patch \
+           file://0001-lib-utils-add-GPIO-and-poweroff-parsing.patch \
+           file://0002-lib-utils-add-gpio-generic-interface.patch \
+           file://0003-lib-utils-reset-add-powor-off-support.patch \
           "
 
 S = "${WORKDIR}/git"
