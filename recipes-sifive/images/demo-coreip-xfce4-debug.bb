@@ -215,6 +215,8 @@ IMAGE_INSTALL = "\
     xwininfo \
     xvinfo \
     x11perf \
+    xdotool \
+    tree \
     ${CORE_IMAGE_EXTRA_INSTALL} \
     "
 

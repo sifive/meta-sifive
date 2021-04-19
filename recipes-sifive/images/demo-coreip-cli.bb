@@ -170,6 +170,7 @@ IMAGE_INSTALL = "\
     libubootenv-bin \
     u-boot-tools-mkimage \
     u-boot-tools-mkenvimage \
+    tree \
     ${CORE_IMAGE_EXTRA_INSTALL} \
     "
 
