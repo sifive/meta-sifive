@@ -129,6 +129,9 @@ CLANGSDK = "1"
 
 FORTRAN_forcevariable = ",fortran"
 
+# Disable broken bbappend in other layers
+BBMASK += "busybox_1.32.%.bbappend"
+
 DISTRO_NAME = "FreedomUSDK"
 DISTRO_VERSION = "2021.04.00"
 DISTRO_CODENAME = "2021April"
