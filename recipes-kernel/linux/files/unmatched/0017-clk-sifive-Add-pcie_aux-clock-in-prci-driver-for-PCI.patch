@@ -1,7 +1,7 @@
-From 469209c204b5beda9b608121572a1a891a030550 Mon Sep 17 00:00:00 2001
+From 1b27caf83ab572e422069caa8217391f7fbcb7e3 Mon Sep 17 00:00:00 2001
 From: Greentime Hu <greentime.hu@sifive.com>
-Date: Wed, 24 Feb 2021 10:45:13 +0800
-Subject: [PATCH 16/21] clk: sifive: Add pcie_aux clock in prci driver for PCIe
+Date: Tue, 6 Apr 2021 17:26:29 +0800
+Subject: [PATCH 17/28] clk: sifive: Add pcie_aux clock in prci driver for PCIe
  driver
 
 We add pcie_aux clock in this patch so that pcie driver can use
@@ -9,6 +9,7 @@ clk_prepare_enable() and clk_disable_unprepare() to enable and disable
 pcie_aux clock.
 
 Signed-off-by: Greentime Hu <greentime.hu@sifive.com>
+Acked-by: Stephen Boyd <sboyd@kernel.org>
 ---
  drivers/clk/sifive/fu740-prci.c               | 11 +++++++
  drivers/clk/sifive/fu740-prci.h               |  2 +-
@@ -58,7 +59,7 @@ index 13ef971f7..511a0bf 100644
  extern struct __prci_clock __prci_init_clocks_fu740[NUM_CLOCK_FU740];
  
 diff --git a/drivers/clk/sifive/sifive-prci.c b/drivers/clk/sifive/sifive-prci.c
-index c78b042..baf7313 100644
+index c78b042..8fdba5d 100644
 --- a/drivers/clk/sifive/sifive-prci.c
 +++ b/drivers/clk/sifive/sifive-prci.c
 @@ -448,6 +448,47 @@ void sifive_prci_hfpclkpllsel_use_hfpclkpll(struct __prci_data *pd)
@@ -84,7 +85,7 @@ index c78b042..baf7313 100644
 +{
 +	struct __prci_clock *pc = clk_hw_to_prci_clock(hw);
 +	struct __prci_data *pd = pc->pd;
-+	u32 r;
++	u32 r __maybe_unused;
 +
 +	if (sifive_prci_pcie_aux_clock_is_enabled(hw))
 +		return 0;
@@ -99,7 +100,7 @@ index c78b042..baf7313 100644
 +{
 +	struct __prci_clock *pc = clk_hw_to_prci_clock(hw);
 +	struct __prci_data *pd = pc->pd;
-+	u32 r;
++	u32 r __maybe_unused;
 +
 +	__prci_writel(0, PRCI_PCIE_AUX_OFFSET, pd);
 +	r = __prci_readl(pd, PRCI_PCIE_AUX_OFFSET);	/* barrier */

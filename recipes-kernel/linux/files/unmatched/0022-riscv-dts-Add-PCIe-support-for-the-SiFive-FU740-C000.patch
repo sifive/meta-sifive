@@ -1,16 +1,17 @@
-From 7bb9df2b80184de91a10e62c0bbaa370306680a3 Mon Sep 17 00:00:00 2001
+From 54c43398c4bc7cdedbabe3d40105c2e6e9d09c98 Mon Sep 17 00:00:00 2001
 From: Greentime Hu <greentime.hu@sifive.com>
-Date: Wed, 24 Feb 2021 10:45:18 +0800
-Subject: [PATCH 21/21] riscv: dts: Add PCIe support for the SiFive FU740-C000
+Date: Tue, 6 Apr 2021 17:26:34 +0800
+Subject: [PATCH 22/28] riscv: dts: Add PCIe support for the SiFive FU740-C000
  SoC
 
 Signed-off-by: Greentime Hu <greentime.hu@sifive.com>
+Acked-by: Palmer Dabbelt <palmerdabbelt@google.com>
 ---
- arch/riscv/boot/dts/sifive/fu740-c000.dtsi | 34 ++++++++++++++++++++++++++++++
- 1 file changed, 34 insertions(+)
+ arch/riscv/boot/dts/sifive/fu740-c000.dtsi | 33 ++++++++++++++++++++++++++++++
+ 1 file changed, 33 insertions(+)
 
 diff --git a/arch/riscv/boot/dts/sifive/fu740-c000.dtsi b/arch/riscv/boot/dts/sifive/fu740-c000.dtsi
-index cd9cc02..04fe1b5 100644
+index cd9cc02..3095d82 100644
 --- a/arch/riscv/boot/dts/sifive/fu740-c000.dtsi
 +++ b/arch/riscv/boot/dts/sifive/fu740-c000.dtsi
 @@ -159,6 +159,7 @@
@@ -21,29 +22,28 @@ index cd9cc02..04fe1b5 100644
  		};
  		uart0: serial@10010000 {
  			compatible = "sifive,fu740-c000-uart", "sifive,uart0";
-@@ -289,5 +290,38 @@
+@@ -289,5 +290,37 @@
  			clocks = <&prci PRCI_CLK_PCLK>;
  			status = "disabled";
  		};
 +		pcie@e00000000 {
-+			#address-cells = <3>;
-+			#interrupt-cells = <1>;
-+			#num-lanes = <8>;
-+			#size-cells = <2>;
 +			compatible = "sifive,fu740-pcie";
-+			reg = <0xe 0x00000000 0x1 0x0
-+			       0xd 0xf0000000 0x0 0x10000000
-+			       0x0 0x100d0000 0x0 0x1000>;
++			#address-cells = <3>;
++			#size-cells = <2>;
++			#interrupt-cells = <1>;
++			reg = <0xe 0x00000000 0x0 0x80000000>,
++			      <0xd 0xf0000000 0x0 0x10000000>,
++			      <0x0 0x100d0000 0x0 0x1000>;
 +			reg-names = "dbi", "config", "mgmt";
 +			device_type = "pci";
 +			dma-coherent;
 +			bus-range = <0x0 0xff>;
-+			ranges = <0x81000000  0x0 0x60080000  0x0 0x60080000 0x0 0x10000        /* I/O */
-+				  0x82000000  0x0 0x60090000  0x0 0x60090000 0x0 0xff70000      /* mem */
-+				  0x82000000  0x0 0x70000000  0x0 0x70000000 0x0 0x1000000      /* mem */
-+				  0xc3000000 0x20 0x00000000 0x20 0x00000000 0x20 0x00000000>;  /* mem prefetchable */
++			ranges = <0x81000000  0x0 0x60080000  0x0 0x60080000 0x0 0x10000>,      /* I/O */
++				 <0x82000000  0x0 0x60090000  0x0 0x60090000 0x0 0xff70000>,    /* mem */
++				 <0x82000000  0x0 0x70000000  0x0 0x70000000 0x0 0x1000000>,    /* mem */
++				 <0xc3000000 0x20 0x00000000 0x20 0x00000000 0x20 0x00000000>;  /* mem prefetchable */
 +			num-lanes = <0x8>;
-+			interrupts = <56 57 58 59 60 61 62 63 64>;
++			interrupts = <56>, <57>, <58>, <59>, <60>, <61>, <62>, <63>, <64>;
 +			interrupt-names = "msi", "inta", "intb", "intc", "intd";
 +			interrupt-parent = <&plic0>;
 +			interrupt-map-mask = <0x0 0x0 0x0 0x7>;
@@ -54,7 +54,7 @@ index cd9cc02..04fe1b5 100644
 +			clock-names = "pcie_aux";
 +			clocks = <&prci PRCI_CLK_PCIE_AUX>;
 +			pwren-gpios = <&gpio 5 0>;
-+			perstn-gpios = <&gpio 8 0>;
++			reset-gpios = <&gpio 8 0>;
 +			resets = <&prci 4>;
 +			status = "okay";
 +		};

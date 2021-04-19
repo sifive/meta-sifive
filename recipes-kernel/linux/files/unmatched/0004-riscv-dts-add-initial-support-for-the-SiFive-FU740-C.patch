@@ -1,7 +1,7 @@
-From 136077adb6e52568350b1eca2f1c64213ef38c08 Mon Sep 17 00:00:00 2001
+From 621dd9aa125dbd597ac51a0b2a466ef49562d561 Mon Sep 17 00:00:00 2001
 From: Yash Shah <yash.shah@sifive.com>
 Date: Tue, 8 Dec 2020 10:25:39 +0530
-Subject: [PATCH 04/21] riscv: dts: add initial support for the SiFive
+Subject: [PATCH 04/28] riscv: dts: add initial support for the SiFive
  FU740-C000 SoC
 
 Add initial support for the SiFive FU540-C000 SoC. FU740-C000 is built
@@ -18,7 +18,7 @@ Signed-off-by: Yash Shah <yash.shah@sifive.com>
 
 diff --git a/arch/riscv/boot/dts/sifive/fu740-c000.dtsi b/arch/riscv/boot/dts/sifive/fu740-c000.dtsi
 new file mode 100644
-index 0000000..eeb4f8c3
+index 00000000..eeb4f8c3
 --- /dev/null
 +++ b/arch/riscv/boot/dts/sifive/fu740-c000.dtsi
 @@ -0,0 +1,293 @@

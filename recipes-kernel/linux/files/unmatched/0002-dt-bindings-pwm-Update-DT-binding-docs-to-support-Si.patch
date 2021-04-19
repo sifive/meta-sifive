@@ -1,7 +1,7 @@
-From e0bde106ab0dd29a7ef58b67d73075b8826b0978 Mon Sep 17 00:00:00 2001
+From 8d0616baa73e1fceda37e41292e2a4c845d839d1 Mon Sep 17 00:00:00 2001
 From: Yash Shah <yash.shah@sifive.com>
 Date: Tue, 8 Dec 2020 10:25:35 +0530
-Subject: [PATCH 02/21] dt-bindings: pwm: Update DT binding docs to support
+Subject: [PATCH 02/28] dt-bindings: pwm: Update DT binding docs to support
  SiFive FU740 SoC
 
 Add new compatible strings to the DT binding documents to support SiFive

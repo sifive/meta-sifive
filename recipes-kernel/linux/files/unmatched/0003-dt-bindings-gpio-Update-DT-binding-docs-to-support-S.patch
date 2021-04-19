@@ -1,7 +1,7 @@
-From adc9c087acf3768766e1382ab7a1d2f3ad0930c1 Mon Sep 17 00:00:00 2001
+From c2f7c4af3cabbf6436626a4b6989bc974c7c1b8b Mon Sep 17 00:00:00 2001
 From: Yash Shah <yash.shah@sifive.com>
 Date: Tue, 8 Dec 2020 10:25:37 +0530
-Subject: [PATCH 03/21] dt-bindings: gpio: Update DT binding docs to support
+Subject: [PATCH 03/28] dt-bindings: gpio: Update DT binding docs to support
  SiFive FU740 SoC
 
 Add new compatible strings to the DT binding documents to support SiFive

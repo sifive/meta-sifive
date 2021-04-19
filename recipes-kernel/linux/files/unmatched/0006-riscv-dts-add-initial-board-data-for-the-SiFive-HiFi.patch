@@ -1,7 +1,7 @@
-From 674c35ef630366067c55265b8207e97099e3eefb Mon Sep 17 00:00:00 2001
+From 4c3ea0f7a7ff303c83273c66b10fe62eed86a7c8 Mon Sep 17 00:00:00 2001
 From: Yash Shah <yash.shah@sifive.com>
 Date: Tue, 8 Dec 2020 10:25:41 +0530
-Subject: [PATCH 06/21] riscv: dts: add initial board data for the SiFive
+Subject: [PATCH 06/28] riscv: dts: add initial board data for the SiFive
  HiFive Unmatched
 
 Add initial board data for the SiFive HiFive Unmatched A00.
@@ -28,7 +28,7 @@ index 6d6189e..74c47fe 100644
 +			    hifive-unmatched-a00.dtb
 diff --git a/arch/riscv/boot/dts/sifive/hifive-unmatched-a00.dts b/arch/riscv/boot/dts/sifive/hifive-unmatched-a00.dts
 new file mode 100644
-index 0000000..b1c3c59
+index 00000000..b1c3c59
 --- /dev/null
 +++ b/arch/riscv/boot/dts/sifive/hifive-unmatched-a00.dts
 @@ -0,0 +1,253 @@

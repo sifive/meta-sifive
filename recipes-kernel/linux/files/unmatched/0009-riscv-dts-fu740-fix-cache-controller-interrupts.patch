@@ -1,7 +1,7 @@
-From a312bc150ec77d09c2bd1dee90bdc1cc2a3c69dc Mon Sep 17 00:00:00 2001
+From bc7576ad8540ac5fd49c38eae072f561ee6ed8fa Mon Sep 17 00:00:00 2001
 From: David Abdurachmanov <david.abdurachmanov@sifive.com>
 Date: Wed, 3 Feb 2021 07:00:15 -0800
-Subject: [PATCH 09/21] riscv: dts: fu740: fix cache-controller interrupts
+Subject: [PATCH 09/28] riscv: dts: fu740: fix cache-controller interrupts
 
 The order of interrupt numbers is incorrect.
 

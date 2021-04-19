@@ -1,7 +1,7 @@
-From 4729772d4abe2ad5a67bcd5409941da8d9b38ecc Mon Sep 17 00:00:00 2001
+From c6ed58c46436731279045a01c3611251a8ebd76b Mon Sep 17 00:00:00 2001
 From: Yash Shah <yash.shah@sifive.com>
 Date: Thu, 10 Dec 2020 15:58:03 +0530
-Subject: [PATCH 08/21] RISC-V: sifive_l2_cache: Update L2 cache driver to
+Subject: [PATCH 08/28] RISC-V: sifive_l2_cache: Update L2 cache driver to
  support SiFive FU740
 
 SiFive FU740 has 4 ECC interrupt sources as compared to 3 in FU540.
@@ -14,7 +14,7 @@ Signed-off-by: Yash Shah <yash.shah@sifive.com>
  1 file changed, 24 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/soc/sifive/sifive_l2_cache.c b/drivers/soc/sifive/sifive_l2_cache.c
-index 44d7e19..59640a1 100644
+index 44d7e1951..59640a1 100644
 --- a/drivers/soc/sifive/sifive_l2_cache.c
 +++ b/drivers/soc/sifive/sifive_l2_cache.c
 @@ -17,6 +17,10 @@

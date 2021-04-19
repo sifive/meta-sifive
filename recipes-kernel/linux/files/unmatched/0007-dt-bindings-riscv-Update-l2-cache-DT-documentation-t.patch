@@ -1,7 +1,7 @@
-From fc5b05e8e76e87fba66200799d0e3a320099093e Mon Sep 17 00:00:00 2001
+From 4c7a418bc0686a95ddc38157f723b6fb18893146 Mon Sep 17 00:00:00 2001
 From: Yash Shah <yash.shah@sifive.com>
 Date: Thu, 10 Dec 2020 15:58:02 +0530
-Subject: [PATCH 07/21] dt-bindings: riscv: Update l2 cache DT documentation to
+Subject: [PATCH 07/28] dt-bindings: riscv: Update l2 cache DT documentation to
  add support for SiFive FU740
 
 The L2 cache controller in SiFive FU740 has 4 ECC interrupt sources as
