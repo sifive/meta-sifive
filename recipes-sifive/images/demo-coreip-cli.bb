@@ -180,6 +180,7 @@ IMAGE_INSTALL = "\
     xfsprogs-repair \
     btrfs-tools \
     python3-tensorflow-lite \
+    python3-tensorflow-lite-demo-doc \
     ${CORE_IMAGE_EXTRA_INSTALL} \
     "
 
