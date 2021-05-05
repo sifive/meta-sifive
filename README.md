@@ -253,6 +253,15 @@ resize2fs /dev/mmcblk0p4
 sync
 ```
 
+### Support TensorFlow Lite tflite_runtime Python library
+
+You can deploy your TensorFlow lite model by importing the Tensorflow Lite interpreter. There is a sample code `mnist.py` avaliable to demostrate how to deploy model and test MNIST hadwritten digits.
+
+```bash
+cd /usr/share/doc/python3-tensorflow-lite-demo/example
+python3 mnist.py
+```
+
 ## Contributions & Feedback
 
 If you want to file issues, send patches and make feature/enhancement requests use [meta-sifive](https://github.com/sifive/meta-sifive) or [freedom-u-sdk](https://github.com/sifive/freedom-u-sdk) repositories on GitHub.
