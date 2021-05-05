@@ -5,6 +5,7 @@
   <remote name="riscv" fetch="git://github.com/riscv/" />
   <remote name="sifive" fetch="git://github.com/sifive/" />
   <remote name="kraj" fetch="git://github.com/kraj/" />
+  <remote name="NobuoTsukamoto" fetch="git://github.com/NobuoTsukamoto/" />
   <default remote="openembedded" revision="master" />
 
   <project name="meta-sifive" remote="sifive" path="meta-sifive" revision="master" />
@@ -13,5 +14,6 @@
   <project name="bitbake" remote="openembedded" path="openembedded-core/bitbake" revision="e70b925ba98fd4fedf3940d141a4210c953087ca" />
   <project name="meta-openembedded" remote="openembedded" path="meta-openembedded" revision="0c006765426bc41c1344e856528b499637574f97" />
   <project name="meta-clang" remote="kraj" path="meta-clang" revision="e2d2a029ee122b9cf25f8296c6ce610bf6bebbf6" />
+  <project name="meta-tensorflow-lite" remote="NobuoTsukamoto" path="meta-tensorflow-lite" revision="55f25ee78910c1f50fde84f8484763f232b17bf1" />
 </manifest>
 

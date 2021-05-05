@@ -58,6 +58,7 @@ bitbake-layers add-layer ../meta-openembedded/meta-xfce
 bitbake-layers add-layer ../meta-riscv
 bitbake-layers add-layer ../meta-clang
 bitbake-layers add-layer ../meta-sifive
+bitbake-layers add-layer ../meta-tensorflow-lite/
 
 # fix the configuration
 echo "Creating auto.conf"
