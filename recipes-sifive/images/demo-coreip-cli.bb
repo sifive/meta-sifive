@@ -171,6 +171,14 @@ IMAGE_INSTALL = "\
     u-boot-tools-mkimage \
     u-boot-tools-mkenvimage \
     tree \
+    gdbserver \
+    exfat-utils \
+    xfsdump \
+    xfsprogs \
+    xfsprogs-fsck \
+    xfsprogs-mkfs \
+    xfsprogs-repair \
+    btrfs-tools \
     ${CORE_IMAGE_EXTRA_INSTALL} \
     "
 

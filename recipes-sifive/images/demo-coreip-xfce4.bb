@@ -216,6 +216,14 @@ IMAGE_INSTALL = "\
     x11perf \
     xdotool \
     tree \
+    gdbserver \
+    exfat-utils \
+    xfsdump \
+    xfsprogs \
+    xfsprogs-fsck \
+    xfsprogs-mkfs \
+    xfsprogs-repair \
+    btrfs-tools \
     ${CORE_IMAGE_EXTRA_INSTALL} \
     "
 
