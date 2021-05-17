@@ -1,4 +1,4 @@
-do_install_append_freedom-u540() {
+do_install_append_riscv64() {
 	# now copy in parts from the build that we'll need later
 	(
 		cd ${B}
@@ -13,7 +13,7 @@ do_install_append_freedom-u540() {
 		cd ${S}
 
 		if [ "${ARCH}" = "riscv" ]; then
-		    cp -a --parents arch/riscv/kernel/module.lds $kerneldir/build/
+		    cp -a --parents arch/riscv/kernel/module.lds $kerneldir/build/ || :
 		fi
 	)
 
