@@ -1,4 +1,4 @@
-From 55e11765af2bdc8adfac87dab1fb2682f7e6c236 Mon Sep 17 00:00:00 2001
+From 881f1a860f15a2c18162c83fc43d6ed946cab29e Mon Sep 17 00:00:00 2001
 From: Khem Raj <raj.khem@gmail.com>
 Date: Tue, 9 Jun 2020 22:10:28 -0700
 Subject: [PATCH] Define daddr_t if __DADDR_T_TYPE is not defined
@@ -16,10 +16,10 @@ Signed-off-by: Khem Raj <raj.khem@gmail.com>
  1 file changed, 4 insertions(+)
 
 diff --git a/stress-ng.h b/stress-ng.h
-index 1a66293..802dc25 100644
+index 3bb0b78..138cb3e 100644
 --- a/stress-ng.h
 +++ b/stress-ng.h
-@@ -3763,6 +3763,10 @@ struct shim_statx {
+@@ -4329,6 +4329,10 @@ struct shim_statx {
  	uint64_t __spare2[14];
  };
  
