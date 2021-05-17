@@ -51,6 +51,7 @@ echo "Adding layers"
 bitbake-layers add-layer ../meta-openembedded/meta-oe
 bitbake-layers add-layer ../meta-openembedded/meta-python
 bitbake-layers add-layer ../meta-openembedded/meta-multimedia
+bitbake-layers add-layer ../meta-openembedded/meta-filesystems
 bitbake-layers add-layer ../meta-openembedded/meta-networking
 bitbake-layers add-layer ../meta-openembedded/meta-gnome
 bitbake-layers add-layer ../meta-openembedded/meta-xfce
@@ -129,12 +130,9 @@ CLANGSDK = "1"
 
 FORTRAN_forcevariable = ",fortran"
 
-# Disable broken bbappend in other layers
-BBMASK += "busybox_1.32.%.bbappend"
-
 DISTRO_NAME = "FreedomUSDK"
-DISTRO_VERSION = "2021.04.00"
-DISTRO_CODENAME = "2021April"
+DISTRO_VERSION = "2021.05.00"
+DISTRO_CODENAME = "2021May"
 EOF
 fi
 
