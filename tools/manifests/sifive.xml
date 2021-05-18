@@ -9,11 +9,11 @@
   <default remote="openembedded" revision="master" />
 
   <project name="meta-sifive" remote="sifive" path="meta-sifive" revision="master" />
-  <project name="meta-riscv" remote="riscv" path="meta-riscv" revision="69f38710a01fc5c8de35d69601a5d5bb1044886b" />
-  <project name="openembedded-core" remote="openembedded" path="openembedded-core" revision="14241ed09f9ed317045cf75a6d08416d3579bb8d" />
-  <project name="bitbake" remote="openembedded" path="openembedded-core/bitbake" revision="e70b925ba98fd4fedf3940d141a4210c953087ca" />
-  <project name="meta-openembedded" remote="openembedded" path="meta-openembedded" revision="0c006765426bc41c1344e856528b499637574f97" />
-  <project name="meta-clang" remote="kraj" path="meta-clang" revision="e2d2a029ee122b9cf25f8296c6ce610bf6bebbf6" />
-  <project name="meta-tensorflow-lite" remote="NobuoTsukamoto" path="meta-tensorflow-lite" revision="55f25ee78910c1f50fde84f8484763f232b17bf1" />
+  <project name="meta-riscv" remote="riscv" path="meta-riscv" revision="c168aab9f1f0bd42bab446274d5274356b9ff83c" />
+  <project name="openembedded-core" remote="openembedded" path="openembedded-core" revision="87f0b45a307bb47df5a68d6649fe5625f2dd0775" />
+  <project name="bitbake" remote="openembedded" path="openembedded-core/bitbake" revision="9dc77266085c605b108641a9d76ac4dbdc064c34" />
+  <project name="meta-openembedded" remote="openembedded" path="meta-openembedded" revision="f2dd5227245bd1c9f6e40b41b2df298ff27d80b3" />
+  <project name="meta-clang" remote="kraj" path="meta-clang" revision="d797409435d3b0e9f2859992439989ff1d81e66d" />
+  <project name="meta-tensorflow-lite" remote="NobuoTsukamoto" path="meta-tensorflow-lite" revision="8f4423f5e2c34192970fcfd01548343859988611" />
 </manifest>
 
