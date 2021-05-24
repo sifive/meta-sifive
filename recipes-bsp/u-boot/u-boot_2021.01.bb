@@ -63,6 +63,7 @@ SRC_URI_append_unmatched = " \
     file://0050-riscv-sifive-fu740-Support-i2c-in-spl.patch \
     file://0051-board-sifive-Add-an-interface-to-get-PCB-revision.patch \
     file://0052-riscv-sifive-unmatched-set-default-clock-to-1.2GHz.patch \
+    file://0053-board-sifive-spl-Set-remote-thermal-of-TMP451-to-85-.patch \
 "
 
 do_compile_prepend_riscv64() {
