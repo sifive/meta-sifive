@@ -1,0 +1,106 @@
+From 8f6188f728f390d1704b24ef0dc8288a6da2265a Mon Sep 17 00:00:00 2001
+From: Frank Chang <frank.chang@sifive.com>
+Date: Mon, 19 Apr 2021 16:44:08 +0800
+Subject: [PATCH 101/101] target/riscv: rvb: add b-ext version cpu option
+
+Default b-ext version is v0.93.
+
+Signed-off-by: Frank Chang <frank.chang@sifive.com>
+---
+ target/riscv/cpu.c | 23 +++++++++++++++++++++++
+ target/riscv/cpu.h |  3 +++
+ 2 files changed, 26 insertions(+)
+
+diff --git a/target/riscv/cpu.c b/target/riscv/cpu.c
+index b0519793ed4..b6713855d68 100644
+--- a/target/riscv/cpu.c
++++ b/target/riscv/cpu.c
+@@ -127,6 +127,11 @@ static void set_priv_version(CPURISCVState *env, int priv_ver)
+     env->priv_ver = priv_ver;
+ }
+ 
++static void set_bext_version(CPURISCVState *env, int bext_ver)
++{
++    env->bext_ver = bext_ver;
++}
++
+ static void set_vext_version(CPURISCVState *env, int vext_ver)
+ {
+     env->vext_ver = vext_ver;
+@@ -380,6 +385,7 @@ static void riscv_cpu_realize(DeviceState *dev, Error **errp)
+     CPURISCVState *env = &cpu->env;
+     RISCVCPUClass *mcc = RISCV_CPU_GET_CLASS(dev);
+     int priv_version = PRIV_VERSION_1_11_0;
++    int bext_version = BEXT_VERSION_0_93_0;
+     int vext_version = VEXT_VERSION_1_00_0;
+     target_ulong target_misa = env->misa;
+     Error *local_err = NULL;
+@@ -404,6 +410,7 @@ static void riscv_cpu_realize(DeviceState *dev, Error **errp)
+     }
+ 
+     set_priv_version(env, priv_version);
++    set_bext_version(env, bext_version);
+     set_vext_version(env, vext_version);
+ 
+     if (cpu->cfg.mmu) {
+@@ -475,6 +482,21 @@ static void riscv_cpu_realize(DeviceState *dev, Error **errp)
+         }
+         if (cpu->cfg.ext_b) {
+             target_misa |= RVB;
++
++            if (cpu->cfg.bext_spec) {
++                if (!g_strcmp0(cpu->cfg.bext_spec, "v0.93")) {
++                    bext_version = BEXT_VERSION_0_93_0;
++                } else {
++                    error_setg(errp,
++                           "Unsupported bitmanip spec version '%s'",
++                           cpu->cfg.bext_spec);
++                    return;
++                }
++            } else {
++                qemu_log("bitmanip version is not specified, "
++                         "use the default value v0.93\n");
++            }
++            set_bext_version(env, bext_version);
+         }
+         if (cpu->cfg.ext_v) {
+             target_misa |= RVV;
+@@ -554,6 +576,7 @@ static Property riscv_cpu_properties[] = {
+     DEFINE_PROP_BOOL("Zifencei", RISCVCPU, cfg.ext_ifencei, true),
+     DEFINE_PROP_BOOL("Zicsr", RISCVCPU, cfg.ext_icsr, true),
+     DEFINE_PROP_STRING("priv_spec", RISCVCPU, cfg.priv_spec),
++    DEFINE_PROP_STRING("bext_spec", RISCVCPU, cfg.bext_spec),
+     DEFINE_PROP_STRING("vext_spec", RISCVCPU, cfg.vext_spec),
+     DEFINE_PROP_UINT16("vlen", RISCVCPU, cfg.vlen, 128),
+     DEFINE_PROP_UINT16("elen", RISCVCPU, cfg.elen, 64),
+diff --git a/target/riscv/cpu.h b/target/riscv/cpu.h
+index 457d95eff10..a6f68473fb3 100644
+--- a/target/riscv/cpu.h
++++ b/target/riscv/cpu.h
+@@ -87,6 +87,7 @@ enum {
+ #define PRIV_VERSION_1_10_0 0x00011000
+ #define PRIV_VERSION_1_11_0 0x00011100
+ 
++#define BEXT_VERSION_0_93_0 0x00009300
+ #define VEXT_VERSION_1_00_0 0x00010000
+ 
+ enum {
+@@ -136,6 +137,7 @@ struct CPURISCVState {
+     target_ulong guest_phys_fault_addr;
+ 
+     target_ulong priv_ver;
++    target_ulong bext_ver;
+     target_ulong vext_ver;
+     target_ulong misa;
+     target_ulong misa_mask;
+@@ -304,6 +306,7 @@ struct RISCVCPU {
+ 
+         char *priv_spec;
+         char *user_spec;
++        char *bext_spec;
+         char *vext_spec;
+         uint16_t vlen;
+         uint16_t elen;
+-- 
+2.17.1
+

@@ -1,0 +1,42 @@
+From 1f03071ba16d0913ed1a054f62182f08440267af Mon Sep 17 00:00:00 2001
+From: LIU Zhiwei <zhiwei_liu@c-sky.com>
+Date: Thu, 30 Apr 2020 16:36:09 +0800
+Subject: [PATCH 012/101] target/riscv: rvv-1.0: add sstatus VS field
+
+Signed-off-by: LIU Zhiwei <zhiwei_liu@c-sky.com>
+Signed-off-by: Frank Chang <frank.chang@sifive.com>
+Reviewed-by: Richard Henderson <richard.henderson@linaro.org>
+Reviewed-by: Alistair Francis <alistair.francis@wdc.com>
+---
+ target/riscv/cpu_bits.h | 1 +
+ target/riscv/csr.c      | 2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/target/riscv/cpu_bits.h b/target/riscv/cpu_bits.h
+index f88aae628f7..2073abfabf3 100644
+--- a/target/riscv/cpu_bits.h
++++ b/target/riscv/cpu_bits.h
+@@ -415,6 +415,7 @@
+ #define SSTATUS_UPIE        0x00000010
+ #define SSTATUS_SPIE        0x00000020
+ #define SSTATUS_SPP         0x00000100
++#define SSTATUS_VS          0x00000600
+ #define SSTATUS_FS          0x00006000
+ #define SSTATUS_XS          0x00018000
+ #define SSTATUS_PUM         0x00040000 /* until: priv-1.9.1 */
+diff --git a/target/riscv/csr.c b/target/riscv/csr.c
+index f99fc60bd39..2131c12f7f8 100644
+--- a/target/riscv/csr.c
++++ b/target/riscv/csr.c
+@@ -440,7 +440,7 @@ static const target_ulong delegable_excps =
+     (1ULL << (RISCV_EXCP_STORE_GUEST_AMO_ACCESS_FAULT));
+ static const target_ulong sstatus_v1_10_mask = SSTATUS_SIE | SSTATUS_SPIE |
+     SSTATUS_UIE | SSTATUS_UPIE | SSTATUS_SPP | SSTATUS_FS | SSTATUS_XS |
+-    SSTATUS_SUM | SSTATUS_MXR | SSTATUS_SD;
++    SSTATUS_SUM | SSTATUS_MXR | SSTATUS_SD | SSTATUS_VS;
+ static const target_ulong sip_writable_mask = SIP_SSIP | MIP_USIP | MIP_UEIP;
+ static const target_ulong hip_writable_mask = MIP_VSSIP;
+ static const target_ulong hvip_writable_mask = MIP_VSSIP | MIP_VSTIP | MIP_VSEIP;
+-- 
+2.17.1
+

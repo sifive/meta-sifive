@@ -1,0 +1,38 @@
+From e14c75b57170fb7f4bfae09a3bd291bc024c3d3c Mon Sep 17 00:00:00 2001
+From: Chih-Min Chao <chihmin.chao@sifive.com>
+Date: Wed, 1 Jul 2020 21:05:41 -0700
+Subject: [PATCH 003/101] target/riscv: support 'x-Zfh' in cpu option
+
+Signed-off-by: Chih-Min Chao <chihmin.chao@sifive.com>
+---
+ target/riscv/cpu.c | 1 +
+ target/riscv/cpu.h | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/target/riscv/cpu.c b/target/riscv/cpu.c
+index 7d6ed80f6b6..636d006f809 100644
+--- a/target/riscv/cpu.c
++++ b/target/riscv/cpu.c
+@@ -545,6 +545,7 @@ static Property riscv_cpu_properties[] = {
+     /* This is experimental so mark with 'x-' */
+     DEFINE_PROP_BOOL("x-h", RISCVCPU, cfg.ext_h, false),
+     DEFINE_PROP_BOOL("x-v", RISCVCPU, cfg.ext_v, false),
++    DEFINE_PROP_BOOL("x-Zfh", RISCVCPU, cfg.ext_zfh, false),
+     DEFINE_PROP_BOOL("Counters", RISCVCPU, cfg.ext_counters, true),
+     DEFINE_PROP_BOOL("Zifencei", RISCVCPU, cfg.ext_ifencei, true),
+     DEFINE_PROP_BOOL("Zicsr", RISCVCPU, cfg.ext_icsr, true),
+diff --git a/target/riscv/cpu.h b/target/riscv/cpu.h
+index 0a33d387ba8..6362394204f 100644
+--- a/target/riscv/cpu.h
++++ b/target/riscv/cpu.h
+@@ -295,6 +295,7 @@ struct RISCVCPU {
+         bool ext_counters;
+         bool ext_ifencei;
+         bool ext_icsr;
++        bool ext_zfh;
+ 
+         char *priv_spec;
+         char *user_spec;
+-- 
+2.17.1
+

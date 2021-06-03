@@ -1,0 +1,69 @@
+From c6c4d8fca21ec2c152e293c01b5d54cdf4c65f02 Mon Sep 17 00:00:00 2001
+From: Frank Chang <frank.chang@sifive.com>
+Date: Thu, 2 Jul 2020 16:16:35 +0800
+Subject: [PATCH 065/101] target/riscv: rvv-1.0: remove integer extract
+ instruction
+
+Signed-off-by: Frank Chang <frank.chang@sifive.com>
+Reviewed-by: Richard Henderson <richard.henderson@linaro.org>
+---
+ target/riscv/insn32.decode              |  1 -
+ target/riscv/insn_trans/trans_rvv.c.inc | 23 -----------------------
+ 2 files changed, 24 deletions(-)
+
+diff --git a/target/riscv/insn32.decode b/target/riscv/insn32.decode
+index d6b9adf9aa1..8794397c748 100644
+--- a/target/riscv/insn32.decode
++++ b/target/riscv/insn32.decode
+@@ -607,7 +607,6 @@ viota_m         010100 . ..... 10000 010 ..... 1010111 @r2_vm
+ vid_v           010100 . 00000 10001 010 ..... 1010111 @r1_vm
+ vmv_x_s         010000 1 ..... 00000 010 ..... 1010111 @r2rd
+ vmv_s_x         010000 1 00000 ..... 110 ..... 1010111 @r2
+-vext_x_v        001100 1 ..... ..... 010 ..... 1010111 @r
+ vfmv_f_s        010000 1 ..... 00000 001 ..... 1010111 @r2rd
+ vfmv_s_f        010000 1 00000 ..... 101 ..... 1010111 @r2
+ vslideup_vx     001110 . ..... ..... 100 ..... 1010111 @r_vm
+diff --git a/target/riscv/insn_trans/trans_rvv.c.inc b/target/riscv/insn_trans/trans_rvv.c.inc
+index 215dd55bc90..8cc79f12289 100644
+--- a/target/riscv/insn_trans/trans_rvv.c.inc
++++ b/target/riscv/insn_trans/trans_rvv.c.inc
+@@ -3071,8 +3071,6 @@ static bool trans_vid_v(DisasContext *s, arg_vid_v *a)
+  *** Vector Permutation Instructions
+  */
+ 
+-/* Integer Extract Instruction */
+-
+ static void load_element(TCGv_i64 dest, TCGv_ptr base,
+                          int ofs, int sew, bool sign)
+ {
+@@ -3174,27 +3172,6 @@ static void vec_element_loadi(DisasContext *s, TCGv_i64 dest,
+     load_element(dest, cpu_env, endian_ofs(s, vreg, idx), s->sew, sign);
+ }
+ 
+-static bool trans_vext_x_v(DisasContext *s, arg_r *a)
+-{
+-    TCGv_i64 tmp = tcg_temp_new_i64();
+-    TCGv dest = tcg_temp_new();
+-
+-    if (a->rs1 == 0) {
+-        /* Special case vmv.x.s rd, vs2. */
+-        vec_element_loadi(s, tmp, a->rs2, 0, false);
+-    } else {
+-        /* This instruction ignores LMUL and vector register groups */
+-        int vlmax = s->vlen >> (3 + s->sew);
+-        vec_element_loadx(s, tmp, a->rs2, cpu_gpr[a->rs1], vlmax);
+-    }
+-    tcg_gen_trunc_i64_tl(dest, tmp);
+-    gen_set_gpr(a->rd, dest);
+-
+-    tcg_temp_free(dest);
+-    tcg_temp_free_i64(tmp);
+-    return true;
+-}
+-
+ /* Integer Scalar Move Instruction */
+ 
+ static void store_element(TCGv_i64 val, TCGv_ptr base,
+-- 
+2.17.1
+

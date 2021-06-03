@@ -1,0 +1,64 @@
+From 1a200aab0d5d1297412710549d30a2a57dbe6ba7 Mon Sep 17 00:00:00 2001
+From: Frank Chang <frank.chang@sifive.com>
+Date: Wed, 5 Aug 2020 18:06:00 +0800
+Subject: [PATCH 060/101] target/riscv: rvv-1.0: single-width floating-point
+ reduction
+
+Signed-off-by: Frank Chang <frank.chang@sifive.com>
+Reviewed-by: Richard Henderson <richard.henderson@linaro.org>
+---
+ target/riscv/insn_trans/trans_rvv.c.inc | 12 +++++++++---
+ target/riscv/vector_helper.c            | 12 ++++++------
+ 2 files changed, 15 insertions(+), 9 deletions(-)
+
+diff --git a/target/riscv/insn_trans/trans_rvv.c.inc b/target/riscv/insn_trans/trans_rvv.c.inc
+index aac29a31a75..6273bef23a7 100644
+--- a/target/riscv/insn_trans/trans_rvv.c.inc
++++ b/target/riscv/insn_trans/trans_rvv.c.inc
+@@ -2866,9 +2866,15 @@ GEN_OPIVV_WIDEN_TRANS(vwredsum_vs, reduction_widen_check)
+ GEN_OPIVV_WIDEN_TRANS(vwredsumu_vs, reduction_widen_check)
+ 
+ /* Vector Single-Width Floating-Point Reduction Instructions */
+-GEN_OPFVV_TRANS(vfredsum_vs, reduction_check)
+-GEN_OPFVV_TRANS(vfredmax_vs, reduction_check)
+-GEN_OPFVV_TRANS(vfredmin_vs, reduction_check)
++static bool freduction_check(DisasContext *s, arg_rmrr *a)
++{
++    return reduction_check(s, a) &&
++           require_rvf(s);
++}
++
++GEN_OPFVV_TRANS(vfredsum_vs, freduction_check)
++GEN_OPFVV_TRANS(vfredmax_vs, freduction_check)
++GEN_OPFVV_TRANS(vfredmin_vs, freduction_check)
+ 
+ /* Vector Widening Floating-Point Reduction Instructions */
+ GEN_OPFVV_WIDEN_TRANS(vfwredsum_vs, reduction_check)
+diff --git a/target/riscv/vector_helper.c b/target/riscv/vector_helper.c
+index dd18ca26f8f..fb01d126d7b 100644
+--- a/target/riscv/vector_helper.c
++++ b/target/riscv/vector_helper.c
+@@ -4382,14 +4382,14 @@ GEN_VEXT_FRED(vfredsum_vs_w, uint32_t, uint32_t, H4, H4, float32_add)
+ GEN_VEXT_FRED(vfredsum_vs_d, uint64_t, uint64_t, H8, H8, float64_add)
+ 
+ /* Maximum value */
+-GEN_VEXT_FRED(vfredmax_vs_h, uint16_t, uint16_t, H2, H2, float16_maxnum)
+-GEN_VEXT_FRED(vfredmax_vs_w, uint32_t, uint32_t, H4, H4, float32_maxnum)
+-GEN_VEXT_FRED(vfredmax_vs_d, uint64_t, uint64_t, H8, H8, float64_maxnum)
++GEN_VEXT_FRED(vfredmax_vs_h, uint16_t, uint16_t, H2, H2, float16_maxnum_noprop)
++GEN_VEXT_FRED(vfredmax_vs_w, uint32_t, uint32_t, H4, H4, float32_maxnum_noprop)
++GEN_VEXT_FRED(vfredmax_vs_d, uint64_t, uint64_t, H8, H8, float64_maxnum_noprop)
+ 
+ /* Minimum value */
+-GEN_VEXT_FRED(vfredmin_vs_h, uint16_t, uint16_t, H2, H2, float16_minnum)
+-GEN_VEXT_FRED(vfredmin_vs_w, uint32_t, uint32_t, H4, H4, float32_minnum)
+-GEN_VEXT_FRED(vfredmin_vs_d, uint64_t, uint64_t, H8, H8, float64_minnum)
++GEN_VEXT_FRED(vfredmin_vs_h, uint16_t, uint16_t, H2, H2, float16_minnum_noprop)
++GEN_VEXT_FRED(vfredmin_vs_w, uint32_t, uint32_t, H4, H4, float32_minnum_noprop)
++GEN_VEXT_FRED(vfredmin_vs_d, uint64_t, uint64_t, H8, H8, float64_minnum_noprop)
+ 
+ /* Vector Widening Floating-Point Reduction Instructions */
+ /* Unordered reduce 2*SEW = 2*SEW + sum(promote(SEW)) */
+-- 
+2.17.1
+

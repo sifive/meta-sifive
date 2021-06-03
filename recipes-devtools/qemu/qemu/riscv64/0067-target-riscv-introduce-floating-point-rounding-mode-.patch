@@ -1,0 +1,156 @@
+From 0fb8b89de89ca7aad3b212722fef461a4d931c60 Mon Sep 17 00:00:00 2001
+From: Frank Chang <frank.chang@sifive.com>
+Date: Wed, 5 Aug 2020 11:08:59 +0800
+Subject: [PATCH 067/101] target/riscv: introduce floating-point rounding mode
+ enum
+
+Signed-off-by: Frank Chang <frank.chang@sifive.com>
+Reviewed-by: Richard Henderson <richard.henderson@linaro.org>
+---
+ target/riscv/fpu_helper.c               | 12 ++++++------
+ target/riscv/insn_trans/trans_rvv.c.inc | 18 +++++++++---------
+ target/riscv/internals.h                |  9 +++++++++
+ 3 files changed, 24 insertions(+), 15 deletions(-)
+
+diff --git a/target/riscv/fpu_helper.c b/target/riscv/fpu_helper.c
+index 09d37c13846..96d77622433 100644
+--- a/target/riscv/fpu_helper.c
++++ b/target/riscv/fpu_helper.c
+@@ -55,23 +55,23 @@ void helper_set_rounding_mode(CPURISCVState *env, uint32_t rm)
+ {
+     int softrm;
+ 
+-    if (rm == 7) {
++    if (rm == RISCV_FRM_DYN) {
+         rm = env->frm;
+     }
+     switch (rm) {
+-    case 0:
++    case RISCV_FRM_RNE:
+         softrm = float_round_nearest_even;
+         break;
+-    case 1:
++    case RISCV_FRM_RTZ:
+         softrm = float_round_to_zero;
+         break;
+-    case 2:
++    case RISCV_FRM_RDN:
+         softrm = float_round_down;
+         break;
+-    case 3:
++    case RISCV_FRM_RUP:
+         softrm = float_round_up;
+         break;
+-    case 4:
++    case RISCV_FRM_RMM:
+         softrm = float_round_ties_away;
+         break;
+     default:
+diff --git a/target/riscv/insn_trans/trans_rvv.c.inc b/target/riscv/insn_trans/trans_rvv.c.inc
+index 8cc79f12289..92f66728c68 100644
+--- a/target/riscv/insn_trans/trans_rvv.c.inc
++++ b/target/riscv/insn_trans/trans_rvv.c.inc
+@@ -2321,7 +2321,7 @@ static bool trans_##NAME(DisasContext *s, arg_rmrr *a)             \
+             gen_helper_##NAME##_d,                                 \
+         };                                                         \
+         TCGLabel *over = gen_new_label();                          \
+-        gen_set_rm(s, 7);                                          \
++        gen_set_rm(s, RISCV_FRM_DYN);                              \
+         tcg_gen_brcondi_tl(TCG_COND_EQ, cpu_vl, 0, over);          \
+                                                                    \
+         data = FIELD_DP32(data, VDATA, VM, a->vm);                 \
+@@ -2400,7 +2400,7 @@ static bool trans_##NAME(DisasContext *s, arg_rmrr *a)            \
+             gen_helper_##NAME##_w,                                \
+             gen_helper_##NAME##_d,                                \
+         };                                                        \
+-        gen_set_rm(s, 7);                                         \
++        gen_set_rm(s, RISCV_FRM_DYN);                             \
+         data = FIELD_DP32(data, VDATA, VM, a->vm);                \
+         data = FIELD_DP32(data, VDATA, LMUL, s->lmul);            \
+         return opfvf_trans(a->rd, a->rs1, a->rs2, data,           \
+@@ -2432,7 +2432,7 @@ static bool trans_##NAME(DisasContext *s, arg_rmrr *a)           \
+             gen_helper_##NAME##_h, gen_helper_##NAME##_w,        \
+         };                                                       \
+         TCGLabel *over = gen_new_label();                        \
+-        gen_set_rm(s, 7);                                        \
++        gen_set_rm(s, RISCV_FRM_DYN);                            \
+         tcg_gen_brcondi_tl(TCG_COND_EQ, cpu_vl, 0, over);        \
+                                                                  \
+         data = FIELD_DP32(data, VDATA, VM, a->vm);               \
+@@ -2468,7 +2468,7 @@ static bool trans_##NAME(DisasContext *s, arg_rmrr *a)           \
+         static gen_helper_opfvf *const fns[2] = {                \
+             gen_helper_##NAME##_h, gen_helper_##NAME##_w,        \
+         };                                                       \
+-        gen_set_rm(s, 7);                                        \
++        gen_set_rm(s, RISCV_FRM_DYN);                            \
+         data = FIELD_DP32(data, VDATA, VM, a->vm);               \
+         data = FIELD_DP32(data, VDATA, LMUL, s->lmul);           \
+         return opfvf_trans(a->rd, a->rs1, a->rs2, data,          \
+@@ -2498,7 +2498,7 @@ static bool trans_##NAME(DisasContext *s, arg_rmrr *a)             \
+             gen_helper_##NAME##_h, gen_helper_##NAME##_w,          \
+         };                                                         \
+         TCGLabel *over = gen_new_label();                          \
+-        gen_set_rm(s, 7);                                          \
++        gen_set_rm(s, RISCV_FRM_DYN);                              \
+         tcg_gen_brcondi_tl(TCG_COND_EQ, cpu_vl, 0, over);          \
+                                                                    \
+         data = FIELD_DP32(data, VDATA, VM, a->vm);                 \
+@@ -2534,7 +2534,7 @@ static bool trans_##NAME(DisasContext *s, arg_rmrr *a)           \
+         static gen_helper_opfvf *const fns[2] = {                \
+             gen_helper_##NAME##_h, gen_helper_##NAME##_w,        \
+         };                                                       \
+-        gen_set_rm(s, 7);                                        \
++        gen_set_rm(s, RISCV_FRM_DYN);                            \
+         data = FIELD_DP32(data, VDATA, VM, a->vm);               \
+         data = FIELD_DP32(data, VDATA, LMUL, s->lmul);           \
+         return opfvf_trans(a->rd, a->rs1, a->rs2, data,          \
+@@ -2611,7 +2611,7 @@ static bool trans_##NAME(DisasContext *s, arg_rmr *a)              \
+             gen_helper_##NAME##_d,                                 \
+         };                                                         \
+         TCGLabel *over = gen_new_label();                          \
+-        gen_set_rm(s, 7);                                          \
++        gen_set_rm(s, RISCV_FRM_DYN);                              \
+         tcg_gen_brcondi_tl(TCG_COND_EQ, cpu_vl, 0, over);          \
+                                                                    \
+         data = FIELD_DP32(data, VDATA, VM, a->vm);                 \
+@@ -2757,7 +2757,7 @@ static bool trans_##NAME(DisasContext *s, arg_rmr *a)              \
+             gen_helper_##NAME##_w,                                 \
+         };                                                         \
+         TCGLabel *over = gen_new_label();                          \
+-        gen_set_rm(s, 7);                                          \
++        gen_set_rm(s, RISCV_FRM_DYN);                              \
+         tcg_gen_brcondi_tl(TCG_COND_EQ, cpu_vl, 0, over);          \
+                                                                    \
+         data = FIELD_DP32(data, VDATA, VM, a->vm);                 \
+@@ -2804,7 +2804,7 @@ static bool trans_##NAME(DisasContext *s, arg_rmr *a)              \
+             gen_helper_##NAME##_w,                                 \
+         };                                                         \
+         TCGLabel *over = gen_new_label();                          \
+-        gen_set_rm(s, 7);                                          \
++        gen_set_rm(s, RISCV_FRM_DYN);                              \
+         tcg_gen_brcondi_tl(TCG_COND_EQ, cpu_vl, 0, over);          \
+                                                                    \
+         data = FIELD_DP32(data, VDATA, VM, a->vm);                 \
+diff --git a/target/riscv/internals.h b/target/riscv/internals.h
+index ac062dc0b4e..db105d4d640 100644
+--- a/target/riscv/internals.h
++++ b/target/riscv/internals.h
+@@ -36,6 +36,15 @@ target_ulong fclass_d(uint64_t frs1);
+ extern const VMStateDescription vmstate_riscv_cpu;
+ #endif
+ 
++enum {
++    RISCV_FRM_RNE = 0,  /* Round to Nearest, ties to Even */
++    RISCV_FRM_RTZ = 1,  /* Round towards Zero */
++    RISCV_FRM_RDN = 2,  /* Round Down */
++    RISCV_FRM_RUP = 3,  /* Round Up */
++    RISCV_FRM_RMM = 4,  /* Round to Nearest, ties to Max Magnitude */
++    RISCV_FRM_DYN = 7,  /* Dynamic rounding mode */
++};
++
+ static inline uint64_t nanbox_s(float32 f)
+ {
+     return f | MAKE_64BIT_MASK(32, 32);
+-- 
+2.17.1
+

@@ -1,0 +1,35 @@
+From bbf9e946bdd6c07087780c425d912f5234c6a6fa Mon Sep 17 00:00:00 2001
+From: Frank Chang <frank.chang@sifive.com>
+Date: Fri, 24 Jul 2020 10:56:15 +0800
+Subject: [PATCH 018/101] target/riscv: rvv-1.0: check MSTATUS_VS when
+ accessing vector csr registers
+
+If VS field is off, accessing vector csr registers should raise an
+illegal-instruction exception.
+
+Signed-off-by: Frank Chang <frank.chang@sifive.com>
+Reviewed-by: Richard Henderson <richard.henderson@linaro.org>
+Reviewed-by: Alistair Francis <alistair.francis@wdc.com>
+---
+ target/riscv/csr.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/target/riscv/csr.c b/target/riscv/csr.c
+index 5a0bc9a71fc..e065b042dfd 100644
+--- a/target/riscv/csr.c
++++ b/target/riscv/csr.c
+@@ -48,6 +48,11 @@ static int fs(CPURISCVState *env, int csrno)
+ static int vs(CPURISCVState *env, int csrno)
+ {
+     if (env->misa & RVV) {
++#if !defined(CONFIG_USER_ONLY)
++        if (!env->debugger && !riscv_cpu_vector_enabled(env)) {
++            return -RISCV_EXCP_ILLEGAL_INST;
++        }
++#endif
+         return 0;
+     }
+     return -RISCV_EXCP_ILLEGAL_INST;
+-- 
+2.17.1
+

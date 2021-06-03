@@ -1,0 +1,103 @@
+From 23687ddb80900f1aefd19e0c78d2695a3b2afaf2 Mon Sep 17 00:00:00 2001
+From: Frank Chang <frank.chang@sifive.com>
+Date: Tue, 14 Jul 2020 01:16:44 +0800
+Subject: [PATCH 043/101] target/riscv: rvv-1.0: integer scalar move
+ instructions
+
+* Remove "vmv.s.x: dothing if rs1 == 0" constraint.
+* Add vmv.x.s instruction.
+
+Signed-off-by: Frank Chang <frank.chang@sifive.com>
+Reviewed-by: Richard Henderson <richard.henderson@linaro.org>
+---
+ target/riscv/insn32.decode              |  3 +-
+ target/riscv/insn_trans/trans_rvv.c.inc | 45 ++++++++++++++++++++-----
+ 2 files changed, 39 insertions(+), 9 deletions(-)
+
+diff --git a/target/riscv/insn32.decode b/target/riscv/insn32.decode
+index e1b20b68e7e..0b17eed559a 100644
+--- a/target/riscv/insn32.decode
++++ b/target/riscv/insn32.decode
+@@ -609,8 +609,9 @@ vmsif_m         010100 . ..... 00011 010 ..... 1010111 @r2_vm
+ vmsof_m         010100 . ..... 00010 010 ..... 1010111 @r2_vm
+ viota_m         010100 . ..... 10000 010 ..... 1010111 @r2_vm
+ vid_v           010100 . 00000 10001 010 ..... 1010111 @r1_vm
++vmv_x_s         010000 1 ..... 00000 010 ..... 1010111 @r2rd
++vmv_s_x         010000 1 00000 ..... 110 ..... 1010111 @r2
+ vext_x_v        001100 1 ..... ..... 010 ..... 1010111 @r
+-vmv_s_x         001101 1 00000 ..... 110 ..... 1010111 @r2
+ vfmv_f_s        001100 1 ..... 00000 001 ..... 1010111 @r2rd
+ vfmv_s_f        001101 1 00000 ..... 101 ..... 1010111 @r2
+ vslideup_vx     001110 . ..... ..... 100 ..... 1010111 @r_vm
+diff --git a/target/riscv/insn_trans/trans_rvv.c.inc b/target/riscv/insn_trans/trans_rvv.c.inc
+index c517e5302aa..d83d30c101a 100644
+--- a/target/riscv/insn_trans/trans_rvv.c.inc
++++ b/target/riscv/insn_trans/trans_rvv.c.inc
+@@ -3211,27 +3211,56 @@ static void vec_element_storei(DisasContext *s, int vreg,
+     store_element(val, cpu_env, endian_ofs(s, vreg, idx), s->sew);
+ }
+ 
++/* vmv.x.s rd, vs2 # x[rd] = vs2[0] */
++static bool trans_vmv_x_s(DisasContext *s, arg_vmv_x_s *a)
++{
++    if (require_rvv(s) &&
++        vext_check_isa_ill(s)) {
++        TCGv_i64 t1;
++        TCGv dest;
++
++        t1 = tcg_temp_new_i64();
++        dest = tcg_temp_new();
++        /*
++         * load vreg and sign-extend to 64 bits,
++         * then truncate to XLEN bits before storing to gpr.
++         */
++        vec_element_loadi(s, t1, a->rs2, 0, true);
++        tcg_gen_trunc_i64_tl(dest, t1);
++        gen_set_gpr(a->rd, dest);
++        tcg_temp_free_i64(t1);
++        tcg_temp_free(dest);
++
++        return true;
++    }
++    return false;
++}
++
+ /* vmv.s.x vd, rs1 # vd[0] = rs1 */
+ static bool trans_vmv_s_x(DisasContext *s, arg_vmv_s_x *a)
+ {
+-    if (vext_check_isa_ill(s)) {
++    if (require_rvv(s) &&
++        vext_check_isa_ill(s)) {
+         /* This instruction ignores LMUL and vector register groups */
+-        int maxsz = s->vlen >> 3;
+         TCGv_i64 t1;
++        TCGv s1;
+         TCGLabel *over = gen_new_label();
+ 
+         tcg_gen_brcondi_tl(TCG_COND_EQ, cpu_vl, 0, over);
+-        tcg_gen_gvec_dup_imm(SEW64, vreg_ofs(s, a->rd), maxsz, maxsz, 0);
+-        if (a->rs1 == 0) {
+-            goto done;
+-        }
+ 
+         t1 = tcg_temp_new_i64();
+-        tcg_gen_extu_tl_i64(t1, cpu_gpr[a->rs1]);
++        s1 = tcg_temp_new();
++
++        /*
++         * load gpr and sign-extend to 64 bits,
++         * then truncate to SEW bits when storing to vreg.
++         */
++        gen_get_gpr(s1, a->rs1);
++        tcg_gen_ext_tl_i64(t1, s1);
+         vec_element_storei(s, a->rd, 0, t1);
+         tcg_temp_free_i64(t1);
++        tcg_temp_free(s1);
+         mark_vs_dirty(s);
+-    done:
+         gen_set_label(over);
+         return true;
+     }
+-- 
+2.17.1
+

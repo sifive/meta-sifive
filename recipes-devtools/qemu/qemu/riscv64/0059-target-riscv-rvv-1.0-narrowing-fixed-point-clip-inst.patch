@@ -1,0 +1,177 @@
+From d18bd280581c9c1393bcbe84e64f0bb7e965cc30 Mon Sep 17 00:00:00 2001
+From: Frank Chang <frank.chang@sifive.com>
+Date: Thu, 2 Jul 2020 16:40:44 +0800
+Subject: [PATCH 059/101] target/riscv: rvv-1.0: narrowing fixed-point clip
+ instructions
+
+Signed-off-by: Frank Chang <frank.chang@sifive.com>
+Reviewed-by: Richard Henderson <richard.henderson@linaro.org>
+---
+ target/riscv/helper.h                   | 24 ++++++------
+ target/riscv/insn32.decode              | 12 +++---
+ target/riscv/insn_trans/trans_rvv.c.inc | 12 +++---
+ target/riscv/vector_helper.c            | 52 ++++++++++++-------------
+ 4 files changed, 50 insertions(+), 50 deletions(-)
+
+diff --git a/target/riscv/helper.h b/target/riscv/helper.h
+index 444dbca0710..7ba8c77c6fa 100644
+--- a/target/riscv/helper.h
++++ b/target/riscv/helper.h
+@@ -800,18 +800,18 @@ DEF_HELPER_6(vssra_vx_h, void, ptr, ptr, tl, ptr, env, i32)
+ DEF_HELPER_6(vssra_vx_w, void, ptr, ptr, tl, ptr, env, i32)
+ DEF_HELPER_6(vssra_vx_d, void, ptr, ptr, tl, ptr, env, i32)
+ 
+-DEF_HELPER_6(vnclip_vv_b, void, ptr, ptr, ptr, ptr, env, i32)
+-DEF_HELPER_6(vnclip_vv_h, void, ptr, ptr, ptr, ptr, env, i32)
+-DEF_HELPER_6(vnclip_vv_w, void, ptr, ptr, ptr, ptr, env, i32)
+-DEF_HELPER_6(vnclipu_vv_b, void, ptr, ptr, ptr, ptr, env, i32)
+-DEF_HELPER_6(vnclipu_vv_h, void, ptr, ptr, ptr, ptr, env, i32)
+-DEF_HELPER_6(vnclipu_vv_w, void, ptr, ptr, ptr, ptr, env, i32)
+-DEF_HELPER_6(vnclipu_vx_b, void, ptr, ptr, tl, ptr, env, i32)
+-DEF_HELPER_6(vnclipu_vx_h, void, ptr, ptr, tl, ptr, env, i32)
+-DEF_HELPER_6(vnclipu_vx_w, void, ptr, ptr, tl, ptr, env, i32)
+-DEF_HELPER_6(vnclip_vx_b, void, ptr, ptr, tl, ptr, env, i32)
+-DEF_HELPER_6(vnclip_vx_h, void, ptr, ptr, tl, ptr, env, i32)
+-DEF_HELPER_6(vnclip_vx_w, void, ptr, ptr, tl, ptr, env, i32)
++DEF_HELPER_6(vnclip_wv_b, void, ptr, ptr, ptr, ptr, env, i32)
++DEF_HELPER_6(vnclip_wv_h, void, ptr, ptr, ptr, ptr, env, i32)
++DEF_HELPER_6(vnclip_wv_w, void, ptr, ptr, ptr, ptr, env, i32)
++DEF_HELPER_6(vnclipu_wv_b, void, ptr, ptr, ptr, ptr, env, i32)
++DEF_HELPER_6(vnclipu_wv_h, void, ptr, ptr, ptr, ptr, env, i32)
++DEF_HELPER_6(vnclipu_wv_w, void, ptr, ptr, ptr, ptr, env, i32)
++DEF_HELPER_6(vnclipu_wx_b, void, ptr, ptr, tl, ptr, env, i32)
++DEF_HELPER_6(vnclipu_wx_h, void, ptr, ptr, tl, ptr, env, i32)
++DEF_HELPER_6(vnclipu_wx_w, void, ptr, ptr, tl, ptr, env, i32)
++DEF_HELPER_6(vnclip_wx_b, void, ptr, ptr, tl, ptr, env, i32)
++DEF_HELPER_6(vnclip_wx_h, void, ptr, ptr, tl, ptr, env, i32)
++DEF_HELPER_6(vnclip_wx_w, void, ptr, ptr, tl, ptr, env, i32)
+ 
+ DEF_HELPER_6(vfadd_vv_h, void, ptr, ptr, ptr, ptr, env, i32)
+ DEF_HELPER_6(vfadd_vv_w, void, ptr, ptr, ptr, ptr, env, i32)
+diff --git a/target/riscv/insn32.decode b/target/riscv/insn32.decode
+index 169b73fdc4f..302b687a2d8 100644
+--- a/target/riscv/insn32.decode
++++ b/target/riscv/insn32.decode
+@@ -491,12 +491,12 @@ vssrl_vi        101010 . ..... ..... 011 ..... 1010111 @r_vm
+ vssra_vv        101011 . ..... ..... 000 ..... 1010111 @r_vm
+ vssra_vx        101011 . ..... ..... 100 ..... 1010111 @r_vm
+ vssra_vi        101011 . ..... ..... 011 ..... 1010111 @r_vm
+-vnclipu_vv      101110 . ..... ..... 000 ..... 1010111 @r_vm
+-vnclipu_vx      101110 . ..... ..... 100 ..... 1010111 @r_vm
+-vnclipu_vi      101110 . ..... ..... 011 ..... 1010111 @r_vm
+-vnclip_vv       101111 . ..... ..... 000 ..... 1010111 @r_vm
+-vnclip_vx       101111 . ..... ..... 100 ..... 1010111 @r_vm
+-vnclip_vi       101111 . ..... ..... 011 ..... 1010111 @r_vm
++vnclipu_wv      101110 . ..... ..... 000 ..... 1010111 @r_vm
++vnclipu_wx      101110 . ..... ..... 100 ..... 1010111 @r_vm
++vnclipu_wi      101110 . ..... ..... 011 ..... 1010111 @r_vm
++vnclip_wv       101111 . ..... ..... 000 ..... 1010111 @r_vm
++vnclip_wx       101111 . ..... ..... 100 ..... 1010111 @r_vm
++vnclip_wi       101111 . ..... ..... 011 ..... 1010111 @r_vm
+ vfadd_vv        000000 . ..... ..... 001 ..... 1010111 @r_vm
+ vfadd_vf        000000 . ..... ..... 101 ..... 1010111 @r_vm
+ vfsub_vv        000010 . ..... ..... 001 ..... 1010111 @r_vm
+diff --git a/target/riscv/insn_trans/trans_rvv.c.inc b/target/riscv/insn_trans/trans_rvv.c.inc
+index c1aaf01bdcf..aac29a31a75 100644
+--- a/target/riscv/insn_trans/trans_rvv.c.inc
++++ b/target/riscv/insn_trans/trans_rvv.c.inc
+@@ -2267,12 +2267,12 @@ GEN_OPIVI_TRANS(vssrl_vi, IMM_ZX, vssrl_vx, opivx_check)
+ GEN_OPIVI_TRANS(vssra_vi, IMM_SX, vssra_vx, opivx_check)
+ 
+ /* Vector Narrowing Fixed-Point Clip Instructions */
+-GEN_OPIVV_NARROW_TRANS(vnclipu_vv)
+-GEN_OPIVV_NARROW_TRANS(vnclip_vv)
+-GEN_OPIVX_NARROW_TRANS(vnclipu_vx)
+-GEN_OPIVX_NARROW_TRANS(vnclip_vx)
+-GEN_OPIVI_NARROW_TRANS(vnclipu_vi, IMM_ZX, vnclipu_vx)
+-GEN_OPIVI_NARROW_TRANS(vnclip_vi, IMM_ZX, vnclip_vx)
++GEN_OPIWV_NARROW_TRANS(vnclipu_wv)
++GEN_OPIWV_NARROW_TRANS(vnclip_wv)
++GEN_OPIWX_NARROW_TRANS(vnclipu_wx)
++GEN_OPIWX_NARROW_TRANS(vnclip_wx)
++GEN_OPIWI_NARROW_TRANS(vnclipu_wi, IMM_ZX, vnclipu_wx)
++GEN_OPIWI_NARROW_TRANS(vnclip_wi, IMM_ZX, vnclip_wx)
+ 
+ /*
+  *** Vector Float Point Arithmetic Instructions
+diff --git a/target/riscv/vector_helper.c b/target/riscv/vector_helper.c
+index 3f9556f4d45..dd18ca26f8f 100644
+--- a/target/riscv/vector_helper.c
++++ b/target/riscv/vector_helper.c
+@@ -3084,19 +3084,19 @@ vnclip32(CPURISCVState *env, int vxrm, int64_t a, int32_t b)
+     }
+ }
+ 
+-RVVCALL(OPIVV2_RM, vnclip_vv_b, NOP_SSS_B, H1, H2, H1, vnclip8)
+-RVVCALL(OPIVV2_RM, vnclip_vv_h, NOP_SSS_H, H2, H4, H2, vnclip16)
+-RVVCALL(OPIVV2_RM, vnclip_vv_w, NOP_SSS_W, H4, H8, H4, vnclip32)
+-GEN_VEXT_VV_RM(vnclip_vv_b, 1, 1)
+-GEN_VEXT_VV_RM(vnclip_vv_h, 2, 2)
+-GEN_VEXT_VV_RM(vnclip_vv_w, 4, 4)
+-
+-RVVCALL(OPIVX2_RM, vnclip_vx_b, NOP_SSS_B, H1, H2, vnclip8)
+-RVVCALL(OPIVX2_RM, vnclip_vx_h, NOP_SSS_H, H2, H4, vnclip16)
+-RVVCALL(OPIVX2_RM, vnclip_vx_w, NOP_SSS_W, H4, H8, vnclip32)
+-GEN_VEXT_VX_RM(vnclip_vx_b, 1, 1)
+-GEN_VEXT_VX_RM(vnclip_vx_h, 2, 2)
+-GEN_VEXT_VX_RM(vnclip_vx_w, 4, 4)
++RVVCALL(OPIVV2_RM, vnclip_wv_b, NOP_SSS_B, H1, H2, H1, vnclip8)
++RVVCALL(OPIVV2_RM, vnclip_wv_h, NOP_SSS_H, H2, H4, H2, vnclip16)
++RVVCALL(OPIVV2_RM, vnclip_wv_w, NOP_SSS_W, H4, H8, H4, vnclip32)
++GEN_VEXT_VV_RM(vnclip_wv_b, 1, 1)
++GEN_VEXT_VV_RM(vnclip_wv_h, 2, 2)
++GEN_VEXT_VV_RM(vnclip_wv_w, 4, 4)
++
++RVVCALL(OPIVX2_RM, vnclip_wx_b, NOP_SSS_B, H1, H2, vnclip8)
++RVVCALL(OPIVX2_RM, vnclip_wx_h, NOP_SSS_H, H2, H4, vnclip16)
++RVVCALL(OPIVX2_RM, vnclip_wx_w, NOP_SSS_W, H4, H8, vnclip32)
++GEN_VEXT_VX_RM(vnclip_wx_b, 1, 1)
++GEN_VEXT_VX_RM(vnclip_wx_h, 2, 2)
++GEN_VEXT_VX_RM(vnclip_wx_w, 4, 4)
+ 
+ static inline uint8_t
+ vnclipu8(CPURISCVState *env, int vxrm, uint16_t a, uint8_t b)
+@@ -3134,7 +3134,7 @@ static inline uint32_t
+ vnclipu32(CPURISCVState *env, int vxrm, uint64_t a, uint32_t b)
+ {
+     uint8_t round, shift = b & 0x3f;
+-    int64_t res;
++    uint64_t res;
+ 
+     round = get_round(vxrm, a, shift);
+     res   = (a >> shift)  + round;
+@@ -3146,19 +3146,19 @@ vnclipu32(CPURISCVState *env, int vxrm, uint64_t a, uint32_t b)
+     }
+ }
+ 
+-RVVCALL(OPIVV2_RM, vnclipu_vv_b, NOP_UUU_B, H1, H2, H1, vnclipu8)
+-RVVCALL(OPIVV2_RM, vnclipu_vv_h, NOP_UUU_H, H2, H4, H2, vnclipu16)
+-RVVCALL(OPIVV2_RM, vnclipu_vv_w, NOP_UUU_W, H4, H8, H4, vnclipu32)
+-GEN_VEXT_VV_RM(vnclipu_vv_b, 1, 1)
+-GEN_VEXT_VV_RM(vnclipu_vv_h, 2, 2)
+-GEN_VEXT_VV_RM(vnclipu_vv_w, 4, 4)
++RVVCALL(OPIVV2_RM, vnclipu_wv_b, NOP_UUU_B, H1, H2, H1, vnclipu8)
++RVVCALL(OPIVV2_RM, vnclipu_wv_h, NOP_UUU_H, H2, H4, H2, vnclipu16)
++RVVCALL(OPIVV2_RM, vnclipu_wv_w, NOP_UUU_W, H4, H8, H4, vnclipu32)
++GEN_VEXT_VV_RM(vnclipu_wv_b, 1, 1)
++GEN_VEXT_VV_RM(vnclipu_wv_h, 2, 2)
++GEN_VEXT_VV_RM(vnclipu_wv_w, 4, 4)
+ 
+-RVVCALL(OPIVX2_RM, vnclipu_vx_b, NOP_UUU_B, H1, H2, vnclipu8)
+-RVVCALL(OPIVX2_RM, vnclipu_vx_h, NOP_UUU_H, H2, H4, vnclipu16)
+-RVVCALL(OPIVX2_RM, vnclipu_vx_w, NOP_UUU_W, H4, H8, vnclipu32)
+-GEN_VEXT_VX_RM(vnclipu_vx_b, 1, 1)
+-GEN_VEXT_VX_RM(vnclipu_vx_h, 2, 2)
+-GEN_VEXT_VX_RM(vnclipu_vx_w, 4, 4)
++RVVCALL(OPIVX2_RM, vnclipu_wx_b, NOP_UUU_B, H1, H2, vnclipu8)
++RVVCALL(OPIVX2_RM, vnclipu_wx_h, NOP_UUU_H, H2, H4, vnclipu16)
++RVVCALL(OPIVX2_RM, vnclipu_wx_w, NOP_UUU_W, H4, H8, vnclipu32)
++GEN_VEXT_VX_RM(vnclipu_wx_b, 1, 1)
++GEN_VEXT_VX_RM(vnclipu_wx_h, 2, 2)
++GEN_VEXT_VX_RM(vnclipu_wx_w, 4, 4)
+ 
+ /*
+  *** Vector Float Point Arithmetic Instructions
+-- 
+2.17.1
+

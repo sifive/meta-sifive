@@ -1,0 +1,33 @@
+From 20bf832612e0436881ebdc3bb95f86922693f981 Mon Sep 17 00:00:00 2001
+From: Frank Chang <frank.chang@sifive.com>
+Date: Thu, 30 Jul 2020 16:42:55 +0800
+Subject: [PATCH 013/101] target/riscv: rvv-1.0: introduce writable misa.v
+ field
+
+Implementations may have a writable misa.v field. Analogous to the way
+in which the floating-point unit is handled, the mstatus.vs field may
+exist even if misa.v is clear.
+
+Signed-off-by: Frank Chang <frank.chang@sifive.com>
+Reviewed-by: Richard Henderson <richard.henderson@linaro.org>
+Reviewed-by: Alistair Francis <alistair.francis@wdc.com>
+---
+ target/riscv/csr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/target/riscv/csr.c b/target/riscv/csr.c
+index 2131c12f7f8..3a77d2cb86c 100644
+--- a/target/riscv/csr.c
++++ b/target/riscv/csr.c
+@@ -572,7 +572,7 @@ static int write_misa(CPURISCVState *env, int csrno, target_ulong val)
+     val &= env->misa_mask;
+ 
+     /* Mask extensions that are not supported by QEMU */
+-    val &= (RVI | RVE | RVM | RVA | RVF | RVD | RVC | RVS | RVU);
++    val &= (RVI | RVE | RVM | RVA | RVF | RVD | RVC | RVS | RVU | RVV);
+ 
+     /* 'D' depends on 'F', so clear 'D' if 'F' is not present */
+     if ((val & RVD) && !(val & RVF)) {
+-- 
+2.17.1
+

@@ -1,0 +1,76 @@
+From 75f71756305909b608d967a383874fda0f78b04f Mon Sep 17 00:00:00 2001
+From: Frank Chang <frank.chang@sifive.com>
+Date: Tue, 4 Aug 2020 11:06:25 +0800
+Subject: [PATCH 054/101] target/riscv: rvv-1.0: integer comparison
+ instructions
+
+* Sign-extend vmselu.vi and vmsgtu.vi immediate values.
+* Remove "set tail elements to zeros" as tail elements can be unchanged
+  for either VTA to have undisturbed or agnostic setting.
+
+Signed-off-by: Frank Chang <frank.chang@sifive.com>
+Reviewed-by: Richard Henderson <richard.henderson@linaro.org>
+---
+ target/riscv/insn_trans/trans_rvv.c.inc | 4 ++--
+ target/riscv/vector_helper.c            | 8 --------
+ 2 files changed, 2 insertions(+), 10 deletions(-)
+
+diff --git a/target/riscv/insn_trans/trans_rvv.c.inc b/target/riscv/insn_trans/trans_rvv.c.inc
+index 715b09eda90..5f02399ad33 100644
+--- a/target/riscv/insn_trans/trans_rvv.c.inc
++++ b/target/riscv/insn_trans/trans_rvv.c.inc
+@@ -2038,9 +2038,9 @@ GEN_OPIVX_TRANS(vmsgt_vx, opivx_cmp_check)
+ 
+ GEN_OPIVI_TRANS(vmseq_vi, IMM_SX, vmseq_vx, opivx_cmp_check)
+ GEN_OPIVI_TRANS(vmsne_vi, IMM_SX, vmsne_vx, opivx_cmp_check)
+-GEN_OPIVI_TRANS(vmsleu_vi, IMM_ZX, vmsleu_vx, opivx_cmp_check)
++GEN_OPIVI_TRANS(vmsleu_vi, IMM_SX, vmsleu_vx, opivx_cmp_check)
+ GEN_OPIVI_TRANS(vmsle_vi, IMM_SX, vmsle_vx, opivx_cmp_check)
+-GEN_OPIVI_TRANS(vmsgtu_vi, IMM_ZX, vmsgtu_vx, opivx_cmp_check)
++GEN_OPIVI_TRANS(vmsgtu_vi, IMM_SX, vmsgtu_vx, opivx_cmp_check)
+ GEN_OPIVI_TRANS(vmsgt_vi, IMM_SX, vmsgt_vx, opivx_cmp_check)
+ 
+ /* Vector Integer Min/Max Instructions */
+diff --git a/target/riscv/vector_helper.c b/target/riscv/vector_helper.c
+index 19542c9f5ae..f9c2f9cd89d 100644
+--- a/target/riscv/vector_helper.c
++++ b/target/riscv/vector_helper.c
+@@ -1399,7 +1399,6 @@ void HELPER(NAME)(void *vd, void *v0, void *vs1, void *vs2,   \
+ {                                                             \
+     uint32_t vm = vext_vm(desc);                              \
+     uint32_t vl = env->vl;                                    \
+-    uint32_t vlmax = vext_maxsz(desc) / sizeof(ETYPE);        \
+     uint32_t i;                                               \
+                                                               \
+     for (i = 0; i < vl; i++) {                                \
+@@ -1410,9 +1409,6 @@ void HELPER(NAME)(void *vd, void *v0, void *vs1, void *vs2,   \
+         }                                                     \
+         vext_set_elem_mask(vd, i, DO_OP(s2, s1));             \
+     }                                                         \
+-    for (; i < vlmax; i++) {                                  \
+-        vext_set_elem_mask(vd, i, 0);                         \
+-    }                                                         \
+ }
+ 
+ GEN_VEXT_CMP_VV(vmseq_vv_b, uint8_t,  H1, DO_MSEQ)
+@@ -1451,7 +1447,6 @@ void HELPER(NAME)(void *vd, void *v0, target_ulong s1, void *vs2,   \
+ {                                                                   \
+     uint32_t vm = vext_vm(desc);                                    \
+     uint32_t vl = env->vl;                                          \
+-    uint32_t vlmax = vext_maxsz(desc) / sizeof(ETYPE);              \
+     uint32_t i;                                                     \
+                                                                     \
+     for (i = 0; i < vl; i++) {                                      \
+@@ -1462,9 +1457,6 @@ void HELPER(NAME)(void *vd, void *v0, target_ulong s1, void *vs2,   \
+         vext_set_elem_mask(vd, i,                                   \
+                 DO_OP(s2, (ETYPE)(target_long)s1));                 \
+     }                                                               \
+-    for (; i < vlmax; i++) {                                        \
+-        vext_set_elem_mask(vd, i, 0);                               \
+-    }                                                               \
+ }
+ 
+ GEN_VEXT_CMP_VX(vmseq_vx_b, uint8_t,  H1, DO_MSEQ)
+-- 
+2.17.1
+

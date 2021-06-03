@@ -1,0 +1,128 @@
+From 5da4f743a6772801e98a0d4b4a0eb3ae23d8738e Mon Sep 17 00:00:00 2001
+From: Frank Chang <frank.chang@sifive.com>
+Date: Wed, 24 Feb 2021 16:16:12 +0800
+Subject: [PATCH 083/101] target/riscv: rvv-1.0: add vector unit-stride mask
+ load/store insns
+
+Signed-off-by: Frank Chang <frank.chang@sifive.com>
+---
+ target/riscv/helper.h                   |  2 ++
+ target/riscv/insn32.decode              |  4 +++
+ target/riscv/insn_trans/trans_rvv.c.inc | 40 +++++++++++++++++++++++++
+ target/riscv/vector_helper.c            | 21 +++++++++++++
+ 4 files changed, 67 insertions(+)
+
+diff --git a/target/riscv/helper.h b/target/riscv/helper.h
+index a83a7c33c05..f085f2fbb52 100644
+--- a/target/riscv/helper.h
++++ b/target/riscv/helper.h
+@@ -130,6 +130,8 @@ DEF_HELPER_5(vse8_v_mask, void, ptr, ptr, tl, env, i32)
+ DEF_HELPER_5(vse16_v_mask, void, ptr, ptr, tl, env, i32)
+ DEF_HELPER_5(vse32_v_mask, void, ptr, ptr, tl, env, i32)
+ DEF_HELPER_5(vse64_v_mask, void, ptr, ptr, tl, env, i32)
++DEF_HELPER_5(vlm_v, void, ptr, ptr, tl, env, i32)
++DEF_HELPER_5(vsm_v, void, ptr, ptr, tl, env, i32)
+ DEF_HELPER_6(vlse8_v, void, ptr, ptr, tl, tl, env, i32)
+ DEF_HELPER_6(vlse16_v, void, ptr, ptr, tl, tl, env, i32)
+ DEF_HELPER_6(vlse32_v, void, ptr, ptr, tl, tl, env, i32)
+diff --git a/target/riscv/insn32.decode b/target/riscv/insn32.decode
+index f6eec02d559..12fbad1b6b3 100644
+--- a/target/riscv/insn32.decode
++++ b/target/riscv/insn32.decode
+@@ -251,6 +251,10 @@ vse16_v    ... 000 . 00000 ..... 101 ..... 0100111 @r2_nfvm
+ vse32_v    ... 000 . 00000 ..... 110 ..... 0100111 @r2_nfvm
+ vse64_v    ... 000 . 00000 ..... 111 ..... 0100111 @r2_nfvm
+ 
++# Vector unit-stride mask load/store insns.
++vlm_v      000 000 1 01011 ..... 000 ..... 0000111 @r2
++vsm_v      000 000 1 01011 ..... 000 ..... 0100111 @r2
++
+ # Vector strided insns.
+ vlse8_v     ... 010 . ..... ..... 000 ..... 0000111 @r_nfvm
+ vlse16_v    ... 010 . ..... ..... 101 ..... 0000111 @r_nfvm
+diff --git a/target/riscv/insn_trans/trans_rvv.c.inc b/target/riscv/insn_trans/trans_rvv.c.inc
+index 49f2eeee478..c7ef4fa0ac6 100644
+--- a/target/riscv/insn_trans/trans_rvv.c.inc
++++ b/target/riscv/insn_trans/trans_rvv.c.inc
+@@ -747,6 +747,46 @@ GEN_VEXT_TRANS(vse16_v, MO_16, r2nfvm, st_us_op, st_us_check)
+ GEN_VEXT_TRANS(vse32_v, MO_32, r2nfvm, st_us_op, st_us_check)
+ GEN_VEXT_TRANS(vse64_v, MO_64, r2nfvm, st_us_op, st_us_check)
+ 
++/*
++ *** unit stride mask load and store
++ */
++static bool ld_us_mask_op(DisasContext *s, arg_vlm_v *a, uint8_t eew)
++{
++    uint32_t data = 0;
++    gen_helper_ldst_us *fn = gen_helper_vlm_v;
++
++    /* EMUL = 1, NFIELDS = 1 */
++    data = FIELD_DP32(data, VDATA, LMUL, 0);
++    data = FIELD_DP32(data, VDATA, NF, 1);
++    return ldst_us_trans(a->rd, a->rs1, data, fn, s, false);
++}
++
++static bool ld_us_mask_check(DisasContext *s, arg_vlm_v *a, uint8_t eew)
++{
++    /* EMUL = 1, NFIELDS = 1 */
++    return require_rvv(s) && vext_check_isa_ill(s);
++}
++
++static bool st_us_mask_op(DisasContext *s, arg_vsm_v *a, uint8_t eew)
++{
++    uint32_t data = 0;
++    gen_helper_ldst_us *fn = gen_helper_vsm_v;
++
++    /* EMUL = 1, NFIELDS = 1 */
++    data = FIELD_DP32(data, VDATA, LMUL, 0);
++    data = FIELD_DP32(data, VDATA, NF, 1);
++    return ldst_us_trans(a->rd, a->rs1, data, fn, s, true);
++}
++
++static bool st_us_mask_check(DisasContext *s, arg_vsm_v *a, uint8_t eew)
++{
++    /* EMUL = 1, NFIELDS = 1 */
++    return require_rvv(s) && vext_check_isa_ill(s);
++}
++
++GEN_VEXT_TRANS(vlm_v, MO_8, vlm_v, ld_us_mask_op, ld_us_mask_check)
++GEN_VEXT_TRANS(vsm_v, MO_8, vsm_v, st_us_mask_op, st_us_mask_check)
++
+ /*
+  *** stride load and store
+  */
+diff --git a/target/riscv/vector_helper.c b/target/riscv/vector_helper.c
+index 0e0b392a272..aca8e630235 100644
+--- a/target/riscv/vector_helper.c
++++ b/target/riscv/vector_helper.c
+@@ -361,6 +361,27 @@ GEN_VEXT_ST_US(vse16_v, int16_t, ste_h)
+ GEN_VEXT_ST_US(vse32_v, int32_t, ste_w)
+ GEN_VEXT_ST_US(vse64_v, int64_t, ste_d)
+ 
++/*
++ *** unit stride mask load and store, EEW = 1
++ */
++void HELPER(vlm_v)(void *vd, void *v0, target_ulong base,
++                    CPURISCVState *env, uint32_t desc)
++{
++    /* evl = ceil(vl/8) */
++    uint8_t evl = (env->vl + 7) >> 3;
++    vext_ldst_us(vd, base, env, desc, lde_b,
++                 0, evl, GETPC(), MMU_DATA_LOAD);
++}
++
++void HELPER(vsm_v)(void *vd, void *v0, target_ulong base,
++                    CPURISCVState *env, uint32_t desc)
++{
++    /* evl = ceil(vl/8) */
++    uint8_t evl = (env->vl + 7) >> 3;
++    vext_ldst_us(vd, base, env, desc, ste_b,
++                 0, evl, GETPC(), MMU_DATA_STORE);
++}
++
+ /*
+  *** index: access vector element from indexed memory
+  */
+-- 
+2.17.1
+

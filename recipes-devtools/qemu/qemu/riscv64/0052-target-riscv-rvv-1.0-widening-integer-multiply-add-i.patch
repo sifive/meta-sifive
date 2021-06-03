@@ -1,0 +1,32 @@
+From 66c3e48c3bf35911c3def6221dbcca77be037d87 Mon Sep 17 00:00:00 2001
+From: Frank Chang <frank.chang@sifive.com>
+Date: Thu, 2 Jul 2020 12:19:00 +0800
+Subject: [PATCH 052/101] target/riscv: rvv-1.0: widening integer multiply-add
+ instructions
+
+Signed-off-by: Frank Chang <frank.chang@sifive.com>
+Reviewed-by: Richard Henderson <richard.henderson@linaro.org>
+---
+ target/riscv/insn32.decode | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/target/riscv/insn32.decode b/target/riscv/insn32.decode
+index d3d70b47c1f..0217ec19f8d 100644
+--- a/target/riscv/insn32.decode
++++ b/target/riscv/insn32.decode
+@@ -449,9 +449,9 @@ vwmaccu_vv      111100 . ..... ..... 010 ..... 1010111 @r_vm
+ vwmaccu_vx      111100 . ..... ..... 110 ..... 1010111 @r_vm
+ vwmacc_vv       111101 . ..... ..... 010 ..... 1010111 @r_vm
+ vwmacc_vx       111101 . ..... ..... 110 ..... 1010111 @r_vm
+-vwmaccsu_vv     111110 . ..... ..... 010 ..... 1010111 @r_vm
+-vwmaccsu_vx     111110 . ..... ..... 110 ..... 1010111 @r_vm
+-vwmaccus_vx     111111 . ..... ..... 110 ..... 1010111 @r_vm
++vwmaccsu_vv     111111 . ..... ..... 010 ..... 1010111 @r_vm
++vwmaccsu_vx     111111 . ..... ..... 110 ..... 1010111 @r_vm
++vwmaccus_vx     111110 . ..... ..... 110 ..... 1010111 @r_vm
+ vmv_v_v         010111 1 00000 ..... 000 ..... 1010111 @r2
+ vmv_v_x         010111 1 00000 ..... 100 ..... 1010111 @r2
+ vmv_v_i         010111 1 00000 ..... 011 ..... 1010111 @r2
+-- 
+2.17.1
+

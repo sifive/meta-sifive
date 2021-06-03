@@ -1,0 +1,63 @@
+From 6ea31f74682ba2a3b36ce7a20c27cf68d2406e3d Mon Sep 17 00:00:00 2001
+From: Kito Cheng <kito.cheng@sifive.com>
+Date: Tue, 20 Oct 2020 23:23:26 +0800
+Subject: [PATCH 100/101] target/riscv: rvb: support and turn on B-extension
+ from command line
+
+B-extension is default off, use cpu rv32 or rv64 with x-b=true to
+enable B-extension.
+
+Signed-off-by: Kito Cheng <kito.cheng@sifive.com>
+Signed-off-by: Frank Chang <frank.chang@sifive.com>
+Reviewed-by: Alistair Francis <alistair.francis@wdc.com>
+Reviewed-by: Richard Henderson <richard.henderson@linaro.org>
+---
+ target/riscv/cpu.c | 4 ++++
+ target/riscv/cpu.h | 2 ++
+ 2 files changed, 6 insertions(+)
+
+diff --git a/target/riscv/cpu.c b/target/riscv/cpu.c
+index f6d79c5aa98..b0519793ed4 100644
+--- a/target/riscv/cpu.c
++++ b/target/riscv/cpu.c
+@@ -473,6 +473,9 @@ static void riscv_cpu_realize(DeviceState *dev, Error **errp)
+         if (cpu->cfg.ext_h) {
+             target_misa |= RVH;
+         }
++        if (cpu->cfg.ext_b) {
++            target_misa |= RVB;
++        }
+         if (cpu->cfg.ext_v) {
+             target_misa |= RVV;
+             if (!is_power_of_2(cpu->cfg.vlen)) {
+@@ -543,6 +546,7 @@ static Property riscv_cpu_properties[] = {
+     DEFINE_PROP_BOOL("s", RISCVCPU, cfg.ext_s, true),
+     DEFINE_PROP_BOOL("u", RISCVCPU, cfg.ext_u, true),
+     /* This is experimental so mark with 'x-' */
++    DEFINE_PROP_BOOL("x-b", RISCVCPU, cfg.ext_b, false),
+     DEFINE_PROP_BOOL("x-h", RISCVCPU, cfg.ext_h, false),
+     DEFINE_PROP_BOOL("x-v", RISCVCPU, cfg.ext_v, false),
+     DEFINE_PROP_BOOL("x-Zfh", RISCVCPU, cfg.ext_zfh, false),
+diff --git a/target/riscv/cpu.h b/target/riscv/cpu.h
+index e223ab550bd..457d95eff10 100644
+--- a/target/riscv/cpu.h
++++ b/target/riscv/cpu.h
+@@ -72,6 +72,7 @@
+ #define RVS RV('S')
+ #define RVU RV('U')
+ #define RVH RV('H')
++#define RVB RV('B')
+ 
+ /* S extension denotes that Supervisor mode exists, however it is possible
+    to have a core that support S mode but does not have an MMU and there
+@@ -291,6 +292,7 @@ struct RISCVCPU {
+         bool ext_f;
+         bool ext_d;
+         bool ext_c;
++        bool ext_b;
+         bool ext_s;
+         bool ext_u;
+         bool ext_h;
+-- 
+2.17.1
+

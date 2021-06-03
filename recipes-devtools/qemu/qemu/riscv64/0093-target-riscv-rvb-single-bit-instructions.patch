@@ -1,0 +1,236 @@
+From fd7a1ccfe24fa1d02eeb83f57eaf933ab4e3c671 Mon Sep 17 00:00:00 2001
+From: Kito Cheng <kito.cheng@sifive.com>
+Date: Mon, 11 Jan 2021 23:31:03 +0800
+Subject: [PATCH 093/101] target/riscv: rvb: single-bit instructions
+
+Signed-off-by: Kito Cheng <kito.cheng@sifive.com>
+Signed-off-by: Frank Chang <frank.chang@sifive.com>
+Reviewed-by: Richard Henderson <richard.henderson@linaro.org>
+---
+ target/riscv/insn32-64.decode           |  8 +++
+ target/riscv/insn32.decode              |  9 +++
+ target/riscv/insn_trans/trans_rvb.c.inc | 90 +++++++++++++++++++++++++
+ target/riscv/translate.c                | 61 +++++++++++++++++
+ 4 files changed, 168 insertions(+)
+
+diff --git a/target/riscv/insn32-64.decode b/target/riscv/insn32-64.decode
+index 722af2d144d..3543342fcab 100644
+--- a/target/riscv/insn32-64.decode
++++ b/target/riscv/insn32-64.decode
+@@ -100,3 +100,11 @@ cpopw      0110000 00010 ..... 001 ..... 0011011 @r2
+ 
+ packw      0000100 .......... 100 ..... 0111011 @r
+ packuw     0100100 .......... 100 ..... 0111011 @r
++bsetw      0010100 .......... 001 ..... 0111011 @r
++bclrw      0100100 .......... 001 ..... 0111011 @r
++binvw      0110100 .......... 001 ..... 0111011 @r
++bextw      0100100 .......... 101 ..... 0111011 @r
++
++bsetiw     0010100 .......... 001 ..... 0011011 @sh5
++bclriw     0100100 .......... 001 ..... 0011011 @sh5
++binviw     0110100 .......... 001 ..... 0011011 @sh5
+diff --git a/target/riscv/insn32.decode b/target/riscv/insn32.decode
+index 531de51c636..14ffcc7afd0 100644
+--- a/target/riscv/insn32.decode
++++ b/target/riscv/insn32.decode
+@@ -707,3 +707,12 @@ min        0000101 .......... 100 ..... 0110011 @r
+ minu       0000101 .......... 101 ..... 0110011 @r
+ max        0000101 .......... 110 ..... 0110011 @r
+ maxu       0000101 .......... 111 ..... 0110011 @r
++bset       0010100 .......... 001 ..... 0110011 @r
++bclr       0100100 .......... 001 ..... 0110011 @r
++binv       0110100 .......... 001 ..... 0110011 @r
++bext       0100100 .......... 101 ..... 0110011 @r
++
++bseti      00101. ........... 001 ..... 0010011 @sh
++bclri      01001. ........... 001 ..... 0010011 @sh
++binvi      01101. ........... 001 ..... 0010011 @sh
++bexti      01001. ........... 101 ..... 0010011 @sh
+diff --git a/target/riscv/insn_trans/trans_rvb.c.inc b/target/riscv/insn_trans/trans_rvb.c.inc
+index 1496996a660..0c41f135dc6 100644
+--- a/target/riscv/insn_trans/trans_rvb.c.inc
++++ b/target/riscv/insn_trans/trans_rvb.c.inc
+@@ -107,6 +107,54 @@ static bool trans_sext_h(DisasContext *ctx, arg_sext_h *a)
+     return gen_unary(ctx, a, tcg_gen_ext16s_tl);
+ }
+ 
++static bool trans_bset(DisasContext *ctx, arg_bset *a)
++{
++    REQUIRE_EXT(ctx, RVB);
++    return gen_shift(ctx, a, gen_bset);
++}
++
++static bool trans_bseti(DisasContext *ctx, arg_bseti *a)
++{
++    REQUIRE_EXT(ctx, RVB);
++    return gen_shifti(ctx, a, gen_bset);
++}
++
++static bool trans_bclr(DisasContext *ctx, arg_bclr *a)
++{
++    REQUIRE_EXT(ctx, RVB);
++    return gen_shift(ctx, a, gen_bclr);
++}
++
++static bool trans_bclri(DisasContext *ctx, arg_bclri *a)
++{
++    REQUIRE_EXT(ctx, RVB);
++    return gen_shifti(ctx, a, gen_bclr);
++}
++
++static bool trans_binv(DisasContext *ctx, arg_binv *a)
++{
++    REQUIRE_EXT(ctx, RVB);
++    return gen_shift(ctx, a, gen_binv);
++}
++
++static bool trans_binvi(DisasContext *ctx, arg_binvi *a)
++{
++    REQUIRE_EXT(ctx, RVB);
++    return gen_shifti(ctx, a, gen_binv);
++}
++
++static bool trans_bext(DisasContext *ctx, arg_bext *a)
++{
++    REQUIRE_EXT(ctx, RVB);
++    return gen_shift(ctx, a, gen_bext);
++}
++
++static bool trans_bexti(DisasContext *ctx, arg_bexti *a)
++{
++    REQUIRE_EXT(ctx, RVB);
++    return gen_shifti(ctx, a, gen_bext);
++}
++
+ /* RV64-only instructions */
+ #ifdef TARGET_RISCV64
+ 
+@@ -140,4 +188,46 @@ static bool trans_packuw(DisasContext *ctx, arg_packuw *a)
+     return gen_arith(ctx, a, gen_packuw);
+ }
+ 
++static bool trans_bsetw(DisasContext *ctx, arg_bsetw *a)
++{
++    REQUIRE_EXT(ctx, RVB);
++    return gen_shiftw(ctx, a, gen_bset);
++}
++
++static bool trans_bsetiw(DisasContext *ctx, arg_bsetiw *a)
++{
++    REQUIRE_EXT(ctx, RVB);
++    return gen_shiftiw(ctx, a, gen_bset);
++}
++
++static bool trans_bclrw(DisasContext *ctx, arg_bclrw *a)
++{
++    REQUIRE_EXT(ctx, RVB);
++    return gen_shiftw(ctx, a, gen_bclr);
++}
++
++static bool trans_bclriw(DisasContext *ctx, arg_bclriw *a)
++{
++    REQUIRE_EXT(ctx, RVB);
++    return gen_shiftiw(ctx, a, gen_bclr);
++}
++
++static bool trans_binvw(DisasContext *ctx, arg_binvw *a)
++{
++    REQUIRE_EXT(ctx, RVB);
++    return gen_shiftw(ctx, a, gen_binv);
++}
++
++static bool trans_binviw(DisasContext *ctx, arg_binviw *a)
++{
++    REQUIRE_EXT(ctx, RVB);
++    return gen_shiftiw(ctx, a, gen_binv);
++}
++
++static bool trans_bextw(DisasContext *ctx, arg_bextw *a)
++{
++    REQUIRE_EXT(ctx, RVB);
++    return gen_shiftw(ctx, a, gen_bext);
++}
++
+ #endif
+diff --git a/target/riscv/translate.c b/target/riscv/translate.c
+index a6e50f77d4e..5c708903335 100644
+--- a/target/riscv/translate.c
++++ b/target/riscv/translate.c
+@@ -624,6 +624,48 @@ static void gen_packh(TCGv ret, TCGv arg1, TCGv arg2)
+     tcg_temp_free(t);
+ }
+ 
++static void gen_sbop_mask(TCGv ret, TCGv shamt)
++{
++    tcg_gen_movi_tl(ret, 1);
++    tcg_gen_shl_tl(ret, ret, shamt);
++}
++
++static void gen_bset(TCGv ret, TCGv arg1, TCGv shamt)
++{
++    TCGv t = tcg_temp_new();
++
++    gen_sbop_mask(t, shamt);
++    tcg_gen_or_tl(ret, arg1, t);
++
++    tcg_temp_free(t);
++}
++
++static void gen_bclr(TCGv ret, TCGv arg1, TCGv shamt)
++{
++    TCGv t = tcg_temp_new();
++
++    gen_sbop_mask(t, shamt);
++    tcg_gen_andc_tl(ret, arg1, t);
++
++    tcg_temp_free(t);
++}
++
++static void gen_binv(TCGv ret, TCGv arg1, TCGv shamt)
++{
++    TCGv t = tcg_temp_new();
++
++    gen_sbop_mask(t, shamt);
++    tcg_gen_xor_tl(ret, arg1, t);
++
++    tcg_temp_free(t);
++}
++
++static void gen_bext(TCGv ret, TCGv arg1, TCGv shamt)
++{
++    tcg_gen_shr_tl(ret, arg1, shamt);
++    tcg_gen_andi_tl(ret, ret, 1);
++}
++
+ #ifdef TARGET_RISCV64
+ 
+ static void gen_ctzw(TCGv ret, TCGv arg1)
+@@ -732,6 +774,25 @@ static bool gen_shifti(DisasContext *ctx, arg_shift *a,
+ 
+ #ifdef TARGET_RISCV64
+ 
++static bool gen_shiftw(DisasContext *ctx, arg_r *a,
++                       void(*func)(TCGv, TCGv, TCGv))
++{
++    TCGv source1 = tcg_temp_new();
++    TCGv source2 = tcg_temp_new();
++
++    gen_get_gpr(source1, a->rs1);
++    gen_get_gpr(source2, a->rs2);
++
++    tcg_gen_andi_tl(source2, source2, 31);
++    (*func)(source1, source1, source2);
++    tcg_gen_ext32s_tl(source1, source1);
++
++    gen_set_gpr(a->rd, source1);
++    tcg_temp_free(source1);
++    tcg_temp_free(source2);
++    return true;
++}
++
+ static bool gen_shiftiw(DisasContext *ctx, arg_shift *a,
+                         void(*func)(TCGv, TCGv, TCGv))
+ {
+-- 
+2.17.1
+

@@ -1,0 +1,52 @@
+From e1db45c12c52815c5ae46c32c6a68fb148af034c Mon Sep 17 00:00:00 2001
+From: Frank Chang <frank.chang@sifive.com>
+Date: Thu, 30 Jul 2020 21:31:27 +0800
+Subject: [PATCH 056/101] target/riscv: rvv-1.0: mask-register logical
+ instructions
+
+Signed-off-by: Frank Chang <frank.chang@sifive.com>
+Reviewed-by: Richard Henderson <richard.henderson@linaro.org>
+---
+ target/riscv/insn_trans/trans_rvv.c.inc | 3 ++-
+ target/riscv/vector_helper.c            | 4 ----
+ 2 files changed, 2 insertions(+), 5 deletions(-)
+
+diff --git a/target/riscv/insn_trans/trans_rvv.c.inc b/target/riscv/insn_trans/trans_rvv.c.inc
+index 5f02399ad33..73537bc3add 100644
+--- a/target/riscv/insn_trans/trans_rvv.c.inc
++++ b/target/riscv/insn_trans/trans_rvv.c.inc
+@@ -2881,7 +2881,8 @@ GEN_OPFVV_WIDEN_TRANS(vfwredsum_vs, reduction_check)
+ #define GEN_MM_TRANS(NAME)                                         \
+ static bool trans_##NAME(DisasContext *s, arg_r *a)                \
+ {                                                                  \
+-    if (vext_check_isa_ill(s)) {                                   \
++    if (require_rvv(s) &&                                          \
++        vext_check_isa_ill(s)) {                                   \
+         uint32_t data = 0;                                         \
+         gen_helper_gvec_4_ptr *fn = gen_helper_##NAME;             \
+         TCGLabel *over = gen_new_label();                          \
+diff --git a/target/riscv/vector_helper.c b/target/riscv/vector_helper.c
+index ef3875ee7d4..6af15eb8f25 100644
+--- a/target/riscv/vector_helper.c
++++ b/target/riscv/vector_helper.c
+@@ -4440,7 +4440,6 @@ void HELPER(NAME)(void *vd, void *v0, void *vs1,          \
+                   void *vs2, CPURISCVState *env,          \
+                   uint32_t desc)                          \
+ {                                                         \
+-    uint32_t vlmax = env_archcpu(env)->cfg.vlen;          \
+     uint32_t vl = env->vl;                                \
+     uint32_t i;                                           \
+     int a, b;                                             \
+@@ -4450,9 +4449,6 @@ void HELPER(NAME)(void *vd, void *v0, void *vs1,          \
+         b = vext_elem_mask(vs2, i);                       \
+         vext_set_elem_mask(vd, i, OP(b, a));              \
+     }                                                     \
+-    for (; i < vlmax; i++) {                              \
+-        vext_set_elem_mask(vd, i, 0);                     \
+-    }                                                     \
+ }
+ 
+ #define DO_NAND(N, M)  (!(N & M))
+-- 
+2.17.1
+

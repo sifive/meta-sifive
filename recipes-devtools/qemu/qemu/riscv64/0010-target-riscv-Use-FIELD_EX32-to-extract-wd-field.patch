@@ -1,0 +1,28 @@
+From 7a4791c8238cae264eb89cfa347643cae3b43d6c Mon Sep 17 00:00:00 2001
+From: Frank Chang <frank.chang@sifive.com>
+Date: Thu, 16 Jul 2020 01:55:44 +0800
+Subject: [PATCH 010/101] target/riscv: Use FIELD_EX32() to extract wd field
+
+Signed-off-by: Frank Chang <frank.chang@sifive.com>
+Reviewed-by: Richard Henderson <richard.henderson@linaro.org>
+Reviewed-by: Alistair Francis <alistair.francis@wdc.com>
+---
+ target/riscv/vector_helper.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/target/riscv/vector_helper.c b/target/riscv/vector_helper.c
+index 4651a1e224e..3f1ee31146a 100644
+--- a/target/riscv/vector_helper.c
++++ b/target/riscv/vector_helper.c
+@@ -98,7 +98,7 @@ static inline uint32_t vext_lmul(uint32_t desc)
+ 
+ static uint32_t vext_wd(uint32_t desc)
+ {
+-    return (simd_data(desc) >> 11) & 0x1;
++    return FIELD_EX32(simd_data(desc), VDATA, WD);
+ }
+ 
+ /*
+-- 
+2.17.1
+

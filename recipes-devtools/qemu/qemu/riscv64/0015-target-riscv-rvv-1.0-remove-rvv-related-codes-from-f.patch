@@ -1,0 +1,60 @@
+From f7fa920bf466f6618c3a259ad8d4f7c4874f2fba Mon Sep 17 00:00:00 2001
+From: Frank Chang <frank.chang@sifive.com>
+Date: Fri, 7 Aug 2020 14:53:53 +0800
+Subject: [PATCH 015/101] target/riscv: rvv-1.0: remove rvv related codes from
+ fcsr registers
+
+* Remove VXRM and VXSAT fields from FCSR register as they are only
+  presented in VCSR register.
+* Remove RVV loose check in fs() predicate function.
+
+Signed-off-by: Frank Chang <frank.chang@sifive.com>
+Reviewed-by: Richard Henderson <richard.henderson@linaro.org>
+Reviewed-by: Alistair Francis <alistair.francis@wdc.com>
+---
+ target/riscv/csr.c | 13 -------------
+ 1 file changed, 13 deletions(-)
+
+diff --git a/target/riscv/csr.c b/target/riscv/csr.c
+index 3a77d2cb86c..7992bdc07e1 100644
+--- a/target/riscv/csr.c
++++ b/target/riscv/csr.c
+@@ -38,10 +38,6 @@ void riscv_set_csr_ops(int csrno, riscv_csr_operations *ops)
+ static int fs(CPURISCVState *env, int csrno)
+ {
+ #if !defined(CONFIG_USER_ONLY)
+-    /* loose check condition for fcsr in vector extension */
+-    if ((csrno == CSR_FCSR) && (env->misa & RVV)) {
+-        return 0;
+-    }
+     if (!env->debugger && !riscv_cpu_fp_enabled(env)) {
+         return -RISCV_EXCP_ILLEGAL_INST;
+     }
+@@ -246,10 +242,6 @@ static int read_fcsr(CPURISCVState *env, int csrno, target_ulong *val)
+ #endif
+     *val = (riscv_cpu_get_fflags(env) << FSR_AEXC_SHIFT)
+         | (env->frm << FSR_RD_SHIFT);
+-    if (vs(env, csrno) >= 0) {
+-        *val |= (env->vxrm << FSR_VXRM_SHIFT)
+-                | (env->vxsat << FSR_VXSAT_SHIFT);
+-    }
+     return 0;
+ }
+ 
+@@ -260,13 +252,8 @@ static int write_fcsr(CPURISCVState *env, int csrno, target_ulong val)
+         return -RISCV_EXCP_ILLEGAL_INST;
+     }
+     env->mstatus |= MSTATUS_FS;
+-    env->mstatus |= MSTATUS_VS;
+ #endif
+     env->frm = (val & FSR_RD) >> FSR_RD_SHIFT;
+-    if (vs(env, csrno) >= 0) {
+-        env->vxrm = (val & FSR_VXRM) >> FSR_VXRM_SHIFT;
+-        env->vxsat = (val & FSR_VXSAT) >> FSR_VXSAT_SHIFT;
+-    }
+     riscv_cpu_set_fflags(env, (val & FSR_AEXC) >> FSR_AEXC_SHIFT);
+     return 0;
+ }
+-- 
+2.17.1
+

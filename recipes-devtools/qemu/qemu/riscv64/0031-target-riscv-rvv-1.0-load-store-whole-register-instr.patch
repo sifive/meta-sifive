@@ -1,0 +1,244 @@
+From 8be7d562ec03d781aefea728c39468be397e88d6 Mon Sep 17 00:00:00 2001
+From: Frank Chang <frank.chang@sifive.com>
+Date: Mon, 17 Aug 2020 09:41:07 +0800
+Subject: [PATCH 031/101] target/riscv: rvv-1.0: load/store whole register
+ instructions
+
+Add the following instructions:
+
+* vl<nf>re<eew>.v
+* vs<nf>r.v
+
+Signed-off-by: Frank Chang <frank.chang@sifive.com>
+Reviewed-by: Alistair Francis <alistair.francis@wdc.com>
+---
+ target/riscv/helper.h                   | 21 ++++++++
+ target/riscv/insn32.decode              | 22 ++++++++
+ target/riscv/insn_trans/trans_rvv.c.inc | 69 +++++++++++++++++++++++++
+ target/riscv/vector_helper.c            | 65 +++++++++++++++++++++++
+ 4 files changed, 177 insertions(+)
+
+diff --git a/target/riscv/helper.h b/target/riscv/helper.h
+index f26af64d5b3..f35cd987ee2 100644
+--- a/target/riscv/helper.h
++++ b/target/riscv/helper.h
+@@ -174,6 +174,27 @@ DEF_HELPER_5(vle16ff_v, void, ptr, ptr, tl, env, i32)
+ DEF_HELPER_5(vle32ff_v, void, ptr, ptr, tl, env, i32)
+ DEF_HELPER_5(vle64ff_v, void, ptr, ptr, tl, env, i32)
+ 
++DEF_HELPER_4(vl1re8_v, void, ptr, tl, env, i32)
++DEF_HELPER_4(vl1re16_v, void, ptr, tl, env, i32)
++DEF_HELPER_4(vl1re32_v, void, ptr, tl, env, i32)
++DEF_HELPER_4(vl1re64_v, void, ptr, tl, env, i32)
++DEF_HELPER_4(vl2re8_v, void, ptr, tl, env, i32)
++DEF_HELPER_4(vl2re16_v, void, ptr, tl, env, i32)
++DEF_HELPER_4(vl2re32_v, void, ptr, tl, env, i32)
++DEF_HELPER_4(vl2re64_v, void, ptr, tl, env, i32)
++DEF_HELPER_4(vl4re8_v, void, ptr, tl, env, i32)
++DEF_HELPER_4(vl4re16_v, void, ptr, tl, env, i32)
++DEF_HELPER_4(vl4re32_v, void, ptr, tl, env, i32)
++DEF_HELPER_4(vl4re64_v, void, ptr, tl, env, i32)
++DEF_HELPER_4(vl8re8_v, void, ptr, tl, env, i32)
++DEF_HELPER_4(vl8re16_v, void, ptr, tl, env, i32)
++DEF_HELPER_4(vl8re32_v, void, ptr, tl, env, i32)
++DEF_HELPER_4(vl8re64_v, void, ptr, tl, env, i32)
++DEF_HELPER_4(vs1r_v, void, ptr, tl, env, i32)
++DEF_HELPER_4(vs2r_v, void, ptr, tl, env, i32)
++DEF_HELPER_4(vs4r_v, void, ptr, tl, env, i32)
++DEF_HELPER_4(vs8r_v, void, ptr, tl, env, i32)
++
+ DEF_HELPER_6(vamoswapei8_32_v, void, ptr, ptr, tl, ptr, env, i32)
+ DEF_HELPER_6(vamoswapei8_64_v, void, ptr, ptr, tl, ptr, env, i32)
+ DEF_HELPER_6(vamoswapei16_32_v, void, ptr, ptr, tl, ptr, env, i32)
+diff --git a/target/riscv/insn32.decode b/target/riscv/insn32.decode
+index ae406dff3be..dec3fe1f344 100644
+--- a/target/riscv/insn32.decode
++++ b/target/riscv/insn32.decode
+@@ -278,6 +278,28 @@ vle16ff_v     ... 000 . 10000 ..... 101 ..... 0000111 @r2_nfvm
+ vle32ff_v     ... 000 . 10000 ..... 110 ..... 0000111 @r2_nfvm
+ vle64ff_v     ... 000 . 10000 ..... 111 ..... 0000111 @r2_nfvm
+ 
++# Vector whole register insns
++vl1re8_v      000 000 1 01000 ..... 000 ..... 0000111 @r2
++vl1re16_v     000 000 1 01000 ..... 101 ..... 0000111 @r2
++vl1re32_v     000 000 1 01000 ..... 110 ..... 0000111 @r2
++vl1re64_v     000 000 1 01000 ..... 111 ..... 0000111 @r2
++vl2re8_v      001 000 1 01000 ..... 000 ..... 0000111 @r2
++vl2re16_v     001 000 1 01000 ..... 101 ..... 0000111 @r2
++vl2re32_v     001 000 1 01000 ..... 110 ..... 0000111 @r2
++vl2re64_v     001 000 1 01000 ..... 111 ..... 0000111 @r2
++vl4re8_v      011 000 1 01000 ..... 000 ..... 0000111 @r2
++vl4re16_v     011 000 1 01000 ..... 101 ..... 0000111 @r2
++vl4re32_v     011 000 1 01000 ..... 110 ..... 0000111 @r2
++vl4re64_v     011 000 1 01000 ..... 111 ..... 0000111 @r2
++vl8re8_v      111 000 1 01000 ..... 000 ..... 0000111 @r2
++vl8re16_v     111 000 1 01000 ..... 101 ..... 0000111 @r2
++vl8re32_v     111 000 1 01000 ..... 110 ..... 0000111 @r2
++vl8re64_v     111 000 1 01000 ..... 111 ..... 0000111 @r2
++vs1r_v        000 000 1 01000 ..... 000 ..... 0100111 @r2
++vs2r_v        001 000 1 01000 ..... 000 ..... 0100111 @r2
++vs4r_v        011 000 1 01000 ..... 000 ..... 0100111 @r2
++vs8r_v        111 000 1 01000 ..... 000 ..... 0100111 @r2
++
+ #*** Vector AMO operations are encoded under the standard AMO major opcode ***
+ vamoswapei8_v   00001 . . ..... ..... 000 ..... 0101111 @r_wdvm
+ vamoswapei16_v  00001 . . ..... ..... 101 ..... 0101111 @r_wdvm
+diff --git a/target/riscv/insn_trans/trans_rvv.c.inc b/target/riscv/insn_trans/trans_rvv.c.inc
+index 5057dff5ebe..146d3308949 100644
+--- a/target/riscv/insn_trans/trans_rvv.c.inc
++++ b/target/riscv/insn_trans/trans_rvv.c.inc
+@@ -1014,6 +1014,75 @@ GEN_VEXT_TRANS(vle16ff_v, MO_16, r2nfvm, ldff_op, ld_us_check)
+ GEN_VEXT_TRANS(vle32ff_v, MO_32, r2nfvm, ldff_op, ld_us_check)
+ GEN_VEXT_TRANS(vle64ff_v, MO_64, r2nfvm, ldff_op, ld_us_check)
+ 
++/*
++ * load and store whole register instructions
++ */
++typedef void gen_helper_ldst_whole(TCGv_ptr, TCGv, TCGv_env, TCGv_i32);
++
++static bool ldst_whole_trans(uint32_t vd, uint32_t rs1, uint32_t nf,
++                             gen_helper_ldst_whole *fn, DisasContext *s,
++                             bool is_store)
++{
++    TCGv_ptr dest;
++    TCGv base;
++    TCGv_i32 desc;
++
++    uint32_t data = FIELD_DP32(0, VDATA, NF, nf);
++    dest = tcg_temp_new_ptr();
++    base = tcg_temp_new();
++    desc = tcg_const_i32(simd_desc(0, s->vlen / 8, data));
++
++    gen_get_gpr(base, rs1);
++    tcg_gen_addi_ptr(dest, cpu_env, vreg_ofs(s, vd));
++
++    fn(dest, base, cpu_env, desc);
++
++    tcg_temp_free_ptr(dest);
++    tcg_temp_free(base);
++    tcg_temp_free_i32(desc);
++    if (!is_store) {
++        mark_vs_dirty(s);
++    }
++    return true;
++}
++
++/*
++ * load and store whole register instructions ignore vtype and vl setting.
++ * Thus, we don't need to check vill bit. (Section 7.9)
++ */
++#define GEN_LDST_WHOLE_TRANS(NAME, ARG_NF, IS_STORE)                      \
++static bool trans_##NAME(DisasContext *s, arg_##NAME * a)                 \
++{                                                                         \
++    if (require_rvv(s) &&                                                 \
++        QEMU_IS_ALIGNED(a->rd, ARG_NF)) {                                 \
++        return ldst_whole_trans(a->rd, a->rs1, ARG_NF, gen_helper_##NAME, \
++                                s, IS_STORE);                             \
++    }                                                                     \
++    return false;                                                         \
++}
++
++GEN_LDST_WHOLE_TRANS(vl1re8_v,  1, false)
++GEN_LDST_WHOLE_TRANS(vl1re16_v, 1, false)
++GEN_LDST_WHOLE_TRANS(vl1re32_v, 1, false)
++GEN_LDST_WHOLE_TRANS(vl1re64_v, 1, false)
++GEN_LDST_WHOLE_TRANS(vl2re8_v,  2, false)
++GEN_LDST_WHOLE_TRANS(vl2re16_v, 2, false)
++GEN_LDST_WHOLE_TRANS(vl2re32_v, 2, false)
++GEN_LDST_WHOLE_TRANS(vl2re64_v, 2, false)
++GEN_LDST_WHOLE_TRANS(vl4re8_v,  4, false)
++GEN_LDST_WHOLE_TRANS(vl4re16_v, 4, false)
++GEN_LDST_WHOLE_TRANS(vl4re32_v, 4, false)
++GEN_LDST_WHOLE_TRANS(vl4re64_v, 4, false)
++GEN_LDST_WHOLE_TRANS(vl8re8_v,  8, false)
++GEN_LDST_WHOLE_TRANS(vl8re16_v, 8, false)
++GEN_LDST_WHOLE_TRANS(vl8re32_v, 8, false)
++GEN_LDST_WHOLE_TRANS(vl8re64_v, 8, false)
++
++GEN_LDST_WHOLE_TRANS(vs1r_v, 1, true)
++GEN_LDST_WHOLE_TRANS(vs2r_v, 2, true)
++GEN_LDST_WHOLE_TRANS(vs4r_v, 4, true)
++GEN_LDST_WHOLE_TRANS(vs8r_v, 8, true)
++
+ /*
+  *** vector atomic operation
+  */
+diff --git a/target/riscv/vector_helper.c b/target/riscv/vector_helper.c
+index 8bc3bf77a32..05ec6e040c3 100644
+--- a/target/riscv/vector_helper.c
++++ b/target/riscv/vector_helper.c
+@@ -534,6 +534,71 @@ GEN_VEXT_LDFF(vle16ff_v, int16_t, lde_h)
+ GEN_VEXT_LDFF(vle32ff_v, int32_t, lde_w)
+ GEN_VEXT_LDFF(vle64ff_v, int64_t, lde_d)
+ 
++/*
++ *** load and store whole register instructions
++ */
++static void
++vext_ldst_whole(void *vd, target_ulong base, CPURISCVState *env, uint32_t desc,
++                vext_ldst_elem_fn *ldst_elem, uint32_t esz, uintptr_t ra,
++                MMUAccessType access_type)
++{
++    uint32_t i, k;
++    uint32_t nf = vext_nf(desc);
++    uint32_t vlenb = env_archcpu(env)->cfg.vlen >> 3;
++    uint32_t max_elems = vlenb >> esz;
++
++    /* probe every access */
++    probe_pages(env, base, vlenb * nf, ra, access_type);
++
++    /* load bytes from guest memory */
++    for (k = 0; k < nf; k++) {
++        for (i = 0; i < max_elems; i++) {
++            target_ulong addr = base + ((i + k * max_elems) << esz);
++            ldst_elem(env, addr, i + k * max_elems, vd, ra);
++        }
++    }
++}
++
++#define GEN_VEXT_LD_WHOLE(NAME, ETYPE, LOAD_FN)      \
++void HELPER(NAME)(void *vd, target_ulong base,       \
++                  CPURISCVState *env, uint32_t desc) \
++{                                                    \
++    vext_ldst_whole(vd, base, env, desc, LOAD_FN,    \
++                    ctzl(sizeof(ETYPE)), GETPC(),    \
++                    MMU_DATA_LOAD);                  \
++}
++
++GEN_VEXT_LD_WHOLE(vl1re8_v,  int8_t,  lde_b)
++GEN_VEXT_LD_WHOLE(vl1re16_v, int16_t, lde_h)
++GEN_VEXT_LD_WHOLE(vl1re32_v, int32_t, lde_w)
++GEN_VEXT_LD_WHOLE(vl1re64_v, int64_t, lde_d)
++GEN_VEXT_LD_WHOLE(vl2re8_v,  int8_t,  lde_b)
++GEN_VEXT_LD_WHOLE(vl2re16_v, int16_t, lde_h)
++GEN_VEXT_LD_WHOLE(vl2re32_v, int32_t, lde_w)
++GEN_VEXT_LD_WHOLE(vl2re64_v, int64_t, lde_d)
++GEN_VEXT_LD_WHOLE(vl4re8_v,  int8_t,  lde_b)
++GEN_VEXT_LD_WHOLE(vl4re16_v, int16_t, lde_h)
++GEN_VEXT_LD_WHOLE(vl4re32_v, int32_t, lde_w)
++GEN_VEXT_LD_WHOLE(vl4re64_v, int64_t, lde_d)
++GEN_VEXT_LD_WHOLE(vl8re8_v,  int8_t,  lde_b)
++GEN_VEXT_LD_WHOLE(vl8re16_v, int16_t, lde_h)
++GEN_VEXT_LD_WHOLE(vl8re32_v, int32_t, lde_w)
++GEN_VEXT_LD_WHOLE(vl8re64_v, int64_t, lde_d)
++
++#define GEN_VEXT_ST_WHOLE(NAME, ETYPE, STORE_FN)     \
++void HELPER(NAME)(void *vd, target_ulong base,       \
++                  CPURISCVState *env, uint32_t desc) \
++{                                                    \
++    vext_ldst_whole(vd, base, env, desc, STORE_FN,   \
++                    ctzl(sizeof(ETYPE)), GETPC(),    \
++                    MMU_DATA_STORE);                 \
++}
++
++GEN_VEXT_ST_WHOLE(vs1r_v, int8_t, ste_b)
++GEN_VEXT_ST_WHOLE(vs2r_v, int8_t, ste_b)
++GEN_VEXT_ST_WHOLE(vs4r_v, int8_t, ste_b)
++GEN_VEXT_ST_WHOLE(vs8r_v, int8_t, ste_b)
++
+ /*
+  *** Vector AMO Operations (Zvamo)
+  */
+-- 
+2.17.1
+

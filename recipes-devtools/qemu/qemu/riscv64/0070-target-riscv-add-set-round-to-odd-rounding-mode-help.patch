@@ -1,0 +1,84 @@
+From d3aec16540e93f516f36cb5357e31a5779fd7599 Mon Sep 17 00:00:00 2001
+From: Frank Chang <frank.chang@sifive.com>
+Date: Wed, 5 Aug 2020 17:10:50 +0800
+Subject: [PATCH 070/101] target/riscv: add "set round to odd" rounding mode
+ helper function
+
+helper_set_rounding_mode() is responsible for SIGILL, and "round to odd"
+should be an interface private to translation, so add a new independent
+helper_set_rod_rounding_mode().
+
+Signed-off-by: Frank Chang <frank.chang@sifive.com>
+---
+ target/riscv/fpu_helper.c | 5 +++++
+ target/riscv/helper.h     | 1 +
+ target/riscv/internals.h  | 1 +
+ target/riscv/translate.c  | 5 +++++
+ 4 files changed, 12 insertions(+)
+
+diff --git a/target/riscv/fpu_helper.c b/target/riscv/fpu_helper.c
+index 96d77622433..6a054fa1e3f 100644
+--- a/target/riscv/fpu_helper.c
++++ b/target/riscv/fpu_helper.c
+@@ -81,6 +81,11 @@ void helper_set_rounding_mode(CPURISCVState *env, uint32_t rm)
+     set_float_rounding_mode(softrm, &env->fp_status);
+ }
+ 
++void helper_set_rod_rounding_mode(CPURISCVState *env)
++{
++    set_float_rounding_mode(float_round_to_odd, &env->fp_status);
++}
++
+ static uint64_t do_fmadd_h(CPURISCVState *env, uint64_t rs1, uint64_t rs2,
+                            uint64_t rs3, int flags)
+ {
+diff --git a/target/riscv/helper.h b/target/riscv/helper.h
+index 51174cdafae..a2a82e92e5d 100644
+--- a/target/riscv/helper.h
++++ b/target/riscv/helper.h
+@@ -3,6 +3,7 @@ DEF_HELPER_2(raise_exception, noreturn, env, i32)
+ 
+ /* Floating Point - rounding mode */
+ DEF_HELPER_FLAGS_2(set_rounding_mode, TCG_CALL_NO_WG, void, env, i32)
++DEF_HELPER_FLAGS_1(set_rod_rounding_mode, TCG_CALL_NO_WG, void, env)
+ 
+ /* Floating Point - fused */
+ DEF_HELPER_FLAGS_4(fmadd_s, TCG_CALL_NO_RWG, i64, env, i64, i64, i64)
+diff --git a/target/riscv/internals.h b/target/riscv/internals.h
+index db105d4d640..065e8162a2f 100644
+--- a/target/riscv/internals.h
++++ b/target/riscv/internals.h
+@@ -43,6 +43,7 @@ enum {
+     RISCV_FRM_RUP = 3,  /* Round Up */
+     RISCV_FRM_RMM = 4,  /* Round to Nearest, ties to Max Magnitude */
+     RISCV_FRM_DYN = 7,  /* Dynamic rounding mode */
++    RISCV_FRM_ROD = 8,  /* Round to Odd */
+ };
+ 
+ static inline uint64_t nanbox_s(float32 f)
+diff --git a/target/riscv/translate.c b/target/riscv/translate.c
+index d10e489cfe0..4dfb0a2a519 100644
+--- a/target/riscv/translate.c
++++ b/target/riscv/translate.c
+@@ -30,6 +30,7 @@
+ #include "exec/log.h"
+ 
+ #include "instmap.h"
++#include "internals.h"
+ 
+ /* global register indices */
+ static TCGv cpu_gpr[32], cpu_pc, cpu_vl;
+@@ -458,6 +459,10 @@ static void gen_set_rm(DisasContext *ctx, int rm)
+         return;
+     }
+     ctx->frm = rm;
++    if (rm == RISCV_FRM_ROD) {
++        gen_helper_set_rod_rounding_mode(cpu_env);
++        return;
++    }
+     t0 = tcg_const_i32(rm);
+     gen_helper_set_rounding_mode(cpu_env, t0);
+     tcg_temp_free_i32(t0);
+-- 
+2.17.1
+

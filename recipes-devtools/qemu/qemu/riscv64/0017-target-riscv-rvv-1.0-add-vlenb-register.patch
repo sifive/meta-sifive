@@ -1,0 +1,54 @@
+From 0e7c7d9bcb3ab88829d424c33bdc1917fb8e9c59 Mon Sep 17 00:00:00 2001
+From: Greentime Hu <greentime.hu@sifive.com>
+Date: Thu, 9 Jul 2020 16:16:00 +0800
+Subject: [PATCH 017/101] target/riscv: rvv-1.0: add vlenb register
+
+Signed-off-by: Greentime Hu <greentime.hu@sifive.com>
+Signed-off-by: Frank Chang <frank.chang@sifive.com>
+Reviewed-by: Richard Henderson <richard.henderson@linaro.org>
+Reviewed-by: Alistair Francis <alistair.francis@wdc.com>
+---
+ target/riscv/cpu_bits.h | 1 +
+ target/riscv/csr.c      | 7 +++++++
+ 2 files changed, 8 insertions(+)
+
+diff --git a/target/riscv/cpu_bits.h b/target/riscv/cpu_bits.h
+index 9ad27ff2806..4ed4ca091f1 100644
+--- a/target/riscv/cpu_bits.h
++++ b/target/riscv/cpu_bits.h
+@@ -63,6 +63,7 @@
+ #define CSR_VCSR            0x00f
+ #define CSR_VL              0xc20
+ #define CSR_VTYPE           0xc21
++#define CSR_VLENB           0xc22
+ 
+ /* VCSR fields */
+ #define VCSR_VXSAT_SHIFT    0
+diff --git a/target/riscv/csr.c b/target/riscv/csr.c
+index 6e196773184..5a0bc9a71fc 100644
+--- a/target/riscv/csr.c
++++ b/target/riscv/csr.c
+@@ -264,6 +264,12 @@ static int read_vtype(CPURISCVState *env, int csrno, target_ulong *val)
+     return 0;
+ }
+ 
++static int read_vlenb(CPURISCVState *env, int csrno, target_ulong *val)
++{
++    *val = env_archcpu(env)->cfg.vlen >> 3;
++    return 0;
++}
++
+ static int read_vl(CPURISCVState *env, int csrno, target_ulong *val)
+ {
+     *val = env->vl;
+@@ -1413,6 +1419,7 @@ riscv_csr_operations csr_ops[CSR_TABLE_SIZE] = {
+     [CSR_VCSR]     = { "vcsr",     vs,     read_vcsr,    write_vcsr   },
+     [CSR_VL]       = { "vl",       vs,     read_vl                    },
+     [CSR_VTYPE]    = { "vtype",    vs,     read_vtype                 },
++    [CSR_VLENB]    = { "vlenb",    vs,     read_vlenb                 },
+     /* User Timers and Counters */
+     [CSR_CYCLE]    = { "cycle",    ctr,    read_instret  },
+     [CSR_INSTRET]  = { "instret",  ctr,    read_instret  },
+-- 
+2.17.1
+

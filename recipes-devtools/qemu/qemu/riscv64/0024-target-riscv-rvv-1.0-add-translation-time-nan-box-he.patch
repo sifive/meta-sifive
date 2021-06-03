@@ -1,0 +1,87 @@
+From a833c06ca92cb7e9d848d92448ed791389ab4f6d Mon Sep 17 00:00:00 2001
+From: Frank Chang <frank.chang@sifive.com>
+Date: Wed, 5 Aug 2020 11:36:39 +0800
+Subject: [PATCH 024/101] target/riscv: rvv:1.0: add translation-time nan-box
+ helper function
+
+* Add fp16 nan-box check generator function, if a 16-bit input is not
+  properly nanboxed, then the input is replaced with the default qnan.
+* Add do_nanbox() helper function to utilize gen_check_nanbox_X() to
+  generate the NaN-boxed floating-point values based on SEW setting.
+* Apply nanbox helper in opfvf_trans().
+
+Signed-off-by: Frank Chang <frank.chang@sifive.com>
+Reviewed-by: Richard Henderson <richard.henderson@linaro.org>
+Reviewed-by: Alistair Francis <alistair.francis@wdc.com>
+---
+ target/riscv/insn_trans/trans_rvv.c.inc | 35 ++++++++++++++++++++++++-
+ 1 file changed, 34 insertions(+), 1 deletion(-)
+
+diff --git a/target/riscv/insn_trans/trans_rvv.c.inc b/target/riscv/insn_trans/trans_rvv.c.inc
+index 99d14caa143..dcffc149092 100644
+--- a/target/riscv/insn_trans/trans_rvv.c.inc
++++ b/target/riscv/insn_trans/trans_rvv.c.inc
+@@ -2100,6 +2100,33 @@ GEN_OPIVI_NARROW_TRANS(vnclip_vi, IMM_ZX, vnclip_vx)
+ /*
+  *** Vector Float Point Arithmetic Instructions
+  */
++
++/*
++ * As RVF-only cpus always have values NaN-boxed to 64-bits,
++ * RVF and RVD can be treated equally.
++ * We don't have to deal with the cases of: SEW > FLEN.
++ *
++ * If SEW < FLEN, check whether input fp register is a valid
++ * NaN-boxed value, in which case the least-significant SEW bits
++ * of the f regsiter are used, else the canonical NaN value is used.
++ */
++static void do_nanbox(DisasContext *s, TCGv_i64 out, TCGv_i64 in)
++{
++    switch (s->sew) {
++    case 1:
++        gen_check_nanbox_h(out, in);
++        break;
++    case 2:
++        gen_check_nanbox_s(out, in);
++        break;
++    case 3:
++        tcg_gen_mov_i64(out, in);
++        break;
++    default:
++        g_assert_not_reached();
++    }
++}
++
+ /* Vector Single-Width Floating-Point Add/Subtract Instructions */
+ 
+ /*
+@@ -2152,6 +2179,7 @@ static bool opfvf_trans(uint32_t vd, uint32_t rs1, uint32_t vs2,
+ {
+     TCGv_ptr dest, src2, mask;
+     TCGv_i32 desc;
++    TCGv_i64 t1;
+ 
+     TCGLabel *over = gen_new_label();
+     tcg_gen_brcondi_tl(TCG_COND_EQ, cpu_vl, 0, over);
+@@ -2165,12 +2193,17 @@ static bool opfvf_trans(uint32_t vd, uint32_t rs1, uint32_t vs2,
+     tcg_gen_addi_ptr(src2, cpu_env, vreg_ofs(s, vs2));
+     tcg_gen_addi_ptr(mask, cpu_env, vreg_ofs(s, 0));
+ 
+-    fn(dest, mask, cpu_fpr[rs1], src2, cpu_env, desc);
++    /* NaN-box f[rs1] */
++    t1 = tcg_temp_new_i64();
++    do_nanbox(s, t1, cpu_fpr[rs1]);
++
++    fn(dest, mask, t1, src2, cpu_env, desc);
+ 
+     tcg_temp_free_ptr(dest);
+     tcg_temp_free_ptr(mask);
+     tcg_temp_free_ptr(src2);
+     tcg_temp_free_i32(desc);
++    tcg_temp_free_i64(t1);
+     mark_vs_dirty(s);
+     gen_set_label(over);
+     return true;
+-- 
+2.17.1
+

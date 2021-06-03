@@ -1,0 +1,62 @@
+From 20690b1a64cb0cfcce00acc7822e9281069c5e90 Mon Sep 17 00:00:00 2001
+From: Frank Chang <frank.chang@sifive.com>
+Date: Tue, 4 Aug 2020 10:27:28 +0800
+Subject: [PATCH 044/101] target/riscv: rvv-1.0: floating-point move
+ instruction
+
+NaN-boxed the scalar floating-point register based on RVV 1.0's rules.
+
+Signed-off-by: Frank Chang <frank.chang@sifive.com>
+Reviewed-by: Alistair Francis <alistair.francis@wdc.com>
+---
+ target/riscv/insn_trans/trans_rvv.c.inc | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
+
+diff --git a/target/riscv/insn_trans/trans_rvv.c.inc b/target/riscv/insn_trans/trans_rvv.c.inc
+index d83d30c101a..0c8b5e232d3 100644
+--- a/target/riscv/insn_trans/trans_rvv.c.inc
++++ b/target/riscv/insn_trans/trans_rvv.c.inc
+@@ -2691,9 +2691,15 @@ static bool trans_vfmv_v_f(DisasContext *s, arg_vfmv_v_f *a)
+         require_rvf(s) &&
+         vext_check_isa_ill(s) &&
+         require_align(a->rd, s->lmul)) {
++        TCGv_i64 t1;
++
+         if (s->vl_eq_vlmax) {
++            t1 = tcg_temp_new_i64();
++            /* NaN-box f[rs1] */
++            do_nanbox(s, t1, cpu_fpr[a->rs1]);
++
+             tcg_gen_gvec_dup_i64(s->sew, vreg_ofs(s, a->rd),
+-                                 MAXSZ(s), MAXSZ(s), cpu_fpr[a->rs1]);
++                                 MAXSZ(s), MAXSZ(s), t1);
+             mark_vs_dirty(s);
+         } else {
+             TCGv_ptr dest;
+@@ -2707,16 +2713,22 @@ static bool trans_vfmv_v_f(DisasContext *s, arg_vfmv_v_f *a)
+             TCGLabel *over = gen_new_label();
+             tcg_gen_brcondi_tl(TCG_COND_EQ, cpu_vl, 0, over);
+ 
++            t1 = tcg_temp_new_i64();
++            /* NaN-box f[rs1] */
++            do_nanbox(s, t1, cpu_fpr[a->rs1]);
++
+             dest = tcg_temp_new_ptr();
+             desc = tcg_const_i32(simd_desc(0, s->vlen / 8, data));
+             tcg_gen_addi_ptr(dest, cpu_env, vreg_ofs(s, a->rd));
+-            fns[s->sew - 1](dest, cpu_fpr[a->rs1], cpu_env, desc);
++
++            fns[s->sew - 1](dest, t1, cpu_env, desc);
+ 
+             tcg_temp_free_ptr(dest);
+             tcg_temp_free_i32(desc);
+             mark_vs_dirty(s);
+             gen_set_label(over);
+         }
++        tcg_temp_free_i64(t1);
+         return true;
+     }
+     return false;
+-- 
+2.17.1
+

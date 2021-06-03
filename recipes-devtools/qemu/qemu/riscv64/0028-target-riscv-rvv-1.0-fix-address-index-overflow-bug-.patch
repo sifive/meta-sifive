@@ -1,0 +1,38 @@
+From 20a2fea4109e7f346b576dc305df9030f061e117 Mon Sep 17 00:00:00 2001
+From: Frank Chang <frank.chang@sifive.com>
+Date: Thu, 9 Jul 2020 21:25:17 +0800
+Subject: [PATCH 028/101] target/riscv: rvv-1.0: fix address index overflow bug
+ of indexed load/store insns
+
+Replace ETYPE from signed int to unsigned int to prevent index overflow
+issue, which would lead to wrong index address.
+
+Signed-off-by: Frank Chang <frank.chang@sifive.com>
+Reviewed-by: Richard Henderson <richard.henderson@linaro.org>
+Reviewed-by: Alistair Francis <alistair.francis@wdc.com>
+---
+ target/riscv/vector_helper.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/target/riscv/vector_helper.c b/target/riscv/vector_helper.c
+index 95d367489bf..6030fa6fbb4 100644
+--- a/target/riscv/vector_helper.c
++++ b/target/riscv/vector_helper.c
+@@ -361,10 +361,10 @@ static target_ulong NAME(target_ulong base,            \
+     return (base + *((ETYPE *)vs2 + H(idx)));          \
+ }
+ 
+-GEN_VEXT_GET_INDEX_ADDR(idx_b, int8_t,  H1)
+-GEN_VEXT_GET_INDEX_ADDR(idx_h, int16_t, H2)
+-GEN_VEXT_GET_INDEX_ADDR(idx_w, int32_t, H4)
+-GEN_VEXT_GET_INDEX_ADDR(idx_d, int64_t, H8)
++GEN_VEXT_GET_INDEX_ADDR(idx_b, uint8_t,  H1)
++GEN_VEXT_GET_INDEX_ADDR(idx_h, uint16_t, H2)
++GEN_VEXT_GET_INDEX_ADDR(idx_w, uint32_t, H4)
++GEN_VEXT_GET_INDEX_ADDR(idx_d, uint64_t, H8)
+ 
+ static inline void
+ vext_ldst_index(void *vd, void *v0, target_ulong base,
+-- 
+2.17.1
+

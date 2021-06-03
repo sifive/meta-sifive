@@ -1,0 +1,85 @@
+From bb663457b0adf3bfd220646203e61710a23709f8 Mon Sep 17 00:00:00 2001
+From: Kito Cheng <kito.cheng@sifive.com>
+Date: Tue, 20 Oct 2020 18:31:24 +0800
+Subject: [PATCH 099/101] target/riscv: rvb: add/shift with prefix zero-extend
+
+Signed-off-by: Kito Cheng <kito.cheng@sifive.com>
+Signed-off-by: Frank Chang <frank.chang@sifive.com>
+Reviewed-by: Richard Henderson <richard.henderson@linaro.org>
+---
+ target/riscv/insn32-64.decode           |  3 +++
+ target/riscv/insn_trans/trans_rvb.c.inc | 24 ++++++++++++++++++++++++
+ target/riscv/translate.c                |  6 ++++++
+ 3 files changed, 33 insertions(+)
+
+diff --git a/target/riscv/insn32-64.decode b/target/riscv/insn32-64.decode
+index d4fa4498bee..2c3313531f0 100644
+--- a/target/riscv/insn32-64.decode
++++ b/target/riscv/insn32-64.decode
+@@ -113,6 +113,7 @@ gorcw      0010100 .......... 101 ..... 0111011 @r
+ sh1add_uw  0010000 .......... 010 ..... 0111011 @r
+ sh2add_uw  0010000 .......... 100 ..... 0111011 @r
+ sh3add_uw  0010000 .......... 110 ..... 0111011 @r
++add_uw     0000100 .......... 000 ..... 0111011 @r
+ 
+ bsetiw     0010100 .......... 001 ..... 0011011 @sh5
+ bclriw     0100100 .......... 001 ..... 0011011 @sh5
+@@ -122,3 +123,5 @@ sroiw      0010000 .......... 101 ..... 0011011 @sh5
+ roriw      0110000 .......... 101 ..... 0011011 @sh5
+ greviw     0110100 .......... 101 ..... 0011011 @sh5
+ gorciw     0010100 .......... 101 ..... 0011011 @sh5
++
++slli_uw    00001. ........... 001 ..... 0011011 @sh
+diff --git a/target/riscv/insn_trans/trans_rvb.c.inc b/target/riscv/insn_trans/trans_rvb.c.inc
+index ca987f2705f..d69bda2f7b3 100644
+--- a/target/riscv/insn_trans/trans_rvb.c.inc
++++ b/target/riscv/insn_trans/trans_rvb.c.inc
+@@ -390,4 +390,28 @@ GEN_TRANS_SHADD_UW(1)
+ GEN_TRANS_SHADD_UW(2)
+ GEN_TRANS_SHADD_UW(3)
+ 
++static bool trans_add_uw(DisasContext *ctx, arg_add_uw *a)
++{
++    REQUIRE_EXT(ctx, RVB);
++    return gen_arith(ctx, a, gen_add_uw);
++}
++
++static bool trans_slli_uw(DisasContext *ctx, arg_slli_uw *a)
++{
++    REQUIRE_EXT(ctx, RVB);
++
++    TCGv source1 = tcg_temp_new();
++    gen_get_gpr(source1, a->rs1);
++
++    if (a->shamt < 32) {
++        tcg_gen_deposit_z_i64(source1, source1, a->shamt, 32);
++    } else {
++        tcg_gen_shli_i64(source1, source1, a->shamt);
++    }
++
++    gen_set_gpr(a->rd, source1);
++    tcg_temp_free(source1);
++    return true;
++}
++
+ #endif
+diff --git a/target/riscv/translate.c b/target/riscv/translate.c
+index f02ab479aad..171cf6bb08d 100644
+--- a/target/riscv/translate.c
++++ b/target/riscv/translate.c
+@@ -820,6 +820,12 @@ GEN_SHADD_UW(1)
+ GEN_SHADD_UW(2)
+ GEN_SHADD_UW(3)
+ 
++static void gen_add_uw(TCGv ret, TCGv arg1, TCGv arg2)
++{
++    tcg_gen_ext32u_tl(arg1, arg1);
++    tcg_gen_add_tl(ret, arg1, arg2);
++}
++
+ #endif
+ 
+ static bool gen_arith(DisasContext *ctx, arg_r *a,
+-- 
+2.17.1
+

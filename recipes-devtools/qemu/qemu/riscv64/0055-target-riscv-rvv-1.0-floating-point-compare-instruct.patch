@@ -1,0 +1,55 @@
+From 776a0ce47c3b50ef3f307d46af38b0ebba8b754a Mon Sep 17 00:00:00 2001
+From: Frank Chang <frank.chang@sifive.com>
+Date: Thu, 30 Jul 2020 21:29:29 +0800
+Subject: [PATCH 055/101] target/riscv: rvv-1.0: floating-point compare
+ instructions
+
+Signed-off-by: Frank Chang <frank.chang@sifive.com>
+Reviewed-by: Richard Henderson <richard.henderson@linaro.org>
+---
+ target/riscv/vector_helper.c | 8 --------
+ 1 file changed, 8 deletions(-)
+
+diff --git a/target/riscv/vector_helper.c b/target/riscv/vector_helper.c
+index f9c2f9cd89d..ef3875ee7d4 100644
+--- a/target/riscv/vector_helper.c
++++ b/target/riscv/vector_helper.c
+@@ -3919,7 +3919,6 @@ void HELPER(NAME)(void *vd, void *v0, void *vs1, void *vs2,   \
+ {                                                             \
+     uint32_t vm = vext_vm(desc);                              \
+     uint32_t vl = env->vl;                                    \
+-    uint32_t vlmax = vext_maxsz(desc) / sizeof(ETYPE);        \
+     uint32_t i;                                               \
+                                                               \
+     for (i = 0; i < vl; i++) {                                \
+@@ -3931,9 +3930,6 @@ void HELPER(NAME)(void *vd, void *v0, void *vs1, void *vs2,   \
+         vext_set_elem_mask(vd, i,                             \
+                            DO_OP(s2, s1, &env->fp_status));   \
+     }                                                         \
+-    for (; i < vlmax; i++) {                                  \
+-        vext_set_elem_mask(vd, i, 0);                         \
+-    }                                                         \
+ }
+ 
+ GEN_VEXT_CMP_VV_ENV(vmfeq_vv_h, uint16_t, H2, float16_eq_quiet)
+@@ -3946,7 +3942,6 @@ void HELPER(NAME)(void *vd, void *v0, uint64_t s1, void *vs2,       \
+ {                                                                   \
+     uint32_t vm = vext_vm(desc);                                    \
+     uint32_t vl = env->vl;                                          \
+-    uint32_t vlmax = vext_max_elems(desc, ctzl(sizeof(ETYPE)));     \
+     uint32_t i;                                                     \
+                                                                     \
+     for (i = 0; i < vl; i++) {                                      \
+@@ -3957,9 +3952,6 @@ void HELPER(NAME)(void *vd, void *v0, uint64_t s1, void *vs2,       \
+         vext_set_elem_mask(vd, i,                                   \
+                            DO_OP(s2, (ETYPE)s1, &env->fp_status));  \
+     }                                                               \
+-    for (; i < vlmax; i++) {                                        \
+-        vext_set_elem_mask(vd, i, 0);                               \
+-    }                                                               \
+ }
+ 
+ GEN_VEXT_CMP_VF(vmfeq_vf_h, uint16_t, H2, float16_eq_quiet)
+-- 
+2.17.1
+

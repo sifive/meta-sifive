@@ -1,0 +1,57 @@
+From 58334aff8d3118bc1f5bfce9e1bbaec4b02c23bf Mon Sep 17 00:00:00 2001
+From: Kito Cheng <kito.cheng@sifive.com>
+Date: Tue, 20 Oct 2020 17:48:49 +0800
+Subject: [PATCH 088/101] target/riscv: rvb: logic-with-negate
+
+Signed-off-by: Kito Cheng <kito.cheng@sifive.com>
+Signed-off-by: Frank Chang <frank.chang@sifive.com>
+Reviewed-by: Richard Henderson <richard.henderson@linaro.org>
+---
+ target/riscv/insn32.decode              |  4 ++++
+ target/riscv/insn_trans/trans_rvb.c.inc | 18 ++++++++++++++++++
+ 2 files changed, 22 insertions(+)
+
+diff --git a/target/riscv/insn32.decode b/target/riscv/insn32.decode
+index 2d02cf5234b..770978993da 100644
+--- a/target/riscv/insn32.decode
++++ b/target/riscv/insn32.decode
+@@ -694,3 +694,7 @@ fmv_h_x    1111010  00000 ..... 000 ..... 1010011 @r2
+ clz        011000 000000 ..... 001 ..... 0010011 @r2
+ ctz        011000 000001 ..... 001 ..... 0010011 @r2
+ cpop       011000 000010 ..... 001 ..... 0010011 @r2
++
++andn       0100000 .......... 111 ..... 0110011 @r
++orn        0100000 .......... 110 ..... 0110011 @r
++xnor       0100000 .......... 100 ..... 0110011 @r
+diff --git a/target/riscv/insn_trans/trans_rvb.c.inc b/target/riscv/insn_trans/trans_rvb.c.inc
+index dbbd94e1015..73c4693a263 100644
+--- a/target/riscv/insn_trans/trans_rvb.c.inc
++++ b/target/riscv/insn_trans/trans_rvb.c.inc
+@@ -35,6 +35,24 @@ static bool trans_cpop(DisasContext *ctx, arg_cpop *a)
+     return gen_unary(ctx, a, tcg_gen_ctpop_tl);
+ }
+ 
++static bool trans_andn(DisasContext *ctx, arg_andn *a)
++{
++    REQUIRE_EXT(ctx, RVB);
++    return gen_arith(ctx, a, tcg_gen_andc_tl);
++}
++
++static bool trans_orn(DisasContext *ctx, arg_orn *a)
++{
++    REQUIRE_EXT(ctx, RVB);
++    return gen_arith(ctx, a, tcg_gen_orc_tl);
++}
++
++static bool trans_xnor(DisasContext *ctx, arg_xnor *a)
++{
++    REQUIRE_EXT(ctx, RVB);
++    return gen_arith(ctx, a, tcg_gen_eqv_tl);
++}
++
+ /* RV64-only instructions */
+ #ifdef TARGET_RISCV64
+ 
+-- 
+2.17.1
+

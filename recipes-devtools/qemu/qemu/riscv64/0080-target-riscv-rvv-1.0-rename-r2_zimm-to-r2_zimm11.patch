@@ -1,0 +1,38 @@
+From be1a09a11937db9d23e866303e37d434e9725941 Mon Sep 17 00:00:00 2001
+From: Frank Chang <frank.chang@sifive.com>
+Date: Fri, 26 Feb 2021 08:42:04 +0800
+Subject: [PATCH 080/101] target/riscv: rvv-1.0: rename r2_zimm to r2_zimm11
+
+Rename r2_zimm to r2_zimm11 for the upcoming vsetivli instruction.
+vsetivli has 10-bits of zimm but vsetvli has 11-bits of zimm.
+
+Signed-off-by: Frank Chang <frank.chang@sifive.com>
+---
+ target/riscv/insn32.decode | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/target/riscv/insn32.decode b/target/riscv/insn32.decode
+index c90d347af41..bab4259d91b 100644
+--- a/target/riscv/insn32.decode
++++ b/target/riscv/insn32.decode
+@@ -77,7 +77,7 @@
+ @r_vm_1  ...... . ..... ..... ... ..... .......    &rmrr vm=1 %rs2 %rs1 %rd
+ @r_vm_0  ...... . ..... ..... ... ..... .......    &rmrr vm=0 %rs2 %rs1 %rd
+ @r_wdvm  ..... wd:1 vm:1 ..... ..... ... ..... ....... &rwdvm %rs2 %rs1 %rd
+-@r2_zimm . zimm:11  ..... ... ..... ....... %rs1 %rd
++@r2_zimm11 . zimm:11  ..... ... ..... ....... %rs1 %rd
+ @r2_s    .......   ..... ..... ... ..... ....... %rs2 %rs1
+ 
+ @hfence_gvma ....... ..... .....   ... ..... ....... %rs2 %rs1
+@@ -646,7 +646,7 @@ vsext_vf2       010010 . ..... 00111 010 ..... 1010111 @r2_vm
+ vsext_vf4       010010 . ..... 00101 010 ..... 1010111 @r2_vm
+ vsext_vf8       010010 . ..... 00011 010 ..... 1010111 @r2_vm
+ 
+-vsetvli         0 ........... ..... 111 ..... 1010111  @r2_zimm
++vsetvli         0 ........... ..... 111 ..... 1010111  @r2_zimm11
+ vsetvl          1000000 ..... ..... 111 ..... 1010111  @r
+ 
+ # *** RV32Zfh Extension ***
+-- 
+2.17.1
+

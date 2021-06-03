@@ -1,0 +1,35 @@
+From 10a9bc6c3ced29841fba4d94224cc35425d4dd89 Mon Sep 17 00:00:00 2001
+From: Frank Chang <frank.chang@sifive.com>
+Date: Wed, 5 Aug 2020 18:03:26 +0800
+Subject: [PATCH 061/101] target/riscv: rvv-1.0: widening floating-point
+ reduction instructions
+
+Signed-off-by: Frank Chang <frank.chang@sifive.com>
+Reviewed-by: Richard Henderson <richard.henderson@linaro.org>
+---
+ target/riscv/insn_trans/trans_rvv.c.inc | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/target/riscv/insn_trans/trans_rvv.c.inc b/target/riscv/insn_trans/trans_rvv.c.inc
+index 6273bef23a7..f805fa52e20 100644
+--- a/target/riscv/insn_trans/trans_rvv.c.inc
++++ b/target/riscv/insn_trans/trans_rvv.c.inc
+@@ -2877,7 +2877,14 @@ GEN_OPFVV_TRANS(vfredmax_vs, freduction_check)
+ GEN_OPFVV_TRANS(vfredmin_vs, freduction_check)
+ 
+ /* Vector Widening Floating-Point Reduction Instructions */
+-GEN_OPFVV_WIDEN_TRANS(vfwredsum_vs, reduction_check)
++static bool freduction_widen_check(DisasContext *s, arg_rmrr *a)
++{
++    return reduction_widen_check(s, a) &&
++           require_scale_rvf(s) &&
++           (s->sew != MO_8);
++}
++
++GEN_OPFVV_WIDEN_TRANS(vfwredsum_vs, freduction_widen_check)
+ 
+ /*
+  *** Vector Mask Operations
+-- 
+2.17.1
+

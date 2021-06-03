@@ -1,0 +1,140 @@
+From b9fe1ddadeb3b49285ac08ab9944fd8f5978821e Mon Sep 17 00:00:00 2001
+From: Kito Cheng <kito.cheng@sifive.com>
+Date: Tue, 20 Oct 2020 18:11:28 +0800
+Subject: [PATCH 094/101] target/riscv: rvb: shift ones
+
+Signed-off-by: Kito Cheng <kito.cheng@sifive.com>
+Signed-off-by: Frank Chang <frank.chang@sifive.com>
+Reviewed-by: Richard Henderson <richard.henderson@linaro.org>
+---
+ target/riscv/insn32-64.decode           |  4 +++
+ target/riscv/insn32.decode              |  4 +++
+ target/riscv/insn_trans/trans_rvb.c.inc | 48 +++++++++++++++++++++++++
+ target/riscv/translate.c                | 14 ++++++++
+ 4 files changed, 70 insertions(+)
+
+diff --git a/target/riscv/insn32-64.decode b/target/riscv/insn32-64.decode
+index 3543342fcab..d2daee4a05f 100644
+--- a/target/riscv/insn32-64.decode
++++ b/target/riscv/insn32-64.decode
+@@ -104,7 +104,11 @@ bsetw      0010100 .......... 001 ..... 0111011 @r
+ bclrw      0100100 .......... 001 ..... 0111011 @r
+ binvw      0110100 .......... 001 ..... 0111011 @r
+ bextw      0100100 .......... 101 ..... 0111011 @r
++slow       0010000 .......... 001 ..... 0111011 @r
++srow       0010000 .......... 101 ..... 0111011 @r
+ 
+ bsetiw     0010100 .......... 001 ..... 0011011 @sh5
+ bclriw     0100100 .......... 001 ..... 0011011 @sh5
+ binviw     0110100 .......... 001 ..... 0011011 @sh5
++sloiw      0010000 .......... 001 ..... 0011011 @sh5
++sroiw      0010000 .......... 101 ..... 0011011 @sh5
+diff --git a/target/riscv/insn32.decode b/target/riscv/insn32.decode
+index 14ffcc7afd0..f0ff5c54418 100644
+--- a/target/riscv/insn32.decode
++++ b/target/riscv/insn32.decode
+@@ -711,8 +711,12 @@ bset       0010100 .......... 001 ..... 0110011 @r
+ bclr       0100100 .......... 001 ..... 0110011 @r
+ binv       0110100 .......... 001 ..... 0110011 @r
+ bext       0100100 .......... 101 ..... 0110011 @r
++slo        0010000 .......... 001 ..... 0110011 @r
++sro        0010000 .......... 101 ..... 0110011 @r
+ 
+ bseti      00101. ........... 001 ..... 0010011 @sh
+ bclri      01001. ........... 001 ..... 0010011 @sh
+ binvi      01101. ........... 001 ..... 0010011 @sh
+ bexti      01001. ........... 101 ..... 0010011 @sh
++sloi       00100. ........... 001 ..... 0010011 @sh
++sroi       00100. ........... 101 ..... 0010011 @sh
+diff --git a/target/riscv/insn_trans/trans_rvb.c.inc b/target/riscv/insn_trans/trans_rvb.c.inc
+index 0c41f135dc6..44f9f639240 100644
+--- a/target/riscv/insn_trans/trans_rvb.c.inc
++++ b/target/riscv/insn_trans/trans_rvb.c.inc
+@@ -155,6 +155,30 @@ static bool trans_bexti(DisasContext *ctx, arg_bexti *a)
+     return gen_shifti(ctx, a, gen_bext);
+ }
+ 
++static bool trans_slo(DisasContext *ctx, arg_slo *a)
++{
++    REQUIRE_EXT(ctx, RVB);
++    return gen_shift(ctx, a, gen_slo);
++}
++
++static bool trans_sloi(DisasContext *ctx, arg_sloi *a)
++{
++    REQUIRE_EXT(ctx, RVB);
++    return gen_shifti(ctx, a, gen_slo);
++}
++
++static bool trans_sro(DisasContext *ctx, arg_sro *a)
++{
++    REQUIRE_EXT(ctx, RVB);
++    return gen_shift(ctx, a, gen_sro);
++}
++
++static bool trans_sroi(DisasContext *ctx, arg_sroi *a)
++{
++    REQUIRE_EXT(ctx, RVB);
++    return gen_shifti(ctx, a, gen_sro);
++}
++
+ /* RV64-only instructions */
+ #ifdef TARGET_RISCV64
+ 
+@@ -230,4 +254,28 @@ static bool trans_bextw(DisasContext *ctx, arg_bextw *a)
+     return gen_shiftw(ctx, a, gen_bext);
+ }
+ 
++static bool trans_slow(DisasContext *ctx, arg_slow *a)
++{
++    REQUIRE_EXT(ctx, RVB);
++    return gen_shiftw(ctx, a, gen_slo);
++}
++
++static bool trans_sloiw(DisasContext *ctx, arg_sloiw *a)
++{
++    REQUIRE_EXT(ctx, RVB);
++    return gen_shiftiw(ctx, a, gen_slo);
++}
++
++static bool trans_srow(DisasContext *ctx, arg_srow *a)
++{
++    REQUIRE_EXT(ctx, RVB);
++    return gen_shiftw(ctx, a, gen_sro);
++}
++
++static bool trans_sroiw(DisasContext *ctx, arg_sroiw *a)
++{
++    REQUIRE_EXT(ctx, RVB);
++    return gen_shiftiw(ctx, a, gen_sro);
++}
++
+ #endif
+diff --git a/target/riscv/translate.c b/target/riscv/translate.c
+index 5c708903335..f9dcdf8afef 100644
+--- a/target/riscv/translate.c
++++ b/target/riscv/translate.c
+@@ -666,6 +666,20 @@ static void gen_bext(TCGv ret, TCGv arg1, TCGv shamt)
+     tcg_gen_andi_tl(ret, ret, 1);
+ }
+ 
++static void gen_slo(TCGv ret, TCGv arg1, TCGv arg2)
++{
++    tcg_gen_not_tl(ret, arg1);
++    tcg_gen_shl_tl(ret, ret, arg2);
++    tcg_gen_not_tl(ret, ret);
++}
++
++static void gen_sro(TCGv ret, TCGv arg1, TCGv arg2)
++{
++    tcg_gen_not_tl(ret, arg1);
++    tcg_gen_shr_tl(ret, ret, arg2);
++    tcg_gen_not_tl(ret, ret);
++}
++
+ #ifdef TARGET_RISCV64
+ 
+ static void gen_ctzw(TCGv ret, TCGv arg1)
+-- 
+2.17.1
+

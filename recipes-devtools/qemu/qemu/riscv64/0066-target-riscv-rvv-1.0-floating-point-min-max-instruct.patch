@@ -1,0 +1,60 @@
+From 93361bdb5fafd3c7dc009fe199970e3887d7e43c Mon Sep 17 00:00:00 2001
+From: Frank Chang <frank.chang@sifive.com>
+Date: Mon, 6 Jul 2020 20:03:09 +0800
+Subject: [PATCH 066/101] target/riscv: rvv-1.0: floating-point min/max
+ instructions
+
+Signed-off-by: Frank Chang <frank.chang@sifive.com>
+Reviewed-by: Richard Henderson <richard.henderson@linaro.org>
+---
+ target/riscv/vector_helper.c | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
+
+diff --git a/target/riscv/vector_helper.c b/target/riscv/vector_helper.c
+index b82fe7841a3..45ad6eaa96e 100644
+--- a/target/riscv/vector_helper.c
++++ b/target/riscv/vector_helper.c
+@@ -3596,28 +3596,28 @@ GEN_VEXT_V_ENV(vfsqrt_v_w, 4, 4)
+ GEN_VEXT_V_ENV(vfsqrt_v_d, 8, 8)
+ 
+ /* Vector Floating-Point MIN/MAX Instructions */
+-RVVCALL(OPFVV2, vfmin_vv_h, OP_UUU_H, H2, H2, H2, float16_minnum)
+-RVVCALL(OPFVV2, vfmin_vv_w, OP_UUU_W, H4, H4, H4, float32_minnum)
+-RVVCALL(OPFVV2, vfmin_vv_d, OP_UUU_D, H8, H8, H8, float64_minnum)
++RVVCALL(OPFVV2, vfmin_vv_h, OP_UUU_H, H2, H2, H2, float16_minnum_noprop)
++RVVCALL(OPFVV2, vfmin_vv_w, OP_UUU_W, H4, H4, H4, float32_minnum_noprop)
++RVVCALL(OPFVV2, vfmin_vv_d, OP_UUU_D, H8, H8, H8, float64_minnum_noprop)
+ GEN_VEXT_VV_ENV(vfmin_vv_h, 2, 2)
+ GEN_VEXT_VV_ENV(vfmin_vv_w, 4, 4)
+ GEN_VEXT_VV_ENV(vfmin_vv_d, 8, 8)
+-RVVCALL(OPFVF2, vfmin_vf_h, OP_UUU_H, H2, H2, float16_minnum)
+-RVVCALL(OPFVF2, vfmin_vf_w, OP_UUU_W, H4, H4, float32_minnum)
+-RVVCALL(OPFVF2, vfmin_vf_d, OP_UUU_D, H8, H8, float64_minnum)
++RVVCALL(OPFVF2, vfmin_vf_h, OP_UUU_H, H2, H2, float16_minnum_noprop)
++RVVCALL(OPFVF2, vfmin_vf_w, OP_UUU_W, H4, H4, float32_minnum_noprop)
++RVVCALL(OPFVF2, vfmin_vf_d, OP_UUU_D, H8, H8, float64_minnum_noprop)
+ GEN_VEXT_VF(vfmin_vf_h, 2, 2)
+ GEN_VEXT_VF(vfmin_vf_w, 4, 4)
+ GEN_VEXT_VF(vfmin_vf_d, 8, 8)
+ 
+-RVVCALL(OPFVV2, vfmax_vv_h, OP_UUU_H, H2, H2, H2, float16_maxnum)
+-RVVCALL(OPFVV2, vfmax_vv_w, OP_UUU_W, H4, H4, H4, float32_maxnum)
+-RVVCALL(OPFVV2, vfmax_vv_d, OP_UUU_D, H8, H8, H8, float64_maxnum)
++RVVCALL(OPFVV2, vfmax_vv_h, OP_UUU_H, H2, H2, H2, float16_maxnum_noprop)
++RVVCALL(OPFVV2, vfmax_vv_w, OP_UUU_W, H4, H4, H4, float32_maxnum_noprop)
++RVVCALL(OPFVV2, vfmax_vv_d, OP_UUU_D, H8, H8, H8, float64_maxnum_noprop)
+ GEN_VEXT_VV_ENV(vfmax_vv_h, 2, 2)
+ GEN_VEXT_VV_ENV(vfmax_vv_w, 4, 4)
+ GEN_VEXT_VV_ENV(vfmax_vv_d, 8, 8)
+-RVVCALL(OPFVF2, vfmax_vf_h, OP_UUU_H, H2, H2, float16_maxnum)
+-RVVCALL(OPFVF2, vfmax_vf_w, OP_UUU_W, H4, H4, float32_maxnum)
+-RVVCALL(OPFVF2, vfmax_vf_d, OP_UUU_D, H8, H8, float64_maxnum)
++RVVCALL(OPFVF2, vfmax_vf_h, OP_UUU_H, H2, H2, float16_maxnum_noprop)
++RVVCALL(OPFVF2, vfmax_vf_w, OP_UUU_W, H4, H4, float32_maxnum_noprop)
++RVVCALL(OPFVF2, vfmax_vf_d, OP_UUU_D, H8, H8, float64_maxnum_noprop)
+ GEN_VEXT_VF(vfmax_vf_h, 2, 2)
+ GEN_VEXT_VF(vfmax_vf_w, 4, 4)
+ GEN_VEXT_VF(vfmax_vf_d, 8, 8)
+-- 
+2.17.1
+

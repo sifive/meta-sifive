@@ -1,0 +1,29 @@
+From 59f36c70873a45b924dcc74aee7c92c0728800bf Mon Sep 17 00:00:00 2001
+From: Frank Chang <frank.chang@sifive.com>
+Date: Thu, 2 Jul 2020 11:44:23 +0800
+Subject: [PATCH 034/101] target/riscv: rvv-1.0: floating-point square-root
+ instruction
+
+Signed-off-by: Frank Chang <frank.chang@sifive.com>
+Reviewed-by: Richard Henderson <richard.henderson@linaro.org>
+Reviewed-by: Alistair Francis <alistair.francis@wdc.com>
+---
+ target/riscv/insn32.decode | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/target/riscv/insn32.decode b/target/riscv/insn32.decode
+index dec3fe1f344..c41965f1d8f 100644
+--- a/target/riscv/insn32.decode
++++ b/target/riscv/insn32.decode
+@@ -538,7 +538,7 @@ vfwmsac_vv      111110 . ..... ..... 001 ..... 1010111 @r_vm
+ vfwmsac_vf      111110 . ..... ..... 101 ..... 1010111 @r_vm
+ vfwnmsac_vv     111111 . ..... ..... 001 ..... 1010111 @r_vm
+ vfwnmsac_vf     111111 . ..... ..... 101 ..... 1010111 @r_vm
+-vfsqrt_v        100011 . ..... 00000 001 ..... 1010111 @r2_vm
++vfsqrt_v        010011 . ..... 00000 001 ..... 1010111 @r2_vm
+ vfmin_vv        000100 . ..... ..... 001 ..... 1010111 @r_vm
+ vfmin_vf        000100 . ..... ..... 101 ..... 1010111 @r_vm
+ vfmax_vv        000110 . ..... ..... 001 ..... 1010111 @r_vm
+-- 
+2.17.1
+
