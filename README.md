@@ -117,15 +117,17 @@ There are two disk image targets added by meta-sifive layer:
 
 - `demo-coreip-xfce4` - basic graphical disk image with [Xfce 4](https://www.xfce.org/) desktop environment.
 
-There are two machine targets currently tested:
+There are several machine targets defined:
 
-- `qemuriscv64` - RISC-V 64-bit (RV64GC) for QEMU virt machine.
-
+- `qemuriscv64` - RISC-V 64-bit (RV64GC) for QEMU virt machine (**recommended for QEMU target**).
+- `qemuriscv64_b`- RISCV-V 64-bit (RV64GC) with B extension (not ratified yet) for QEMU virt machine.
+- `qemuriscv64_b_zfh` - RISC-V-64-bit (RV64GC) with B and Zfh extensions (both not ratified yet) for QEMU virt machine.
+- `qemuriscv64_v` - RISC-V 64-bit (RV64GC) with V extension (not ratified yet) for QEMU virt machine.
 - `freedom-u540` - SiFive HiFive Unleashed development board.
-
 - `unmatched` - SiFive HiFive Unmatched development board.
 
-> It's not possible to use disk images built for `freedom-u540` with QEMU 4.0 and instructions provided below.
+The QEMU machines with the additional extensions (i.e. beyond RV64GC) do not affect how packages or/and disk images are built. This means the toolchain might not provide support for the new extensions. By default packages are not built with the new instructions enabled.
+
 > 
 > Building disk images is CPU intensive, could require <10GB of sources downloaded over the Internet and <200GB of local storage.
 
