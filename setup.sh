@@ -125,6 +125,8 @@ PACKAGECONFIG_append_pn-elfutils = " xz"
 
 PACKAGECONFIG_append_pn-pulseaudio = " autospawn-for-root"
 
+PACKAGECONFIG_append_pn-mousepad = " spell"
+
 QEMU_TARGETS = "riscv64 x86_64"
 
 CLANGSDK = "1"
