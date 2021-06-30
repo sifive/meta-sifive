@@ -130,7 +130,6 @@ IMAGE_INSTALL = "\
     pcimem \
     jq \
     hdparm \
-    udev-extraconf \
     clang \
     clang-dev \
     clang-libllvm \
