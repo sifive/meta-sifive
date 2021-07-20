@@ -188,6 +188,11 @@ IMAGE_INSTALL_append_freedom-u540 = "\
     unleashed-udev-rules \
     "
 
+IMAGE_INSTALL_append_unmatched = " \
+    unmatched-udev-rules \
+    unmatched-systemd-units \
+    "
+
 inherit core-image extrausers
 
 EXTRA_USERS_PARAMS = "usermod -P sifive root;"
