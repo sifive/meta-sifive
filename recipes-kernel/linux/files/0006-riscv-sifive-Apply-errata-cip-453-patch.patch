@@ -1,7 +1,7 @@
-From 17be3d0f51430971a2d156891473ebbd4acef350 Mon Sep 17 00:00:00 2001
+From 48042f0829f6e7b26faed928c33af759e1a9a136 Mon Sep 17 00:00:00 2001
 From: Vincent Chen <vincent.chen@sifive.com>
 Date: Mon, 22 Mar 2021 22:26:05 +0800
-Subject: [PATCH 07/23] riscv: sifive: Apply errata "cip-453" patch
+Subject: [PATCH 06/22] riscv: sifive: Apply errata "cip-453" patch
 
 Add sign extension to the $badaddr before addressing the instruction page
 fault and instruction access fault to workaround the issue "cip-453".

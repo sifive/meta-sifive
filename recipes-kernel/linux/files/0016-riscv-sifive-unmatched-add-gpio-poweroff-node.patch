@@ -1,7 +1,7 @@
-From 0fbbf6bf742b7a6be3b19ba1331a68e5ab555cc5 Mon Sep 17 00:00:00 2001
+From e4ee5c53ee2539a09dc453ff4215bdbdbb92c5a6 Mon Sep 17 00:00:00 2001
 From: David Abdurachmanov <david.abdurachmanov@sifive.com>
 Date: Thu, 25 Mar 2021 04:37:20 -0700
-Subject: [PATCH 17/23] riscv: sifive: unmatched: add gpio-poweroff node
+Subject: [PATCH 16/22] riscv: sifive: unmatched: add gpio-poweroff node
 
 Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>
 ---

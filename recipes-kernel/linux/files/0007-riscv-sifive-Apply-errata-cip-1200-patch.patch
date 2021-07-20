@@ -1,7 +1,7 @@
-From b4cf3de6d5559f4a6cc90fe9733680075bc1117d Mon Sep 17 00:00:00 2001
+From 187e82d5fc16b616ef679f9bdfe5c739b438072b Mon Sep 17 00:00:00 2001
 From: Vincent Chen <vincent.chen@sifive.com>
 Date: Mon, 22 Mar 2021 22:26:06 +0800
-Subject: [PATCH 08/23] riscv: sifive: Apply errata "cip-1200" patch
+Subject: [PATCH 07/22] riscv: sifive: Apply errata "cip-1200" patch
 
 For certain SiFive CPUs, "sfence.vma addr" cannot exactly flush addr
 from TLB in the particular cases. The details could be found here:

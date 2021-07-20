@@ -1,7 +1,7 @@
-From 8b0015e2fb153fe06e18f799e89f34b090402ab1 Mon Sep 17 00:00:00 2001
+From db8150bcf347f274844ce727ac50c09422b25ba2 Mon Sep 17 00:00:00 2001
 From: Greentime Hu <greentime.hu@sifive.com>
 Date: Tue, 4 May 2021 18:59:37 +0800
-Subject: [PATCH 12/23] MAINTAINERS: Add maintainers for SiFive FU740 PCIe
+Subject: [PATCH 11/22] MAINTAINERS: Add maintainers for SiFive FU740 PCIe
  driver
 
 Here add maintainer information for SiFive FU740 PCIe driver.

@@ -1,7 +1,7 @@
-From 17e61479221ec62e197a0ea975f63df11ec3d984 Mon Sep 17 00:00:00 2001
+From 92e1454162d318c16090fca7bd4e6f29690a58e2 Mon Sep 17 00:00:00 2001
 From: Vincent Chen <vincent.chen@sifive.com>
 Date: Thu, 29 Apr 2021 00:58:36 -0700
-Subject: [PATCH 09/23] riscv: enable SiFive errata CIP-453 and CIP-1200
+Subject: [PATCH 08/22] riscv: enable SiFive errata CIP-453 and CIP-1200
  Kconfig only if CONFIG_64BIT=y
 
 The corresponding hardware issues of CONFIG_ERRATA_SIFIVE_CIP_453 and

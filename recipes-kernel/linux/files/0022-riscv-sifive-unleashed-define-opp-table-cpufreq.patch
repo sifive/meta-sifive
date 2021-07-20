@@ -1,7 +1,7 @@
-From aa06d931f404fdcc151addf62a8243ca511d20b1 Mon Sep 17 00:00:00 2001
+From 7fbbcc30fff551189d92b1a73d236790d55971ea Mon Sep 17 00:00:00 2001
 From: David Abdurachmanov <david.abdurachmanov@sifive.com>
 Date: Fri, 14 May 2021 05:27:51 -0700
-Subject: [PATCH 23/23] riscv: sifive: unleashed: define opp table (cpufreq)
+Subject: [PATCH 22/22] riscv: sifive: unleashed: define opp table (cpufreq)
 
 Source: https://github.com/sifive/riscv-linux/commits/dev/paulw/cpufreq-dt-aloe-v5.3-rc4
 
@@ -13,7 +13,7 @@ Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>
  3 files changed, 47 insertions(+)
 
 diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
-index 8464c2a..2c33913 100644
+index 4461f96..800f53a 100644
 --- a/arch/riscv/Kconfig
 +++ b/arch/riscv/Kconfig
 @@ -469,6 +469,14 @@ config BUILTIN_DTB

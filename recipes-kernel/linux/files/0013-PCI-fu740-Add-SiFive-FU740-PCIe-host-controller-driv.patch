@@ -1,7 +1,7 @@
-From 90d84b4d61619d3ace05ac6fd7c0a7746e7f0872 Mon Sep 17 00:00:00 2001
+From 6f2a743b2ba7f2f0b08450d6398cbf4ae88f893c Mon Sep 17 00:00:00 2001
 From: Paul Walmsley <paul.walmsley@sifive.com>
 Date: Tue, 4 May 2021 18:59:39 +0800
-Subject: [PATCH 14/23] PCI: fu740: Add SiFive FU740 PCIe host controller
+Subject: [PATCH 13/22] PCI: fu740: Add SiFive FU740 PCIe host controller
  driver
 
 Add driver for the SiFive FU740 PCIe host controller.

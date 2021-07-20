@@ -1,7 +1,7 @@
-From 9c9dad9d18c8ba23b8826a8d1fbfdf82acaf3699 Mon Sep 17 00:00:00 2001
+From 1ef528be1409104baa6fbcc8647d5f7e8be74084 Mon Sep 17 00:00:00 2001
 From: David Abdurachmanov <david.abdurachmanov@sifive.com>
 Date: Fri, 5 Jun 2020 07:02:10 +0000
-Subject: [PATCH 22/23] SiFive HiFive Unleashed: Add PWM LEDs (D1, D2, D3, D4)
+Subject: [PATCH 21/22] SiFive HiFive Unleashed: Add PWM LEDs (D1, D2, D3, D4)
 
 By default no functions are assigned to LEDs. It's up to user/distribution
 to provide udev rules to configure them.

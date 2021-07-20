@@ -1,7 +1,7 @@
-From 90247f0a4690172d2e46643ab0ce2ed3411c9c20 Mon Sep 17 00:00:00 2001
+From dd42ce5f20ca0b2ee77989fec01bd39a65bdd6e6 Mon Sep 17 00:00:00 2001
 From: Greentime Hu <greentime.hu@sifive.com>
 Date: Tue, 4 May 2021 18:59:35 +0800
-Subject: [PATCH 10/23] clk: sifive: Add pcie_aux clock in prci driver for PCIe
+Subject: [PATCH 09/22] clk: sifive: Add pcie_aux clock in prci driver for PCIe
  driver
 
 We add pcie_aux clock in this patch so that pcie driver can use

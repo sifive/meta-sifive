@@ -1,7 +1,7 @@
-From 41b3d4ee90da7054985ec3e0ecb74aca5bad21e7 Mon Sep 17 00:00:00 2001
+From 0add6168397174585068af31a68fee446965615d Mon Sep 17 00:00:00 2001
 From: Vincent Chen <vincent.chen@sifive.com>
 Date: Mon, 22 Mar 2021 22:26:02 +0800
-Subject: [PATCH 04/23] riscv: Add 3 SBI wrapper functions to get cpu
+Subject: [PATCH 03/22] riscv: Add 3 SBI wrapper functions to get cpu
  manufacturer information
 
 Add 3 wrapper functions to get vendor id, architecture id and implement id

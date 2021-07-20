@@ -1,7 +1,7 @@
-From ca84d6056b89eb7468a269703f347a45d52cb681 Mon Sep 17 00:00:00 2001
+From 4f3858e6ba9635c140fda88dd9fbe52980a3113d Mon Sep 17 00:00:00 2001
 From: Vincent Chen <vincent.chen@sifive.com>
 Date: Mon, 22 Mar 2021 22:26:04 +0800
-Subject: [PATCH 06/23] riscv: sifive: Add SiFive alternative ports
+Subject: [PATCH 05/22] riscv: sifive: Add SiFive alternative ports
 
 Add required ports of the Alternative scheme for SiFive.
 

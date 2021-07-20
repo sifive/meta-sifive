@@ -1,7 +1,7 @@
-From d32cc3317f5003701569569032cc132b06eac69e Mon Sep 17 00:00:00 2001
+From 6fa6784ea4a2b4721d9a61760d33e3ee78373396 Mon Sep 17 00:00:00 2001
 From: David Abdurachmanov <david.abdurachmanov@sifive.com>
 Date: Tue, 6 Apr 2021 05:00:11 -0700
-Subject: [PATCH 19/23] riscv: sifive: unmatched: remove "A00" from model
+Subject: [PATCH 18/22] riscv: sifive: unmatched: remove "A00" from model
 
 Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>
 ---

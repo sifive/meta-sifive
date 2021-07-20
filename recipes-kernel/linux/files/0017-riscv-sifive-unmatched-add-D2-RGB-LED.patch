@@ -1,7 +1,7 @@
-From 7d5efa039e8884231c4b014a9ea219ab45a3c53e Mon Sep 17 00:00:00 2001
+From beceea6e32d3d9fb2077989d66d71ab7784a3af8 Mon Sep 17 00:00:00 2001
 From: David Abdurachmanov <david.abdurachmanov@sifive.com>
 Date: Fri, 2 Apr 2021 06:31:07 -0700
-Subject: [PATCH 18/23] riscv: sifive: unmatched: add D2 RGB LED
+Subject: [PATCH 17/22] riscv: sifive: unmatched: add D2 RGB LED
 
 Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>
 ---

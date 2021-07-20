@@ -1,7 +1,7 @@
-From aab7a4ed90e9bade5d84a1349d103efa94c2a8e7 Mon Sep 17 00:00:00 2001
+From 614dd1940dbffd0f0553b3855b3057fa46b595ef Mon Sep 17 00:00:00 2001
 From: Vincent Chen <vincent.chen@sifive.com>
 Date: Mon, 22 Mar 2021 22:26:03 +0800
-Subject: [PATCH 05/23] riscv: Introduce alternative mechanism to apply errata
+Subject: [PATCH 04/22] riscv: Introduce alternative mechanism to apply errata
  solution
 
 Introduce the "alternative" mechanism from ARM64 and x86 to apply the CPU
@@ -53,7 +53,7 @@ Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
  create mode 100644 arch/riscv/include/asm/vendorid_list.h
 
 diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
-index 4515a10..8464c2a 100644
+index 4f116be..4461f96 100644
 --- a/arch/riscv/Kconfig
 +++ b/arch/riscv/Kconfig
 @@ -204,6 +204,7 @@ config LOCKDEP_SUPPORT
@@ -83,10 +83,10 @@ index 00000000..4d0bafc
 +
 +endmenu
 diff --git a/arch/riscv/Makefile b/arch/riscv/Makefile
-index 1368d94..1f5c030 100644
+index a5ee341..339333c 100644
 --- a/arch/riscv/Makefile
 +++ b/arch/riscv/Makefile
-@@ -87,6 +87,7 @@ KBUILD_IMAGE	:= $(boot)/Image.gz
+@@ -96,6 +96,7 @@ KBUILD_IMAGE	:= $(boot)/Image.gz
  head-y := arch/riscv/kernel/head.o
  
  core-y += arch/riscv/
@@ -438,7 +438,7 @@ index 00000000..9d93421
 +
 +#endif
 diff --git a/arch/riscv/kernel/smpboot.c b/arch/riscv/kernel/smpboot.c
-index 5e276c2..9a408e2 100644
+index 1941a6c..bd82375 100644
 --- a/arch/riscv/kernel/smpboot.c
 +++ b/arch/riscv/kernel/smpboot.c
 @@ -32,6 +32,7 @@

@@ -1,7 +1,7 @@
-From 40496ca9cccca9be9cf3c468ee58324aea9b463a Mon Sep 17 00:00:00 2001
+From 01b12cc52f0d12c6e85e633e9284b1abae71214d Mon Sep 17 00:00:00 2001
 From: Greentime Hu <greentime.hu@sifive.com>
 Date: Tue, 4 May 2021 18:59:40 +0800
-Subject: [PATCH 15/23] riscv: dts: Add PCIe support for the SiFive FU740-C000
+Subject: [PATCH 14/22] riscv: dts: Add PCIe support for the SiFive FU740-C000
  SoC
 
 Signed-off-by: Greentime Hu <greentime.hu@sifive.com>

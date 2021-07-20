@@ -1,7 +1,7 @@
-From 3dcf6a579a7e0c76af8aab929a89ce0a68df2f3d Mon Sep 17 00:00:00 2001
+From ca26b7c3bb0ea2e5211fb19223324a9ce7ee6c2e Mon Sep 17 00:00:00 2001
 From: David Abdurachmanov <david.abdurachmanov@sifive.com>
 Date: Wed, 7 Apr 2021 06:08:33 -0700
-Subject: [PATCH 20/23] riscv: sifive: unmatched: define LEDs color
+Subject: [PATCH 19/22] riscv: sifive: unmatched: define LEDs color
 
 Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>
 ---

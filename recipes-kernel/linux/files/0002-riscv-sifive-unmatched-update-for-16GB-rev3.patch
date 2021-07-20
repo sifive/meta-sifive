@@ -1,7 +1,7 @@
-From d2b9ec192305bd04bfb941743497d6c2821f3cba Mon Sep 17 00:00:00 2001
+From 8da8c281ca44fc56fc899d38ffb4a5908e34195e Mon Sep 17 00:00:00 2001
 From: David Abdurachmanov <david.abdurachmanov@sifive.com>
 Date: Mon, 22 Feb 2021 01:33:52 -0800
-Subject: [PATCH 03/23] riscv: sifive: unmatched: update for 16GB rev3
+Subject: [PATCH 02/22] riscv: sifive: unmatched: update for 16GB rev3
 
 Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>
 ---
