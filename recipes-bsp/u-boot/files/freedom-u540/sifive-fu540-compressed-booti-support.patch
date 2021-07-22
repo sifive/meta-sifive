@@ -1,7 +1,7 @@
-diff --git a/include/configs/sifive-fu540.h b/include/configs/sifive-fu540.h
+diff --git a/include/configs/sifive-fu540.h b/include/configs/sifive-unleashed.h
 index c1c79db147..9750381a8c 100644
---- a/include/configs/sifive-fu540.h
-+++ b/include/configs/sifive-fu540.h
+--- a/include/configs/sifive-unleashed.h
++++ b/include/configs/sifive-unleashed.h
 @@ -66,6 +66,8 @@
  	"script_size_f=0x1000\0" \
  	"pxefile_addr_r=0x88200000\0" \
