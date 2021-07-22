@@ -1,0 +1,319 @@
+From f4e43b495f2c343ed85c37be3eb0cedb7bea1118 Mon Sep 17 00:00:00 2001
+From: Andreas Schwab <schwab@suse.de>
+Date: Thu, 22 Jul 2021 12:03:45 +0000
+Subject: [PATCH] gdb: Support DW_LLE_start_end
+
+Without that it is impossible to debug on riscv64.
+
+gdb/
+	PR symtab/27999
+	* dwarf2/loc.c (decode_debug_loclists_addresses): Support
+	DW_LLE_start_end.
+
+gdb/testsuite/
+	PR symtab/27999
+	* lib/dwarf.exp (start_end): New proc inside loclists.
+	* gdb.dwarf2/loclists-start-end.exp: New file.
+	* gdb.dwarf2/loclists-start-end.c: New file.
+---
+ gdb/ChangeLog                                 |   6 +
+ gdb/dwarf2/loc.c                              |  20 ++-
+ gdb/testsuite/ChangeLog                       |   7 +
+ gdb/testsuite/gdb.dwarf2/loclists-start-end.c |  37 +++++
+ .../gdb.dwarf2/loclists-start-end.exp         | 137 ++++++++++++++++++
+ gdb/testsuite/lib/dwarf.exp                   |  29 ++++
+ 6 files changed, 235 insertions(+), 1 deletion(-)
+ create mode 100644 gdb/testsuite/gdb.dwarf2/loclists-start-end.c
+ create mode 100644 gdb/testsuite/gdb.dwarf2/loclists-start-end.exp
+
+diff --git a/gdb/ChangeLog b/gdb/ChangeLog
+index 186076a..666b29f 100644
+--- a/gdb/ChangeLog
++++ b/gdb/ChangeLog
+@@ -1,3 +1,9 @@
++2021-06-22  Andreas Schwab  <schwab@suse.de>
++
++	PR symtab/27999
++	* dwarf2/loc.c (decode_debug_loclists_addresses): Support
++	DW_LLE_start_end.
++
+ 2021-04-25  Joel Brobecker  <brobecker@adacore.com>
+ 
+ 	* version.in: Set GDB version number to 10.2.
+diff --git a/gdb/dwarf2/loc.c b/gdb/dwarf2/loc.c
+index c5a20b3..b7f3c34 100644
+--- a/gdb/dwarf2/loc.c
++++ b/gdb/dwarf2/loc.c
+@@ -255,9 +255,27 @@ decode_debug_loclists_addresses (dwarf2_per_cu_data *per_cu,
+       *new_ptr = loc_ptr;
+       return DEBUG_LOC_OFFSET_PAIR;
+ 
++    case DW_LLE_start_end:
++      if (loc_ptr + 2 * addr_size > buf_end)
++	return DEBUG_LOC_BUFFER_OVERFLOW;
++
++      if (signed_addr_p)
++	*low = extract_signed_integer (loc_ptr, addr_size, byte_order);
++      else
++	*low = extract_unsigned_integer (loc_ptr, addr_size, byte_order);
++
++      loc_ptr += addr_size;
++      if (signed_addr_p)
++	*high = extract_signed_integer (loc_ptr, addr_size, byte_order);
++      else
++	*high = extract_unsigned_integer (loc_ptr, addr_size, byte_order);
++
++      loc_ptr += addr_size;
++      *new_ptr = loc_ptr;
++      return DEBUG_LOC_START_END;
++
+     /* Following cases are not supported yet.  */
+     case DW_LLE_startx_endx:
+-    case DW_LLE_start_end:
+     case DW_LLE_default_location:
+     default:
+       return DEBUG_LOC_INVALID_ENTRY;
+diff --git a/gdb/testsuite/ChangeLog b/gdb/testsuite/ChangeLog
+index effb380..dd746c7 100644
+--- a/gdb/testsuite/ChangeLog
++++ b/gdb/testsuite/ChangeLog
+@@ -1,3 +1,10 @@
++2021-06-22  Andreas Schwab  <schwab@suse.de>
++
++	PR symtab/27999
++	* lib/dwarf.exp (start_end): New proc inside loclists.
++	* gdb.dwarf2/loclists-start-end.exp: New file.
++	* gdb.dwarf2/loclists-start-end.c: New file.
++
+ 2021-04-22  Simon Marchi  <simon.marchi@polymtl.ca>
+ 
+ 	* gdb.python/flexible-array-member.exp: Add check for Python
+diff --git a/gdb/testsuite/gdb.dwarf2/loclists-start-end.c b/gdb/testsuite/gdb.dwarf2/loclists-start-end.c
+new file mode 100644
+index 0000000..2bffbf2
+--- /dev/null
++++ b/gdb/testsuite/gdb.dwarf2/loclists-start-end.c
+@@ -0,0 +1,37 @@
++/* Copyright (C) 2021 Free Software Foundation, Inc.
++
++   This file is part of GDB.
++
++   This program is free software; you can redistribute it and/or modify
++   it under the terms of the GNU General Public License as published by
++   the Free Software Foundation; either version 3 of the License, or
++   (at your option) any later version.
++
++   This program is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++   GNU General Public License for more details.
++
++   You should have received a copy of the GNU General Public License
++   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
++
++static int
++func1 (void)
++{
++  asm ("func1_label: .global func1_label\n");
++  return 1;
++}
++
++static int
++func2 (void)
++{
++  asm ("func2_label: .global func2_label\n");
++  return 2;
++}
++
++int
++main (void)
++{
++  func1 ();
++  func2 ();
++}
+diff --git a/gdb/testsuite/gdb.dwarf2/loclists-start-end.exp b/gdb/testsuite/gdb.dwarf2/loclists-start-end.exp
+new file mode 100644
+index 0000000..43ddefc
+--- /dev/null
++++ b/gdb/testsuite/gdb.dwarf2/loclists-start-end.exp
+@@ -0,0 +1,137 @@
++# Copyright 2021 Free Software Foundation, Inc.
++
++# This program is free software; you can redistribute it and/or modify
++# it under the terms of the GNU General Public License as published by
++# the Free Software Foundation; either version 3 of the License, or
++# (at your option) any later version.
++#
++# This program is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++#
++# You should have received a copy of the GNU General Public License
++# along with this program.  If not, see <http://www.gnu.org/licenses/>.
++
++# Test support for DW_LLE_start_end (PR symtab/27999).
++
++load_lib dwarf.exp
++
++if {![dwarf2_support]} {
++    return 0
++}
++
++# Test with 32-bit and 64-bit DWARF.
++foreach_with_prefix is_64 {false true} {
++    if { $is_64 } {
++	standard_testfile .c -dw64.S
++	set testfile ${testfile}-dw64
++    } else {
++	standard_testfile .c -dw32.S
++	set testfile ${testfile}-dw32
++    }
++
++    # Get the addresses / lengths of func1 and func2.
++    lassign [function_range func1 $srcdir/$subdir/$srcfile] func1_addr func1_len
++    lassign [function_range func2 $srcdir/$subdir/$srcfile] func2_addr func2_len
++
++    set asm_file [standard_output_file $srcfile2]
++    Dwarf::assemble $asm_file {
++	global func1_addr func1_len
++	global func2_addr func2_len
++	global is_64
++
++	# The CU uses the DW_FORM_loclistx form to refer to the .debug_loclists
++	# section.
++	cu {
++	    version 5
++	    is_64 $is_64
++	} {
++	    declare_labels int_type
++
++	    DW_TAG_compile_unit {
++		{DW_AT_loclists_base cu_table DW_FORM_sec_offset}
++	    } {
++		int_type: DW_TAG_base_type {
++		    {DW_AT_byte_size 4 DW_FORM_data1}
++		    {DW_AT_encoding @DW_ATE_signed}
++		    {DW_AT_name "int"}
++		}
++
++		DW_TAG_variable {
++		    {DW_AT_name "foo"}
++		    {DW_AT_location 1 DW_FORM_loclistx}
++		    {DW_AT_type :$int_type}
++		}
++
++		DW_TAG_subprogram {
++		    {DW_AT_name "func1"}
++		    {DW_AT_low_pc $func1_addr}
++		    {DW_AT_high_pc $func1_len DW_FORM_udata}
++		}
++
++		DW_TAG_subprogram {
++		    {DW_AT_name "func2"}
++		    {DW_AT_low_pc $func2_addr}
++		    {DW_AT_high_pc $func2_len DW_FORM_udata}
++		}
++	    }
++	}
++
++	loclists -is-64 $is_64 {
++	    # This table is unused, but exists so that the used table is not at
++	    # the beginning of the section.
++	    table {
++		list_ {
++		    start_end 0x1000 0x2000 { DW_OP_addr 0x100000 }
++		}
++	    }
++
++	    # The lists in this table are accessed by index (DW_FORM_rnglistx).
++	    table -post-header-label cu_table {
++		# This list is unused, but exists to offset the next ones.
++		list_ {
++		    start_end 0x1000 0x2000 { DW_OP_addr 0x100000 }
++		}
++
++		# For variable foo.
++		list_ {
++		    # When in func1.
++		    start_end $func1_addr "$func1_addr + $func1_len" {
++			DW_OP_constu 0x123456
++			DW_OP_stack_value
++		    }
++
++		    # When in func2.
++		    start_end $func2_addr "$func2_addr + $func2_len" {
++			DW_OP_constu 0x234567
++			DW_OP_stack_value
++		    }
++		}
++	    }
++	}
++    }
++
++    if { [prepare_for_testing "failed to prepare" ${testfile} \
++	      [list $srcfile $asm_file] {nodebug}] } {
++	return -1
++    }
++
++    if { ![runto_main] } {
++	fail "can't run to main"
++	return
++    }
++
++    gdb_breakpoint "func1"
++    gdb_breakpoint "func2"
++
++    gdb_continue_to_breakpoint "func1"
++    with_test_prefix "at func1" {
++	gdb_test "print /x foo" " = 0x123456"
++    }
++
++    gdb_continue_to_breakpoint "func2"
++    with_test_prefix "at func2" {
++	gdb_test "print /x foo" " = 0x234567"
++    }
++}
+diff --git a/gdb/testsuite/lib/dwarf.exp b/gdb/testsuite/lib/dwarf.exp
+index 1917277..170e762 100644
+--- a/gdb/testsuite/lib/dwarf.exp
++++ b/gdb/testsuite/lib/dwarf.exp
+@@ -1631,6 +1631,35 @@ namespace eval Dwarf {
+ 		    incr _debug_loclists_locdesc_count
+ 		}
+ 
++		# Emit a DW_LLE_start_end entry.
++
++		proc start_end { start end locdesc } {
++		    variable _debug_loclists_is_64_dwarf
++		    variable _debug_loclists_addr_size
++		    variable _debug_loclists_offset_size
++		    variable _debug_loclists_table_count
++		    variable _debug_loclists_list_count
++		    variable _debug_loclists_locdesc_count
++
++		    _op .byte 0x07 "DW_LLE_start_end"
++
++		    # Start and end of the address range.
++		    _op .${_debug_loclists_addr_size}byte $start "start"
++		    _op .${_debug_loclists_addr_size}byte $end "end"
++
++		    # Length of location description.
++		    set locdesc_start_label ".Lloclists_table_${_debug_loclists_table_count}_list_${_debug_loclists_list_count}_locdesc_${_debug_loclists_locdesc_count}_start"
++		    set locdesc_end_label ".Lloclists_table_${_debug_loclists_table_count}_list_${_debug_loclists_list_count}_locdesc_${_debug_loclists_locdesc_count}_end"
++		    _op .uleb128 "$locdesc_end_label - $locdesc_start_label" "locdesc length"
++
++		    define_label $locdesc_start_label
++		    set dwarf_version 5
++		    _location $locdesc $dwarf_version $_debug_loclists_addr_size $_debug_loclists_offset_size
++		    define_label $locdesc_end_label
++
++		    incr _debug_loclists_locdesc_count
++		}
++
+ 		uplevel $body
+ 
+ 		# Emit end of list.
+-- 
+2.28.0
+
