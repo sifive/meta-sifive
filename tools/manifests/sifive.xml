@@ -8,7 +8,7 @@
   <remote name="NobuoTsukamoto" fetch="git://github.com/NobuoTsukamoto/" />
   <default remote="openembedded" revision="master" />
 
-  <project name="meta-sifive" remote="sifive" path="meta-sifive" revision="master" />
+  <project name="meta-sifive" remote="sifive" path="meta-sifive" revision="e884e90f6650d98bc023ffeb86fded93a5e4ca18" />
   <project name="meta-riscv" remote="riscv" path="meta-riscv" revision="e8e0eef916303a21a04e74376969b3aab8e44280" />
   <project name="openembedded-core" remote="openembedded" path="openembedded-core" revision="17ecb3552cb7d7e7f82cc8b2e1b83f276525cbda" />
   <project name="bitbake" remote="openembedded" path="openembedded-core/bitbake" revision="01825699044c42e87e485e6c64cc1dd9b6f87f48" />
