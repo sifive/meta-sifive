@@ -86,6 +86,8 @@ IMAGE_INSTALL = "\
     python3-ctypes \
     xf86-video-ati \
     xf86-video-amdgpu \
+    xf86-video-modesetting  \
+    xf86-video-fbdev \
     linux-firmware \
     quake2 \
     nbd-client \
