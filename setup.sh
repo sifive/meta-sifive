@@ -127,6 +127,12 @@ PACKAGECONFIG:append:pn-pulseaudio = " autospawn-for-root"
 
 PACKAGECONFIG:append:pn-mousepad = " spell"
 
+PACKAGECONFIG:append:pn-perf = " dwarf"
+PACKAGECONFIG:append:pn-perf = " libunwind"
+PACKAGECONFIG:append:pn-perf = " manpages"
+PACKAGECONFIG:append:pn-perf = " jvmti"
+PACKAGECONFIG:append:pn-perf = " cap"
+
 QEMU_TARGETS = "riscv64 x86_64"
 
 CLANGSDK = "1"
