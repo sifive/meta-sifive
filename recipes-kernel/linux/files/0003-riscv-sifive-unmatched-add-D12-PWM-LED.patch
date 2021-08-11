@@ -1,7 +1,7 @@
-From c1059690379b93b6b85c7feda4fa29750e7334d1 Mon Sep 17 00:00:00 2001
+From d531c95ea8158f498c322d8d0bc1837a10db898a Mon Sep 17 00:00:00 2001
 From: David Abdurachmanov <david.abdurachmanov@sifive.com>
 Date: Thu, 25 Mar 2021 04:34:52 -0700
-Subject: [PATCH 15/22] riscv: sifive: unmatched: add D12 PWM LED
+Subject: [PATCH 03/10] riscv: sifive: unmatched: add D12 PWM LED
 
 Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>
 ---

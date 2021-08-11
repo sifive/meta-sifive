@@ -1,7 +1,7 @@
-From 99926416765b3183b49e3415168e967449ba4c70 Mon Sep 17 00:00:00 2001
+From 1330be57edd307213823149ac305e1a359a88759 Mon Sep 17 00:00:00 2001
 From: David Abdurachmanov <david.abdurachmanov@sifive.com>
 Date: Wed, 17 Feb 2021 06:06:14 -0800
-Subject: [PATCH 01/22] riscv: sifive: fu740: cpu{1,2,3,4} set compatible to
+Subject: [PATCH 01/10] riscv: sifive: fu740: cpu{1,2,3,4} set compatible to
  sifive,u74-mc
 
 Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>
@@ -10,7 +10,7 @@ Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/arch/riscv/boot/dts/sifive/fu740-c000.dtsi b/arch/riscv/boot/dts/sifive/fu740-c000.dtsi
-index d0d206c..cd9cc02 100644
+index abbb960..3095d82 100644
 --- a/arch/riscv/boot/dts/sifive/fu740-c000.dtsi
 +++ b/arch/riscv/boot/dts/sifive/fu740-c000.dtsi
 @@ -39,7 +39,7 @@

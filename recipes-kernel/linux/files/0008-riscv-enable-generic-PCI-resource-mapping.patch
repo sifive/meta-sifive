@@ -1,7 +1,7 @@
-From 987807a56fdea230f0683e502fb36773251fc18b Mon Sep 17 00:00:00 2001
+From a946a5df45c961b2e0c0a630643ef7dc6aed1482 Mon Sep 17 00:00:00 2001
 From: Stanislaw Kardach <kda@semihalf.com>
 Date: Mon, 12 Apr 2021 13:10:12 +0200
-Subject: [PATCH 20/22] riscv: enable generic PCI resource mapping
+Subject: [PATCH 08/10] riscv: enable generic PCI resource mapping
 
 Enable the PCI resource mapping on RISC-V using the generic framework.
 This allows userspace applications to mmap PCI resources using
