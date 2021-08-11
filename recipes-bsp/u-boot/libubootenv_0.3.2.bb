@@ -21,10 +21,10 @@ EXTRA_OECMAKE = "-DCMAKE_BUILD_TYPE=Release"
 
 DEPENDS = "zlib"
 PROVIDES += "u-boot-fw-utils"
-RPROVIDES_${PN}-bin += "u-boot-fw-utils"
+RPROVIDES:${PN}-bin += "u-boot-fw-utils"
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
-RRECOMMENDS_${PN}-bin_append_class-target = " u-boot-default-env"
+RRECOMMENDS:${PN}-bin:append:class-target = " u-boot-default-env"
 
 BBCLASSEXTEND = "native"

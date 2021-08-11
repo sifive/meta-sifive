@@ -10,7 +10,7 @@ SRC_URI = "git://github.com/riscv/opensbi.git \
            file://0001-Makefile-Don-t-specify-mabi-or-march.patch \
           "
 
-SRC_URI_append_unmatched = " \
+SRC_URI:append:unmatched = " \
            file://0001-lib-utils-add-GPIO-and-poweroff-parsing.patch \
            file://0002-lib-utils-add-gpio-generic-interface.patch \
            file://0003-lib-utils-reset-add-powor-off-support.patch \
@@ -20,7 +20,7 @@ S = "${WORKDIR}/git"
 
 EXTRA_OEMAKE += "PLATFORM=${RISCV_SBI_PLAT} I=${D} INSTALL_LIB_PATH=lib"
 
-do_install_append() {
+do_install:append() {
 	# In the future these might be required as a dependency for other packages.
 	# At the moment just delete them to avoid warnings
 	find ${D}
@@ -37,9 +37,9 @@ do_deploy () {
 
 addtask deploy before do_build after do_install
 
-FILES_${PN} += "/share/opensbi/*/${RISCV_SBI_PLAT}/firmware/fw_jump.*"
-FILES_${PN} += "/share/opensbi/*/${RISCV_SBI_PLAT}/firmware/fw_payload.*"
-FILES_${PN} += "/share/opensbi/*/${RISCV_SBI_PLAT}/firmware/fw_dynamic.*"
+FILES:${PN} += "/share/opensbi/*/${RISCV_SBI_PLAT}/firmware/fw_jump.*"
+FILES:${PN} += "/share/opensbi/*/${RISCV_SBI_PLAT}/firmware/fw_payload.*"
+FILES:${PN} += "/share/opensbi/*/${RISCV_SBI_PLAT}/firmware/fw_dynamic.*"
 
 COMPATIBLE_HOST = "(riscv64|riscv32).*"
 INHIBIT_PACKAGE_STRIP = "1"

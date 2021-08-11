@@ -1,5 +1,5 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
-SRC_URI_append_riscv64 = " \
+SRC_URI:append:riscv64 = " \
         file://fix-clang-driver-gcc-install-path-on-openembedded.patch \
         "

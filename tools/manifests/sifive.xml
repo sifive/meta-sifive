@@ -6,14 +6,15 @@
   <remote name="sifive" fetch="git://github.com/sifive/" />
   <remote name="kraj" fetch="git://github.com/kraj/" />
   <remote name="NobuoTsukamoto" fetch="git://github.com/NobuoTsukamoto/" />
+  <remote name="davidlt" fetch="git://github.com/davidlt/" />
   <default remote="openembedded" revision="master" />
 
   <project name="meta-sifive" remote="sifive" path="meta-sifive" revision="master" />
-  <project name="meta-riscv" remote="riscv" path="meta-riscv" revision="e8e0eef916303a21a04e74376969b3aab8e44280" />
-  <project name="openembedded-core" remote="openembedded" path="openembedded-core" revision="17ecb3552cb7d7e7f82cc8b2e1b83f276525cbda" />
-  <project name="bitbake" remote="openembedded" path="openembedded-core/bitbake" revision="01825699044c42e87e485e6c64cc1dd9b6f87f48" />
-  <project name="meta-openembedded" remote="openembedded" path="meta-openembedded" revision="7d64ce0490e2a8799ab2f64a24b4f63094da4f08" />
-  <project name="meta-clang" remote="kraj" path="meta-clang" revision="b224c4148f46c4dd326d2b72a9c1d55c364ed48f" />
-  <project name="meta-tensorflow-lite" remote="NobuoTsukamoto" path="meta-tensorflow-lite" revision="8f4423f5e2c34192970fcfd01548343859988611" />
+  <project name="meta-riscv" remote="riscv" path="meta-riscv" revision="2392e1f99d4e1cdf82e5780642dd856f2c48be72" />
+  <project name="openembedded-core" remote="openembedded" path="openembedded-core" revision="0f978b4f03e71267ad0a8a5054141e7727f2944f" />
+  <project name="bitbake" remote="openembedded" path="openembedded-core/bitbake" revision="06a0bbe746f879ae539223e7fdb6f07d55d13719" />
+  <project name="meta-openembedded" remote="openembedded" path="meta-openembedded" revision="3cf2475ea059184820525bb949c11c3da0e64af8" />
+  <project name="meta-clang" remote="kraj" path="meta-clang" revision="eb92914e31ff872c032155997c42ca8b6e6d82a3" />
+  <project name="meta-tensorflow-lite" remote="davidlt" path="meta-tensorflow-lite" revision="1135f8bb469f1b7e36390c338dea9e62592daa49" />
 </manifest>
 

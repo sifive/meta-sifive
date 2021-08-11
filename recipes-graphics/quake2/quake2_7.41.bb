@@ -11,7 +11,7 @@ inherit pkgconfig
 
 DEPENDS = "mesa libsdl2 libogg libvorbis zlib curl openal-soft"
 
-RDEPENDS_${PN} = " alsa-lib libcurl openal-soft"
+RDEPENDS:${PN} = " alsa-lib libcurl openal-soft"
 
 SRC_URI = "git://github.com/yquake2/yquake2.git \
            file://remove-sse.patch \
@@ -24,8 +24,8 @@ SRC_URI = "git://github.com/yquake2/yquake2.git \
 SRCREV = "d08cf04d2d5d3ffa0b10eee2e300094571423031"
 S = "${WORKDIR}/git"
 
-FILES_${PN} += "${libdir}/games/${PN}/* ${datadir}/icons/hicolor/512x512/apps/${PN}.png"
-CONFFILES_${PN} += "${libdir}/games/${PN}/baseq2/yq2.cfg"
+FILES:${PN} += "${libdir}/games/${PN}/* ${datadir}/icons/hicolor/512x512/apps/${PN}.png"
+CONFFILES:${PN} += "${libdir}/games/${PN}/baseq2/yq2.cfg"
 
 do_compile() {
     oe_runmake \

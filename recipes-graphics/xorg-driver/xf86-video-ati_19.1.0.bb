@@ -12,13 +12,13 @@ DEPENDS += "virtual/libx11 libxvmc drm \
 inherit features_check
 REQUIRED_DISTRO_FEATURES += "opengl"
 
-SRC_URI_append = " file://f223035f4ffcff2a9296d1e907a5193f8e8845a3.patch \
+SRC_URI:append = " file://f223035f4ffcff2a9296d1e907a5193f8e8845a3.patch \
                    "
 
 SRC_URI[md5sum] = "6e49d3c2839582af415ceded76e626e6"
 SRC_URI[sha256sum] = "659f5a1629eea5f5334d9b39b18e6807a63aa1efa33c1236d9cc53acbb223c49"
 
-RDEPENDS_${PN} += "xserver-xorg-module-exa"
-RRECOMMENDS_${PN} += "linux-firmware-radeon"
+RDEPENDS:${PN} += "xserver-xorg-module-exa"
+RRECOMMENDS:${PN} += "linux-firmware-radeon"
 
-FILES_${PN} += "${datadir}/X11"
+FILES:${PN} += "${datadir}/X11"

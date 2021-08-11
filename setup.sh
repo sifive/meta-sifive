@@ -74,10 +74,10 @@ MACHINE ?= "${MACHINE}"
 # rootfs for debugging
 #IMAGE_GEN_DEBUGFS = "1"
 #IMAGE_FSTYPES_DEBUGFS = "tar.gz"
-#EXTRA_IMAGE_FEATURES_append = " ssh-server-dropbear"
-EXTRA_IMAGE_FEATURES_append = " package-management"
-PACKAGECONFIG_append_pn-qemu-native = " sdl"
-PACKAGECONFIG_append_pn-nativesdk-qemu = " sdl"
+#EXTRA_IMAGE_FEATURES:append = " ssh-server-dropbear"
+EXTRA_IMAGE_FEATURES:append = " package-management"
+PACKAGECONFIG:append:pn-qemu-native = " sdl"
+PACKAGECONFIG:append:pn-nativesdk-qemu = " sdl"
 USER_CLASSES ?= "buildstats buildhistory buildstats-summary image-prelink"
 
 require conf/distro/include/yocto-uninative.inc
@@ -85,13 +85,13 @@ require conf/distro/include/security_flags.inc
 
 INHERIT += "uninative"
 
-DISTRO_FEATURES_append = " largefile opengl ptest multiarch pam systemd vulkan "
+DISTRO_FEATURES:append = " largefile opengl ptest multiarch pam systemd vulkan "
 DISTRO_FEATURES_BACKFILL_CONSIDERED += "sysvinit"
 VIRTUAL-RUNTIME_init_manager = "systemd"
 VIRTUAL-RUNTIME_initscripts = ""
 VIRTUAL-RUNTIME_syslog = ""
 VIRTUAL-RUNTIME_login_manager = "shadow-base"
-HOSTTOOLS_NONFATAL_append = " ssh"
+HOSTTOOLS_NONFATAL:append = " ssh"
 
 PREFERRED_PROVIDER_base-utils = "packagegroup-core-base-utils"
 VIRTUAL-RUNTIME_base-utils = "packagegroup-core-base-utils"
@@ -102,36 +102,36 @@ VIRTUAL-RUNTIME_base-utils-syslog = ""
 VIRTUAL-RUNTIME_vim = "vim"
 
 # We use NetworkManager instead
-PACKAGECONFIG_remove_pn-systemd = "networkd"
+PACKAGECONFIG:remove:pn-systemd = "networkd"
 
-SECURITY_CFLAGS_pn-opensbi = ""
-SECURITY_LDFLAGS_pn-opensbi = ""
+SECURITY_CFLAGS:pn-opensbi = ""
+SECURITY_LDFLAGS:pn-opensbi = ""
 
 # Add r600 drivers for AMD GPU
-PACKAGECONFIG_append_pn-mesa = " r600"
+PACKAGECONFIG:append:pn-mesa = " r600"
 
 # Add support for modern AMD GPU (e.g. RX550 / POLARIS)
-PACKAGECONFIG_append_pn-mesa = " radeonsi"
-PACKAGECONFIG_append_pn-mesa = " gallium-llvm"
-PACKAGECONFIG_append_pn-mesa = " va"
-PACKAGECONFIG_append_pn-mesa = " vdpau"
+PACKAGECONFIG:append:pn-mesa = " radeonsi"
+PACKAGECONFIG:append:pn-mesa = " gallium-llvm"
+PACKAGECONFIG:append:pn-mesa = " va"
+PACKAGECONFIG:append:pn-mesa = " vdpau"
 
-PACKAGECONFIG_append_pn-gdb = " python"
-PACKAGECONFIG_append_pn-gdb = " tui"
-PACKAGECONFIG_append_pn-gdb = " xz"
+PACKAGECONFIG:append:pn-gdb = " python"
+PACKAGECONFIG:append:pn-gdb = " tui"
+PACKAGECONFIG:append:pn-gdb = " xz"
 
-PACKAGECONFIG_append_pn-elfutils = " bzip2"
-PACKAGECONFIG_append_pn-elfutils = " xz"
+PACKAGECONFIG:append:pn-elfutils = " bzip2"
+PACKAGECONFIG:append:pn-elfutils = " xz"
 
-PACKAGECONFIG_append_pn-pulseaudio = " autospawn-for-root"
+PACKAGECONFIG:append:pn-pulseaudio = " autospawn-for-root"
 
-PACKAGECONFIG_append_pn-mousepad = " spell"
+PACKAGECONFIG:append:pn-mousepad = " spell"
 
 QEMU_TARGETS = "riscv64 x86_64"
 
 CLANGSDK = "1"
 
-FORTRAN_forcevariable = ",fortran"
+FORTRAN:forcevariable = ",fortran"
 
 BBMASK += "openembedded-core/meta/recipes-bsp/opensbi/opensbi_0.9.bb"
 

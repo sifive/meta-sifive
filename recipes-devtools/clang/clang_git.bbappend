@@ -1,1 +1,1 @@
-LDFLAGS_remove_class-nativesdk = "-fuse-ld=lld"
+LDFLAGS:remove:class-nativesdk = "-fuse-ld=lld"

@@ -1,1 +1,1 @@
-LDFLAGS_append = " -latomic"
+LDFLAGS:append = " -latomic"

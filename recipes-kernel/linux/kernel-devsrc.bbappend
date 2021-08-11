@@ -1,4 +1,4 @@
-do_install_append_riscv64() {
+do_install:append:riscv64() {
 	# now copy in parts from the build that we'll need later
 	(
 		cd ${B}

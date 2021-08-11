@@ -12,4 +12,4 @@ inherit autotools pkgconfig
 
 DEPENDS += "libvdpau"
 
-RDEPENDS_${PN} += "libvdpau"
+RDEPENDS:${PN} += "libvdpau"

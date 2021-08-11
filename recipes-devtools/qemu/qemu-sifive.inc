@@ -1,6 +1,6 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/qemu/riscv64:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/qemu/riscv64:"
 
-SRC_URI_append = " \
+SRC_URI:append = " \
     file://0001-softfloat-add-APIs-to-handle-alternative-sNaN-propag.patch \
     file://0002-target-riscv-change-the-api-for-single-double-fmin-f.patch \
     file://0003-target-riscv-support-x-Zfh-in-cpu-option.patch \

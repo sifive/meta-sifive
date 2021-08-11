@@ -1,1 +1,1 @@
-RDEPENDS_${PN}_remove = "dhcpcd"
+RDEPENDS:${PN}:remove = "dhcpcd"

@@ -230,11 +230,11 @@ IMAGE_INSTALL = "\
     ${CORE_IMAGE_EXTRA_INSTALL} \
     "
 
-IMAGE_INSTALL_append_freedom-u540 = " \
+IMAGE_INSTALL:append:freedom-u540 = " \
     unleashed-udev-rules \
     "
 
-IMAGE_INSTALL_append_unmatched = " \
+IMAGE_INSTALL:append:unmatched = " \
     unmatched-udev-rules \
     unmatched-systemd-units \
     "
@@ -245,4 +245,4 @@ REQUIRED_DISTRO_FEATURES = "\
     x11 \
     systemd"
 
-EXTRA_USERS_PARAMS = "usermod -P sifive root;"
+EXTRA_USERS_PARAMS = "usermod -p '\$6\$PWVNV6MfuO4pMdqO\$54BibXcgV/nXMrgbaMBioGHNDv1uGVFarQN9QnqM8IMOI/nEwnpB5noxJozigw0lObahcmc3lqTMPvLoSpXnP1' root;"

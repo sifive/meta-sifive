@@ -11,7 +11,7 @@ SRC_URI = " \
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
 
-SRC_URI_append_riscv64 = " \
+SRC_URI:append:riscv64 = " \
     file://0001-riscv-sifive-fu740-cpu-1-2-3-4-set-compatible-to-sif.patch \
     file://0002-riscv-sifive-unmatched-update-for-16GB-rev3.patch \
     file://0003-riscv-Add-3-SBI-wrapper-functions-to-get-cpu-manufac.patch \
@@ -37,9 +37,9 @@ SRC_URI_append_riscv64 = " \
     "
 
 # Use out-of-tree defconfig
-SRC_URI_append = " file://defconfig"
+SRC_URI:append = " file://defconfig"
 
 unset KBUILD_DEFCONFIG
 COMPATIBLE_MACHINE = "freedom-u540|unmatched"
 
-KERNEL_FEATURES_remove = "cfg/fs/vfat.scc"
+KERNEL_FEATURES:remove = "cfg/fs/vfat.scc"

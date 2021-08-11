@@ -1,6 +1,6 @@
 SUMMARY = "systemd utils for SiFive HiFive Unmatched"
 LICENSE = "GPLv2"
-SRC_URI_unmatched = "file://LICENSE.GPL2 \
+SRC_URI:unmatched = "file://LICENSE.GPL2 \
 		     file://led-bootstate-green.timer \
 		     file://led-bootstate-green.service"
 LIC_FILES_CHKSUM = "file://${WORKDIR}/LICENSE.GPL2;md5=b234ee4d69f5fce4486a80fdaf4a4263"
@@ -11,7 +11,7 @@ inherit systemd
 
 SYSTEMD_PACKAGES = "${PN}"
 
-SYSTEMD_SERVICE_${PN} = "\
+SYSTEMD_SERVICE:${PN} = "\
     led-bootstate-green.service \
     led-bootstate-green.timer \
 "
@@ -25,7 +25,7 @@ do_install () {
 }
 
 
-FILES_${PN} += "${systemd_unitdir}/*"
+FILES:${PN} += "${systemd_unitdir}/*"
 
 COMPATIBLE_HOST = "riscv64.*"
 COMPATIBLE_MACHINE = "unmatched"
