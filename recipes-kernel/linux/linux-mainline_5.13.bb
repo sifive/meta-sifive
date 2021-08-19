@@ -28,6 +28,6 @@ SRC_URI:append:riscv64 = " \
 SRC_URI:append = " file://defconfig"
 
 unset KBUILD_DEFCONFIG
-COMPATIBLE_MACHINE = "freedom-u540|unmatched"
+COMPATIBLE_MACHINE = "freedom-u540|unmatched|qemuriscv64|qemuriscv64_b|qemuriscv64_b_zfh|qemuriscv64_v"
 
 KERNEL_FEATURES:remove = "cfg/fs/vfat.scc"
