@@ -5,22 +5,13 @@ Subject: [PATCH 02/10] riscv: sifive: unmatched: update for 16GB rev3
 
 Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>
 ---
- .../riscv/boot/dts/sifive/hifive-unmatched-a00.dts | 34 +++++++++++-----------
- 1 file changed, 17 insertions(+), 17 deletions(-)
+ .../riscv/boot/dts/sifive/hifive-unmatched-a00.dts | 32 +++++++++----------
+ 1 file changed, 16 insertions(+), 16 deletions(-)
 
 diff --git a/arch/riscv/boot/dts/sifive/hifive-unmatched-a00.dts b/arch/riscv/boot/dts/sifive/hifive-unmatched-a00.dts
 index b1c3c59..e026f60 100644
 --- a/arch/riscv/boot/dts/sifive/hifive-unmatched-a00.dts
 +++ b/arch/riscv/boot/dts/sifive/hifive-unmatched-a00.dts
-@@ -24,7 +24,7 @@
- 
- 	memory@80000000 {
- 		device_type = "memory";
--		reg = <0x0 0x80000000 0x2 0x00000000>;
-+		reg = <0x0 0x80000000 0x4 0x00000000>;
- 	};
- 
- 	soc {
 @@ -72,16 +72,16 @@
  
  		regulators {

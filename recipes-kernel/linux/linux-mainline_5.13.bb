@@ -12,6 +12,7 @@ SRC_URI = " \
 LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
 
 SRC_URI:append:riscv64 = " \
+    file://0000-riscv-dts-fix-memory-size-for-the-SiFive-HiFive-Unma.patch \
     file://0001-riscv-sifive-fu740-cpu-1-2-3-4-set-compatible-to-sif.patch \
     file://0002-riscv-sifive-unmatched-update-for-16GB-rev3.patch \
     file://0003-riscv-sifive-unmatched-add-D12-PWM-LED.patch \
