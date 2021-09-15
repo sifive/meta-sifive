@@ -1,7 +1,7 @@
-From 1330be57edd307213823149ac305e1a359a88759 Mon Sep 17 00:00:00 2001
+From ab5c8f5492cce16ff2104393e2f1fa64a3ff6e88 Mon Sep 17 00:00:00 2001
 From: David Abdurachmanov <david.abdurachmanov@sifive.com>
 Date: Wed, 17 Feb 2021 06:06:14 -0800
-Subject: [PATCH 01/10] riscv: sifive: fu740: cpu{1,2,3,4} set compatible to
+Subject: [PATCH 1/7] riscv: sifive: fu740: cpu{1,2,3,4} set compatible to
  sifive,u74-mc
 
 Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>

@@ -1,26 +1,27 @@
-From 72d87e56718353754c3470a8b0a02399c0750ff5 Mon Sep 17 00:00:00 2001
+From 657819ff477dd73cd71075609698aa57ba098d8c Mon Sep 17 00:00:00 2001
 From: David Abdurachmanov <david.abdurachmanov@sifive.com>
-Date: Mon, 22 Feb 2021 01:33:52 -0800
-Subject: [PATCH 02/10] riscv: sifive: unmatched: update for 16GB rev3
+Date: Wed, 15 Sep 2021 07:10:02 -0700
+Subject: [PATCH 2/7] riscv: sifive: unmatched: update regulators values
+
+These are the regulators values from the schematics for Rev3{A,B} boards.
+
+Note this is not fully correct as bcore1/bcore2 and bmem/bio are merged, but
+it's only supported in v5.15 kernel. See:
+
+541ee8f640327f951e7039278057827322231ab0 ("regulator: da9063: Add support for
+full-current mode.")
+
+This will be changed for v5.15 kernel based on the patch above.
 
 Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>
 ---
- .../riscv/boot/dts/sifive/hifive-unmatched-a00.dts | 34 +++++++++++-----------
- 1 file changed, 17 insertions(+), 17 deletions(-)
+ .../riscv/boot/dts/sifive/hifive-unmatched-a00.dts | 32 +++++++++++-----------
+ 1 file changed, 16 insertions(+), 16 deletions(-)
 
 diff --git a/arch/riscv/boot/dts/sifive/hifive-unmatched-a00.dts b/arch/riscv/boot/dts/sifive/hifive-unmatched-a00.dts
-index b1c3c59..e026f60 100644
+index 2e4ea84..e026f60 100644
 --- a/arch/riscv/boot/dts/sifive/hifive-unmatched-a00.dts
 +++ b/arch/riscv/boot/dts/sifive/hifive-unmatched-a00.dts
-@@ -24,7 +24,7 @@
- 
- 	memory@80000000 {
- 		device_type = "memory";
--		reg = <0x0 0x80000000 0x2 0x00000000>;
-+		reg = <0x0 0x80000000 0x4 0x00000000>;
- 	};
- 
- 	soc {
 @@ -72,16 +72,16 @@
  
  		regulators {
