@@ -1,7 +1,7 @@
-From 547a601e38f8876be6fc6848532b3d0e7abf3cf9 Mon Sep 17 00:00:00 2001
+From 5f26d71202f37d77ecf74da2ce7e4c3a3f4d48d3 Mon Sep 17 00:00:00 2001
 From: Vincent Chen <vincent.chen@sifive.com>
 Date: Thu, 8 Jul 2021 09:08:20 +0800
-Subject: [PATCH 07/13] board: sifive: unmatched: refine GEMGXL initialized
+Subject: [PATCH 08/16] board: sifive: unmatched: refine GEMGXL initialized
  function in SPL
 
 Create a new function spl_reset_device_by_gpio to reset the device

@@ -1,7 +1,7 @@
-From 20bebd861739a6e2e20c1925df408860a32267e2 Mon Sep 17 00:00:00 2001
+From a3a717668b8158c555490921722c04ea6c07bf1a Mon Sep 17 00:00:00 2001
 From: Green Wan <green.wan@sifive.com>
 Date: Mon, 28 Jun 2021 19:13:08 +0800
-Subject: [PATCH 01/13] drivers: clk: sifive: fu740-prci: replace 'pciaux' with
+Subject: [PATCH 02/16] drivers: clk: sifive: fu740-prci: replace 'pciaux' with
  'pcieaux'
 
 Replace 'pciaux' with 'pcieaux', including name string and function

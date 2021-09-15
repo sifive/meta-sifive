@@ -1,7 +1,7 @@
-From 0ed08762b714cd6988decc25e1135f7d6bd25569 Mon Sep 17 00:00:00 2001
+From ac71430a203ae7073d92c5f3026f0863e6b7e22b Mon Sep 17 00:00:00 2001
 From: Vincent Chen <vincent.chen@sifive.com>
 Date: Fri, 26 Mar 2021 13:58:59 +0800
-Subject: [PATCH 09/13] board: sifive: spl: Initialized the PWM setting in the
+Subject: [PATCH 10/16] board: sifive: spl: Initialized the PWM setting in the
  SPL stage
 
 LEDs and multiple fans can be controlled by SPL. This patch ensures

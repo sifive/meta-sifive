@@ -1,7 +1,7 @@
-From 10932b603651b19cc182746b14eb12e8dfb75d28 Mon Sep 17 00:00:00 2001
+From 01f3996f6f3ad9b7d26bc7620af44aa063bd01b1 Mon Sep 17 00:00:00 2001
 From: Vincent Chen <vincent.chen@sifive.com>
 Date: Thu, 8 Jul 2021 09:08:21 +0800
-Subject: [PATCH 08/13] board: sifive: unmatched: reset USB hub, PCIe-USB
+Subject: [PATCH 09/16] board: sifive: unmatched: reset USB hub, PCIe-USB
  bridge, and ULPI device in SPL
 
 Ensure USB hub, PCIe-USB bridge, and ULPI device to be reset

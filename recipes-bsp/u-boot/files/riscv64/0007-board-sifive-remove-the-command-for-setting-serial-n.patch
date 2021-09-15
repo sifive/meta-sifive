@@ -1,7 +1,7 @@
-From d637d34fd87e31f35129a4b0635b60e481046a6f Mon Sep 17 00:00:00 2001
+From e6b25cf93a9255a5c167ffab7a6e87c272a2b07d Mon Sep 17 00:00:00 2001
 From: Zong Li <zong.li@sifive.com>
 Date: Fri, 9 Jul 2021 16:26:35 +0800
-Subject: [PATCH 06/13] board: sifive: remove the command for setting serial
+Subject: [PATCH 07/16] board: sifive: remove the command for setting serial
  number
 
 We wouldn't like to allow user to change the serial number, so remove

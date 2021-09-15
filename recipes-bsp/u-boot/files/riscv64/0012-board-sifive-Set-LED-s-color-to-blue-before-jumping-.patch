@@ -1,7 +1,7 @@
-From b65c484fcbae789d0544ba67ece5d1d1ed4563d3 Mon Sep 17 00:00:00 2001
+From 0c0bc1969d89e9b8425641436db706cfac57cf45 Mon Sep 17 00:00:00 2001
 From: Vincent Chen <vincent.chen@sifive.com>
 Date: Fri, 26 Mar 2021 14:07:58 +0800
-Subject: [PATCH 11/13] board: sifive: Set LED's color to blue before jumping
+Subject: [PATCH 12/16] board: sifive: Set LED's color to blue before jumping
  to Linux
 
 The LED's color wil be changed from purple to blue before executing

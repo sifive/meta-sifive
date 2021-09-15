@@ -1,7 +1,7 @@
-From b1b88a1e3fec5fd7799fa64920d1f237b23b41e2 Mon Sep 17 00:00:00 2001
+From 78cd21523e6c83d42a3e3c8bf01a84b9850b2a5f Mon Sep 17 00:00:00 2001
 From: Dimitri John Ledkov <dimitri.ledkov@canonical.com>
 Date: Wed, 14 Jul 2021 09:19:48 -0700
-Subject: [PATCH 13/13] riscv: sifive: Set default fdtfile names
+Subject: [PATCH 14/16] riscv: sifive: Set default fdtfile names
 
 Set default fdtfile names for unleashed and unmatched boards, as used
 in the upstream Linux kernel. This allows sysboot command to find and
@@ -49,10 +49,10 @@ index cf08955..bdf90ec 100644
  CONFIG_DISPLAY_BOARDINFO=y
  CONFIG_DISPLAY_BOARDINFO_LATE=y
 diff --git a/include/configs/sifive-unleashed.h b/include/configs/sifive-unleashed.h
-index 0d69d1c..b6c29f8 100644
+index 5acce36..db0ebaf 100644
 --- a/include/configs/sifive-unleashed.h
 +++ b/include/configs/sifive-unleashed.h
-@@ -75,6 +75,7 @@
+@@ -77,6 +77,7 @@
  	"type_guid_gpt_loader2=" TYPE_GUID_LOADER2 "\0" \
  	"type_guid_gpt_system=" TYPE_GUID_SYSTEM "\0" \
  	"partitions=" PARTS_DEFAULT "\0" \

@@ -1,7 +1,7 @@
-From 4c04b95e0667481bd50db1a48938e3b008723230 Mon Sep 17 00:00:00 2001
+From cdecb59564d7b2f2f0a53a41e6933f63badb2def Mon Sep 17 00:00:00 2001
 From: Zong Li <zong.li@sifive.com>
 Date: Wed, 30 Jun 2021 23:23:48 +0800
-Subject: [PATCH 05/13] board: sifive: Add an interface to get PCB revision
+Subject: [PATCH 06/16] board: sifive: Add an interface to get PCB revision
 
 There are different DDR parameter settings for different board
 revisions. Add a new interface to get the PCB revision to determine

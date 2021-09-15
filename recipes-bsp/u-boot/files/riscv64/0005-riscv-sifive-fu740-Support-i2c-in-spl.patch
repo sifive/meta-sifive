@@ -1,7 +1,7 @@
-From fe29c19481a888a46d35e86626e46a3b8e404771 Mon Sep 17 00:00:00 2001
+From bda688c4b0cda4bd20ccf1d771f1f4285a9adf27 Mon Sep 17 00:00:00 2001
 From: Zong Li <zong.li@sifive.com>
 Date: Wed, 30 Jun 2021 23:23:47 +0800
-Subject: [PATCH 04/13] riscv: sifive: fu740: Support i2c in spl
+Subject: [PATCH 05/16] riscv: sifive: fu740: Support i2c in spl
 
 Enable SPL_I2C_SUPPORT for fu740, and add 'u-boot,dm-spl' property in
 i2c node.

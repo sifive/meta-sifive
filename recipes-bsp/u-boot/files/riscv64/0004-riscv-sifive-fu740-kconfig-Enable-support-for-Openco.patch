@@ -1,7 +1,7 @@
-From 5e0952aba17175be3f39d9dbaabd6591ec5c7f1f Mon Sep 17 00:00:00 2001
+From feb5ac0bc029c8199bc29ab5b2ddf66eaa533843 Mon Sep 17 00:00:00 2001
 From: Zong Li <zong.li@sifive.com>
 Date: Wed, 30 Jun 2021 23:23:46 +0800
-Subject: [PATCH 03/13] riscv: sifive: fu740: kconfig: Enable support for
+Subject: [PATCH 04/16] riscv: sifive: fu740: kconfig: Enable support for
  Opencores I2C controller
 
 Enable the Opencores I2C controller on FU740

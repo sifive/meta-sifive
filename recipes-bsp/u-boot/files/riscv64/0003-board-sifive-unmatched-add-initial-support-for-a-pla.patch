@@ -1,7 +1,7 @@
-From 5c7f13f42989ccd59e872676876172853ea94b92 Mon Sep 17 00:00:00 2001
+From 3b4e1fd666cc156bf6d56da60d62dc063f75b7c4 Mon Sep 17 00:00:00 2001
 From: Zong Li <zong.li@sifive.com>
 Date: Wed, 30 Jun 2021 23:23:45 +0800
-Subject: [PATCH 02/13] board: sifive: unmatched: add initial support for a
+Subject: [PATCH 03/16] board: sifive: unmatched: add initial support for a
  platform ID EEPROM
 
 Add initial support for the PCB description EEPROM for SiFive HiFive
