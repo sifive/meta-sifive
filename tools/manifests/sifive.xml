@@ -9,7 +9,7 @@
   <remote name="davidlt" fetch="git://github.com/davidlt/" />
   <default remote="openembedded" revision="master" />
 
-  <project name="meta-sifive" remote="sifive" path="meta-sifive" revision="master" />
+  <project name="meta-sifive" remote="sifive" path="meta-sifive" revision="2021.09" />
   <project name="meta-riscv" remote="riscv" path="meta-riscv" revision="a6bff45243851573357532be3abbc3ac5442be78" />
   <project name="openembedded-core" remote="openembedded" path="openembedded-core" revision="50154869b496cf63a4fae2c8278350fcf9a2591d" />
   <project name="bitbake" remote="openembedded" path="openembedded-core/bitbake" revision="250fa17f1391ff1ee01ab9b51d2a4f9aa35c1d1e" />
