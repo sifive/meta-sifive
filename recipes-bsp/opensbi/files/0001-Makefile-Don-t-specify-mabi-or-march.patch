@@ -1,4 +1,4 @@
-From 7b450cc39cecc7eb96c56b5f92caf94c90b908d6 Mon Sep 17 00:00:00 2001
+From da4d70284f9172bccb703a833975aef5c5723b3a Mon Sep 17 00:00:00 2001
 From: Alistair Francis <alistair.francis@wdc.com>
 Date: Fri, 15 Feb 2019 14:57:41 -0800
 Subject: [PATCH] Makefile: Don't specify mabi or march
@@ -15,22 +15,22 @@ Signed-off-by: Alistair Francis <alistair.francis@wdc.com>
  1 file changed, 2 deletions(-)
 
 diff --git a/Makefile b/Makefile
-index ccf8ea3..69e5b38 100644
+index 16d9dca..0f37772 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -169,7 +169,6 @@ GENFLAGS	+=	$(firmware-genflags-y)
- CFLAGS		=	-g -Wall -Werror -ffreestanding -nostdlib -fno-strict-aliasing -O2
+@@ -254,7 +254,6 @@ GENFLAGS	+=	$(firmware-genflags-y)
+ CFLAGS		=	-g -Wall -Werror -ffreestanding -nostdlib -fno-stack-protector -fno-strict-aliasing -O2
  CFLAGS		+=	-fno-omit-frame-pointer -fno-optimize-sibling-calls
  CFLAGS		+=	-mno-save-restore -mstrict-align
 -CFLAGS		+=	-mabi=$(PLATFORM_RISCV_ABI) -march=$(PLATFORM_RISCV_ISA)
  CFLAGS		+=	-mcmodel=$(PLATFORM_RISCV_CODE_MODEL)
+ CFLAGS		+=	$(RELAX_FLAG)
  CFLAGS		+=	$(GENFLAGS)
- CFLAGS		+=	$(platform-cflags-y)
-@@ -183,7 +182,6 @@ CPPFLAGS	+=	$(firmware-cppflags-y)
- ASFLAGS		=	-g -Wall -nostdlib -D__ASSEMBLY__
+@@ -269,7 +268,6 @@ CPPFLAGS	+=	$(firmware-cppflags-y)
+ ASFLAGS		=	-g -Wall -nostdlib
  ASFLAGS		+=	-fno-omit-frame-pointer -fno-optimize-sibling-calls
  ASFLAGS		+=	-mno-save-restore -mstrict-align
 -ASFLAGS		+=	-mabi=$(PLATFORM_RISCV_ABI) -march=$(PLATFORM_RISCV_ISA)
  ASFLAGS		+=	-mcmodel=$(PLATFORM_RISCV_CODE_MODEL)
- ASFLAGS		+=	$(GENFLAGS)
- ASFLAGS		+=	$(platform-asflags-y)
+ ASFLAGS		+=	$(RELAX_FLAG)
+ ifneq ($(CC_IS_CLANG),y)

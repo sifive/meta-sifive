@@ -5,20 +5,17 @@ LIC_FILES_CHKSUM = "file://COPYING.BSD;md5=42dd9555eb177f35150cf9aa240b61e5"
 
 inherit autotools-brokensep deploy
 
-SRCREV = "v0.9"
-SRC_URI = "git://github.com/riscv/opensbi.git \
-           file://0001-Makefile-Don-t-specify-mabi-or-march.patch \
-          "
+PV = "0.9+git${SRCPV}"
 
-SRC_URI:append:unmatched = " \
-           file://0001-lib-utils-add-GPIO-and-poweroff-parsing.patch \
-           file://0002-lib-utils-add-gpio-generic-interface.patch \
-           file://0003-lib-utils-reset-add-powor-off-support.patch \
+BRANCH = "master"
+SRCREV = "bd355213bfbb209c047e8cc0df56936f6705477f"
+SRC_URI = "git://github.com/riscv/opensbi.git;branch=${BRANCH} \
+           file://0001-Makefile-Don-t-specify-mabi-or-march.patch \
           "
 
 S = "${WORKDIR}/git"
 
-EXTRA_OEMAKE += "PLATFORM=${RISCV_SBI_PLAT} I=${D} INSTALL_LIB_PATH=lib"
+EXTRA_OEMAKE += "PLATFORM=${RISCV_SBI_PLAT} I=${D} INSTALL_LIB_PATH=lib FW_PIC=n"
 
 do_install:append() {
 	# In the future these might be required as a dependency for other packages.
