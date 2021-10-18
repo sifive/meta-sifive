@@ -29,4 +29,11 @@ do_compile:prepend:riscv64() {
     export OPENSBI=${DEPLOY_DIR_IMAGE}/fw_dynamic.bin
 }
 
-do_configure[depends] += "opensbi:do_deploy"
+def riscv_get_do_compile_depends(d):
+    arch = d.getVar('TRANSLATED_TARGET_ARCH') or ""
+
+    if arch == "riscv64":
+        return "opensbi:do_deploy"
+    return ""
+
+do_compile[depends] += "${@riscv_get_do_compile_depends(d)}"
