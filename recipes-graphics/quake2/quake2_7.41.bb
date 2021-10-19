@@ -10,8 +10,11 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=cdfb10fe3916436d25f4410fcd6a97b8"
 inherit pkgconfig
 
 DEPENDS = "mesa libsdl2 libogg libvorbis zlib curl openal-soft"
+DEPENDS:append:libc-musl = " libexecinfo"
 
 RDEPENDS:${PN} = " alsa-lib libcurl openal-soft"
+
+LDFLAGS:append:libc-musl = " -lexecinfo"
 
 SRC_URI = "git://github.com/yquake2/yquake2.git \
            file://remove-sse.patch \
