@@ -120,9 +120,6 @@ There are two disk image targets added by meta-sifive layer:
 There are several machine targets defined:
 
 - `qemuriscv64` - RISC-V 64-bit (RV64GC) for QEMU virt machine (**recommended for QEMU target**).
-- `qemuriscv64_b`- RISCV-V 64-bit (RV64GC) with B extension (not ratified yet) for QEMU virt machine.
-- `qemuriscv64_b_zfh` - RISC-V-64-bit (RV64GC) with B and Zfh extensions (both not ratified yet) for QEMU virt machine.
-- `qemuriscv64_v` - RISC-V 64-bit (RV64GC) with V extension (not ratified yet) for QEMU virt machine.
 - `freedom-u540` - SiFive HiFive Unleashed development board.
 - `unmatched` - SiFive HiFive Unmatched development board.
 
