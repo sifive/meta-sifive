@@ -1,7 +1,7 @@
 require libunwind.inc
 
-SRCREV = "1527061fc5ce7cfd3911ac7ee8af04fdd4393477"
-PV = "20210810+git${SRCPV}"
+SRCREV = "97d74d396264720e86d4b8455216f4a7b06a54af"
+PV = "20211019+git${SRCPV}"
 
 SRC_URI = "git://github.com/libunwind/libunwind \
            "
