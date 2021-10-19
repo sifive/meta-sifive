@@ -192,11 +192,8 @@ IMAGE_INSTALL = "\
     epiphany \
     evince \
     xdg-utils \
-    libva \
-    libva-utils \
     libvdpau \
     gstreamer1.0 \
-    gstreamer1.0-vaapi \
     mesa-vdpau-drivers \
     vdpauinfo \
     patchelf \
