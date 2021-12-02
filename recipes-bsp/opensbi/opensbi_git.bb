@@ -8,8 +8,8 @@ inherit autotools-brokensep deploy
 PV = "0.9+git${SRCPV}"
 
 BRANCH = "master"
-SRCREV = "bd355213bfbb209c047e8cc0df56936f6705477f"
-SRC_URI = "git://github.com/riscv/opensbi.git;branch=${BRANCH} \
+SRCREV = "22d556d26809775e2ac19251e5df9075434ee66e"
+SRC_URI = "git://github.com/riscv/opensbi.git;protocol=https;branch=${BRANCH} \
            file://0001-Makefile-Don-t-specify-mabi-or-march.patch \
           "
 
