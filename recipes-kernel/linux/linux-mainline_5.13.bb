@@ -19,6 +19,8 @@ SRC_URI:append:riscv64 = " \
     file://0005-SiFive-HiFive-Unleashed-Add-PWM-LEDs-D1-D2-D3-D4.patch \
     file://0006-riscv-sifive-unleashed-define-opp-table-cpufreq.patch \
     file://0007-riscv-enable-generic-PCI-resource-mapping.patch \
+    file://29868ae1478fe18231672da94c4e862a03218a25.patch \
+    file://riscv-sbi-srst-support.patch \
     "
 
 # Use out-of-tree defconfig
