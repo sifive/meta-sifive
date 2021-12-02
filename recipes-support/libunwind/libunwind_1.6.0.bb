@@ -1,9 +1,8 @@
 require libunwind.inc
 
-SRCREV = "97d74d396264720e86d4b8455216f4a7b06a54af"
-PV = "20211019+git${SRCPV}"
+SRCREV = "v1.6.0"
 
-SRC_URI = "git://github.com/libunwind/libunwind \
+SRC_URI = "git://github.com/libunwind/libunwind;protocol=https;branch=v1.6-stable \
            "
 SRC_URI:append:libc-musl = " file://musl-header-conflict.patch"
 
