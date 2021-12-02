@@ -1,38 +1,43 @@
-From ac71430a203ae7073d92c5f3026f0863e6b7e22b Mon Sep 17 00:00:00 2001
+From 2bf71ed2234c5fbc640ae6ee424faec1272d4abf Mon Sep 17 00:00:00 2001
 From: Vincent Chen <vincent.chen@sifive.com>
-Date: Fri, 26 Mar 2021 13:58:59 +0800
-Subject: [PATCH 10/16] board: sifive: spl: Initialized the PWM setting in the
+Date: Mon, 15 Nov 2021 03:31:04 -0800
+Subject: [PATCH 2/7] board: sifive: spl: Initialized the PWM setting in the
  SPL stage
 
 LEDs and multiple fans can be controlled by SPL. This patch ensures
 that all fans have been enabled in the SPL stage. In addition, the
 LED's color will be set to yellow.
 ---
- board/sifive/unmatched/spl.c       |  2 ++
- board/sifive/unmatched/unmatched.c | 48 ++++++++++++++++++++++++++++++++++++++
- 2 files changed, 50 insertions(+)
+ board/sifive/unmatched/Makefile |  1 +
+ board/sifive/unmatched/pwm.c    | 57 +++++++++++++++++++++++++++++++++
+ board/sifive/unmatched/spl.c    |  2 ++
+ 3 files changed, 60 insertions(+)
+ create mode 100644 board/sifive/unmatched/pwm.c
 
-diff --git a/board/sifive/unmatched/spl.c b/board/sifive/unmatched/spl.c
-index d566327..3c3b22d 100644
---- a/board/sifive/unmatched/spl.c
-+++ b/board/sifive/unmatched/spl.c
-@@ -89,6 +89,8 @@ int spl_board_init_f(void)
- 		goto end;
- 	}
- 
-+	pwm_device_init();
+diff --git a/board/sifive/unmatched/Makefile b/board/sifive/unmatched/Makefile
+index 1345330089..5df01982e9 100644
+--- a/board/sifive/unmatched/Makefile
++++ b/board/sifive/unmatched/Makefile
+@@ -9,3 +9,4 @@ obj-y += spl.o
+ else
+ obj-y += unmatched.o
+ endif
++obj-y += pwm.o
+diff --git a/board/sifive/unmatched/pwm.c b/board/sifive/unmatched/pwm.c
+new file mode 100644
+index 0000000000..e1cc02310a
+--- /dev/null
++++ b/board/sifive/unmatched/pwm.c
+@@ -0,0 +1,57 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (c) 2021, SiFive Inc
++ *
++ * Authors:
++ *   Vincent Chen <vincent.chen@sifive.com>
++ *   David Abdurachmanov <david.abdurachmanov@sifive.com>
++ */
 +
- 	ret = spl_gemgxl_init();
- 	if (ret) {
- 		debug("Gigabit ethernet PHY (VSC8541) init failed: %d\n", ret);
-diff --git a/board/sifive/unmatched/unmatched.c b/board/sifive/unmatched/unmatched.c
-index 6d60559..9924da9 100644
---- a/board/sifive/unmatched/unmatched.c
-+++ b/board/sifive/unmatched/unmatched.c
-@@ -9,6 +9,54 @@
- #include <common.h>
- #include <dm.h>
- #include <asm/arch/cache.h>
 +#include <linux/io.h>
 +#include <asm/arch/eeprom.h>
 +
@@ -81,9 +86,19 @@ index 6d60559..9924da9 100644
 +	writel(PWM_CMP_ENABLE_VAL, (void *)&pwm1->cmp3);
 +	writel(PWM_CFG_INIT, (void *)&pwm1->cfg);
 +}
+diff --git a/board/sifive/unmatched/spl.c b/board/sifive/unmatched/spl.c
+index d5663274cd..3c3b22dea2 100644
+--- a/board/sifive/unmatched/spl.c
++++ b/board/sifive/unmatched/spl.c
+@@ -89,6 +89,8 @@ int spl_board_init_f(void)
+ 		goto end;
+ 	}
  
- int board_init(void)
- {
++	pwm_device_init();
++
+ 	ret = spl_gemgxl_init();
+ 	if (ret) {
+ 		debug("Gigabit ethernet PHY (VSC8541) init failed: %d\n", ret);
 -- 
-2.7.4
+2.27.0
 
