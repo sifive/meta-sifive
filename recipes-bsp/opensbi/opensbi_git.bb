@@ -5,12 +5,11 @@ LIC_FILES_CHKSUM = "file://COPYING.BSD;md5=42dd9555eb177f35150cf9aa240b61e5"
 
 inherit autotools-brokensep deploy
 
-PV = "0.9+git${SRCPV}"
+PV = "1.0+git${SRCPV}"
 
 BRANCH = "master"
-SRCREV = "22d556d26809775e2ac19251e5df9075434ee66e"
+SRCREV = "5d025eb2353550eadbd2fa9b8083a92fe9b07bd9"
 SRC_URI = "git://github.com/riscv/opensbi.git;protocol=https;branch=${BRANCH} \
-           file://0001-Makefile-Don-t-specify-mabi-or-march.patch \
           "
 
 S = "${WORKDIR}/git"
