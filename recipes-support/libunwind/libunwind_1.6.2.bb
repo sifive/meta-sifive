@@ -1,6 +1,6 @@
 require libunwind.inc
 
-SRCREV = "v1.6.0"
+SRCREV = "b3ca1b59a795a617877c01fe5d299ab7a07ff29d"
 
 SRC_URI = "git://github.com/libunwind/libunwind;protocol=https;branch=v1.6-stable \
            "
