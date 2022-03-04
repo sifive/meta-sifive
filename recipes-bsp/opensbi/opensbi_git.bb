@@ -8,7 +8,7 @@ inherit autotools-brokensep deploy
 PV = "1.0+git${SRCPV}"
 
 BRANCH = "master"
-SRCREV = "5d025eb2353550eadbd2fa9b8083a92fe9b07bd9"
+SRCREV = "4998a712b2ab504eff306110879ee05af6050177"
 SRC_URI = "git://github.com/riscv/opensbi.git;protocol=https;branch=${BRANCH} \
           "
 
