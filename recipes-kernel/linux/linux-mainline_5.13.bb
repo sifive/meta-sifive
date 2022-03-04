@@ -21,6 +21,7 @@ SRC_URI:append:riscv64 = " \
     file://0007-riscv-enable-generic-PCI-resource-mapping.patch \
     file://29868ae1478fe18231672da94c4e862a03218a25.patch \
     file://riscv-sbi-srst-support.patch \
+    file://fa8b369129b0706d400e1dfe150c946e64f56df5.patch \
     "
 
 # Use out-of-tree defconfig
