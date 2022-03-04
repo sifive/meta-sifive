@@ -7,7 +7,7 @@ and software features (software counters, tracepoints) \
 as well."
 HOMEPAGE = "https://perf.wiki.kernel.org/index.php/Main_Page"
 
-LICENSE = "GPLv2"
+LICENSE = "GPL-2.0-only"
 
 PR = "r9"
 
@@ -125,9 +125,11 @@ PERF_SRC ?= "Makefile \
 
 PERF_EXTRA_LDFLAGS = ""
 
-# MIPS N32
+# MIPS N32/N64
 PERF_EXTRA_LDFLAGS:mipsarchn32eb = "-m elf32btsmipn32"
 PERF_EXTRA_LDFLAGS:mipsarchn32el = "-m elf32ltsmipn32"
+PERF_EXTRA_LDFLAGS:mipsarchn64eb = "-m elf64btsmip"
+PERF_EXTRA_LDFLAGS:mipsarchn64el = "-m elf64ltsmip"
 
 do_compile() {
 	# Linux kernel build system is expected to do the right thing
@@ -143,6 +145,8 @@ do_install() {
 	if ${@bb.utils.contains('PACKAGECONFIG', 'scripting', 'true', 'false', d)} && grep -q install-python_ext ${S}/tools/perf/Makefile*; then
 	    oe_runmake DESTDIR=${D} install-python_ext
 	fi
+
+	rm -rf ${D}${datadir}
 }
 
 do_configure[prefuncs] += "copy_perf_source_from_kernel"
@@ -318,6 +322,7 @@ PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 
 PACKAGES =+ "${PN}-archive ${PN}-tests ${PN}-perl ${PN}-python"
+PACKAGES:remove = "${PN}-doc"
 
 RDEPENDS:${PN} += "elfutils bash"
 RDEPENDS:${PN}-archive =+ "bash"
