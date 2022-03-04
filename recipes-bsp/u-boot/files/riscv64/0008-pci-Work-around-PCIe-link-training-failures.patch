@@ -1,0 +1,385 @@
+From cd5c1387c08f66985aebcc33d55446a6c755db9b Mon Sep 17 00:00:00 2001
+From: "Maciej W. Rozycki" <macro@orcam.me.uk>
+Date: Mon, 24 Jan 2022 03:03:46 -0800
+Subject: [PATCH 8/8] pci: Work around PCIe link training failures
+
+Attempt to handle cases with a downstream port of a PCIe switch where
+link training never completes and the link continues switching between
+speeds indefinitely with the data link layer never reaching the active
+state.
+
+It has been observed with a downstream port of the ASMedia ASM2824 Gen 3
+switch wired to the upstream port of the Pericom PI7C9X2G304 Gen 2
+switch, using a Delock Riser Card PCI Express x1 > 2 x PCIe x1 device,
+P/N 41433, wired to a SiFive HiFive Unmatched board.  In this setup the
+switches are supposed to negotiate the link speed of preferably 5.0GT/s,
+falling back to 2.5GT/s.
+
+However the link continues oscillating between the two speeds, at the
+rate of 34-35 times per second, with link training reported repeatedly
+active ~84% of the time, e.g.:
+
+02:03.0 PCI bridge [0604]: ASMedia Technology Inc. ASM2824 PCIe Gen3 Packet Switch [1b21:2824] (rev 01) (prog-if 00 [Normal decode])
+[...]
+	Bus: primary=02, secondary=05, subordinate=05, sec-latency=0
+[...]
+	Capabilities: [80] Express (v2) Downstream Port (Slot+), MSI 00
+[...]
+		LnkSta:	Speed 5GT/s (downgraded), Width x1 (ok)
+			TrErr- Train+ SlotClk+ DLActive- BWMgmt+ ABWMgmt-
+[...]
+		LnkCtl2: Target Link Speed: 8GT/s, EnterCompliance- SpeedDis+, Selectable De-emphasis: -3.5dB
+			 Transmit Margin: Normal Operating Range, EnterModifiedCompliance- ComplianceSOS-
+			 Compliance De-emphasis: -6dB
+[...]
+
+Forcibly limiting the target link speed to 2.5GT/s with the upstream
+ASM2824 device makes the two switches communicate correctly however:
+
+02:03.0 PCI bridge [0604]: ASMedia Technology Inc. ASM2824 PCIe Gen3 Packet Switch [1b21:2824] (rev 01) (prog-if 00 [Normal decode])
+[...]
+	Bus: primary=02, secondary=05, subordinate=09, sec-latency=0
+[...]
+	Capabilities: [80] Express (v2) Downstream Port (Slot+), MSI 00
+[...]
+		LnkSta:	Speed 2.5GT/s (downgraded), Width x1 (ok)
+			TrErr- Train- SlotClk+ DLActive+ BWMgmt- ABWMgmt-
+[...]
+		LnkCtl2: Target Link Speed: 2.5GT/s, EnterCompliance- SpeedDis+, Selectable De-emphasis: -3.5dB
+			 Transmit Margin: Normal Operating Range, EnterModifiedCompliance- ComplianceSOS-
+			 Compliance De-emphasis: -6dB
+[...]
+
+and then:
+
+05:00.0 PCI bridge [0604]: Pericom Semiconductor PI7C9X2G304 EL/SL PCIe2 3-Port/4-Lane Packet Switch [12d8:2304] (rev 05) (prog-if 00 [Normal decode])
+[...]
+	Bus: primary=05, secondary=06, subordinate=09, sec-latency=0
+[...]
+	Capabilities: [c0] Express (v2) Upstream Port, MSI 00
+[...]
+		LnkSta:	Speed 2.5GT/s (downgraded), Width x1 (downgraded)
+			TrErr- Train- SlotClk+ DLActive- BWMgmt- ABWMgmt-
+[...]
+		LnkCtl2: Target Link Speed: 5GT/s, EnterCompliance- SpeedDis-
+			 Transmit Margin: Normal Operating Range, EnterModifiedCompliance- ComplianceSOS-
+			 Compliance De-emphasis: -6dB
+[...]
+
+Make use of this observation then and attempt to detect the inability to
+negotiate the link speed automatically, and then handle it by hand.  Use
+the Data Link Layer Link Active status flag as the primary indicator of
+successful link speed negotiation, but given that the flag is optional
+by hardware to implement (the ASM2824 does have it though), resort to
+checking for the mandatory Link Bandwidth Management Status flag showing
+that the link speed or width has been changed in an attempt to correct
+unreliable link operation (the ASM2824 does set it too).
+
+If these checks indicate that link may not operate correctly, then poll
+the Data Link Layer Link Active status flag along with the Link Training
+flag for the duration of 200ms to see if the link has stabilised, that
+is either that the Data Link Layer Link Active status flag has been set
+or that Link Training has been inactive during at least the second half
+of the interval.
+
+If that has indicated failure, restrict the target speed to 2.5GT/s,
+request a link retrain and check again if the link has stabilised.  If
+that does not work either, then restore the original speed setting and
+claim defeat, otherwise we are done.
+
+NB interestingly enough with the ASM2824 vs PI7C9X2G304 configuration
+referred above asking the ASM2824 to retrain with a higher target link
+speed once the 2.5GT/s speed has been negotiated makes the two devices
+successfully negotiate 5.0GT/s.  Lifting the 2.5GT/s speed restriction
+would however prevent our workaround from working with an OS that issues
+a reset and that is unaware of the problem.  This is because the devices
+would then try to negotiate a higher link speed from scratch and fail,
+while the sticky property of the Target Link Speed setting will keep the
+2.5GT/s speed restriction across a reset.
+
+Keep the 2.5GT/s speed restriction then, conservatively, if functional
+once applied.
+
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Reviewed-by: Stefan Roese <sr@denx.de>
+---
+ drivers/pci/pci_auto.c | 170 +++++++++++++++++++++++++++++++++++++++++
+ include/pci.h          |  21 ++++-
+ 2 files changed, 189 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/pci/pci_auto.c b/drivers/pci/pci_auto.c
+index 5af4ee6e56..107c6407da 100644
+--- a/drivers/pci/pci_auto.c
++++ b/drivers/pci/pci_auto.c
+@@ -5,6 +5,7 @@
+  * Author: Matt Porter <mporter@mvista.com>
+  *
+  * Copyright 2000 MontaVista Software Inc.
++ * Copyright (c) 2021  Maciej W. Rozycki <macro@orcam.me.uk>
+  */
+ 
+ #include <common.h>
+@@ -12,6 +13,7 @@
+ #include <errno.h>
+ #include <log.h>
+ #include <pci.h>
++#include <time.h>
+ #include "pci_internal.h"
+ 
+ /* the user can define CONFIG_SYS_PCI_CACHE_LINE_SIZE to avoid problems */
+@@ -180,6 +182,168 @@ static void dm_pciauto_setup_device(struct udevice *dev,
+ 	dm_pci_write_config8(dev, PCI_LATENCY_TIMER, 0x80);
+ }
+ 
++/*
++ * Check if the link of a downstream PCIe port operates correctly.
++ *
++ * For that check if the optional Data Link Layer Link Active status gets
++ * on within a 200ms period or failing that wait until the completion of
++ * that period and check if link training has shown the completed status
++ * continuously throughout the second half of that period.
++ *
++ * Observation with the ASMedia ASM2824 Gen 3 switch indicates it takes
++ * 11-44ms to indicate the Data Link Layer Link Active status at 2.5GT/s,
++ * though it may take a couple of link training iterations.
++ */
++static bool dm_pciauto_exp_link_stable(struct udevice *dev, int pcie_off)
++{
++	u64 loops = 0, trcount = 0, ntrcount = 0, flips = 0;
++	bool dllla, lnktr, plnktr;
++	u16 exp_lnksta;
++	pci_dev_t bdf;
++	u64 end;
++
++	dm_pci_read_config16(dev, pcie_off + PCI_EXP_LNKSTA, &exp_lnksta);
++	plnktr = !!(exp_lnksta & PCI_EXP_LNKSTA_LT);
++
++	end = get_ticks() + usec_to_tick(200000);
++	do {
++		dm_pci_read_config16(dev, pcie_off + PCI_EXP_LNKSTA,
++				     &exp_lnksta);
++		dllla = !!(exp_lnksta & PCI_EXP_LNKSTA_DLLLA);
++		lnktr = !!(exp_lnksta & PCI_EXP_LNKSTA_LT);
++
++		flips += plnktr ^ lnktr;
++		if (lnktr) {
++			ntrcount = 0;
++			trcount++;
++		} else {
++			ntrcount++;
++		}
++		loops++;
++
++		plnktr = lnktr;
++	} while (!dllla && get_ticks() < end);
++
++	bdf = dm_pci_get_bdf(dev);
++	debug("PCI Autoconfig: %02x.%02x.%02x: Fixup link: DL active: %u; "
++	      "%3llu flips, %6llu loops of which %6llu while training, "
++	      "final %6llu stable\n",
++	      PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf),
++	      (unsigned int)dllla,
++	      (unsigned long long)flips, (unsigned long long)loops,
++	      (unsigned long long)trcount, (unsigned long long)ntrcount);
++
++	return dllla || ntrcount >= loops / 2;
++}
++
++/*
++ * Retrain the link of a downstream PCIe port by hand if necessary.
++ *
++ * This is needed at least where a downstream port of the ASMedia ASM2824
++ * Gen 3 switch is wired to the upstream port of the Pericom PI7C9X2G304
++ * Gen 2 switch, and observed with the Delock Riser Card PCI Express x1 >
++ * 2 x PCIe x1 device, P/N 41433, plugged into the SiFive HiFive Unmatched
++ * board.
++ *
++ * In such a configuration the switches are supposed to negotiate the link
++ * speed of preferably 5.0GT/s, falling back to 2.5GT/s.  However the link
++ * continues switching between the two speeds indefinitely and the data
++ * link layer never reaches the active state, with link training reported
++ * repeatedly active ~84% of the time.  Forcing the target link speed to
++ * 2.5GT/s with the upstream ASM2824 device makes the two switches talk to
++ * each other correctly however.  And more interestingly retraining with a
++ * higher target link speed afterwards lets the two successfully negotiate
++ * 5.0GT/s.
++ *
++ * As this can potentially happen with any device and is cheap in the case
++ * of correctly operating hardware, let's do it for all downstream ports,
++ * for root complexes, PCIe switches and PCI/PCI-X to PCIe bridges.
++ *
++ * First check if automatic link training may have failed to complete, as
++ * indicated by the optional Data Link Layer Link Active status being off
++ * and the Link Bandwidth Management Status indicating that hardware has
++ * changed the link speed or width in an attempt to correct unreliable
++ * link operation.  If this is the case, then check if the link operates
++ * correctly by seeing whether it is being trained excessively.  If it is,
++ * then conclude the link is broken.
++ *
++ * In that case restrict the speed to 2.5GT/s, observing that the Target
++ * Link Speed field is sticky and therefore the link will stay restricted
++ * even after a device reset is later made by an OS that is unaware of the
++ * problem.  With the speed restricted request that the link be retrained
++ * and check again if the link operates correctly.  If not, then set the
++ * Target Link Speed back to the original value.
++ *
++ * This requires the presence of the Link Control 2 register, so make sure
++ * the PCI Express Capability Version is at least 2.  Also don't try, for
++ * obvious reasons, to limit the speed if 2.5GT/s is the only link speed
++ * supported.
++ */
++static void dm_pciauto_exp_fixup_link(struct udevice *dev, int pcie_off)
++{
++	u16 exp_lnksta, exp_lnkctl, exp_lnkctl2;
++	u16 exp_flags, exp_type, exp_version;
++	u32 exp_lnkcap;
++	pci_dev_t bdf;
++
++	dm_pci_read_config16(dev, pcie_off + PCI_EXP_FLAGS, &exp_flags);
++	exp_version = exp_flags & PCI_EXP_FLAGS_VERS;
++	if (exp_version < 2)
++		return;
++
++	exp_type = (exp_flags & PCI_EXP_FLAGS_TYPE) >> 4;
++	switch (exp_type) {
++	case PCI_EXP_TYPE_ROOT_PORT:
++	case PCI_EXP_TYPE_DOWNSTREAM:
++	case PCI_EXP_TYPE_PCIE_BRIDGE:
++		break;
++	default:
++		return;
++	}
++
++	dm_pci_read_config32(dev, pcie_off + PCI_EXP_LNKCAP, &exp_lnkcap);
++	if ((exp_lnkcap & PCI_EXP_LNKCAP_SLS) <= PCI_EXP_LNKCAP_SLS_2_5GB)
++		return;
++
++	dm_pci_read_config16(dev, pcie_off + PCI_EXP_LNKSTA, &exp_lnksta);
++	if ((exp_lnksta & (PCI_EXP_LNKSTA_LBMS | PCI_EXP_LNKSTA_DLLLA)) !=
++	    PCI_EXP_LNKSTA_LBMS)
++		return;
++
++	if (dm_pciauto_exp_link_stable(dev, pcie_off))
++		return;
++
++	bdf = dm_pci_get_bdf(dev);
++	printf("PCI Autoconfig: %02x.%02x.%02x: "
++	       "Downstream link non-functional\n",
++	       PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf));
++	printf("PCI Autoconfig: %02x.%02x.%02x: "
++	       "Retrying with speed restricted to 2.5GT/s...\n",
++	       PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf));
++
++	dm_pci_read_config16(dev, pcie_off + PCI_EXP_LNKCTL, &exp_lnkctl);
++	dm_pci_read_config16(dev, pcie_off + PCI_EXP_LNKCTL2, &exp_lnkctl2);
++
++	dm_pci_write_config16(dev, pcie_off + PCI_EXP_LNKCTL2,
++			      (exp_lnkctl2 & ~PCI_EXP_LNKCTL2_TLS) |
++			      PCI_EXP_LNKCTL2_TLS_2_5GT);
++	dm_pci_write_config16(dev, pcie_off + PCI_EXP_LNKCTL,
++			      exp_lnkctl | PCI_EXP_LNKCTL_RL);
++
++	if (dm_pciauto_exp_link_stable(dev, pcie_off)) {
++		printf("PCI Autoconfig: %02x.%02x.%02x: Succeeded!\n",
++		       PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf));
++	} else {
++		printf("PCI Autoconfig: %02x.%02x.%02x: Failed!\n",
++		       PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf));
++
++		dm_pci_write_config16(dev, pcie_off + PCI_EXP_LNKCTL2,
++				      exp_lnkctl2);
++		dm_pci_write_config16(dev, pcie_off + PCI_EXP_LNKCTL,
++				      exp_lnkctl | PCI_EXP_LNKCTL_RL);
++	}
++}
++
+ void dm_pciauto_prescan_setup_bridge(struct udevice *dev, int sub_bus)
+ {
+ 	struct pci_region *pci_mem;
+@@ -189,6 +353,7 @@ void dm_pciauto_prescan_setup_bridge(struct udevice *dev, int sub_bus)
+ 	u8 io_32;
+ 	struct udevice *ctlr = pci_get_controller(dev);
+ 	struct pci_controller *ctlr_hose = dev_get_uclass_priv(ctlr);
++	int pcie_off;
+ 
+ 	pci_mem = ctlr_hose->pci_mem;
+ 	pci_prefetch = ctlr_hose->pci_prefetch;
+@@ -267,6 +432,11 @@ void dm_pciauto_prescan_setup_bridge(struct udevice *dev, int sub_bus)
+ 		cmdstat |= PCI_COMMAND_IO;
+ 	}
+ 
++	/* For PCIe devices see if we need to retrain the link by hand */
++	pcie_off = dm_pci_find_capability(dev, PCI_CAP_ID_EXP);
++	if (pcie_off)
++		dm_pciauto_exp_fixup_link(dev, pcie_off);
++
+ 	/* Enable memory and I/O accesses, enable bus master */
+ 	dm_pci_write_config16(dev, PCI_COMMAND, cmdstat | PCI_COMMAND_MASTER);
+ }
+diff --git a/include/pci.h b/include/pci.h
+index 797f224e2f..fed7799451 100644
+--- a/include/pci.h
++++ b/include/pci.h
+@@ -5,6 +5,7 @@
+  *
+  * (C) Copyright 2002
+  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
++ * Copyright (c) 2021  Maciej W. Rozycki <macro@orcam.me.uk>
+  */
+ 
+ #ifndef _PCI_H
+@@ -475,16 +476,24 @@
+ 
+ /* PCI Express capabilities */
+ #define PCI_EXP_FLAGS		2	/* Capabilities register */
++#define  PCI_EXP_FLAGS_VERS	0x000f	/* Capability Version */
+ #define  PCI_EXP_FLAGS_TYPE	0x00f0	/* Device/Port type */
+-#define  PCI_EXP_TYPE_ROOT_PORT 0x4	/* Root Port */
++#define   PCI_EXP_TYPE_ROOT_PORT   0x4	/* Root Port */
++#define   PCI_EXP_TYPE_DOWNSTREAM  0x6	/* Downstream Port */
++#define   PCI_EXP_TYPE_PCIE_BRIDGE 0x8	/* PCI/PCI-X to PCIe Bridge */
+ #define PCI_EXP_DEVCAP		4	/* Device capabilities */
+ #define  PCI_EXP_DEVCAP_FLR	0x10000000 /* Function Level Reset */
+ #define PCI_EXP_DEVCTL		8	/* Device Control */
+ #define  PCI_EXP_DEVCTL_BCR_FLR	0x8000  /* Bridge Configuration Retry / FLR */
+ #define PCI_EXP_LNKCAP		12	/* Link Capabilities */
+ #define  PCI_EXP_LNKCAP_SLS	0x0000000f /* Supported Link Speeds */
++#define  PCI_EXP_LNKCAP_SLS_2_5GB 0x00000001 /* LNKCAP2 SLS Vector bit 0 */
++#define  PCI_EXP_LNKCAP_SLS_5_0GB 0x00000002 /* LNKCAP2 SLS Vector bit 1 */
++#define  PCI_EXP_LNKCAP_SLS_8_0GB 0x00000003 /* LNKCAP2 SLS Vector bit 2 */
+ #define  PCI_EXP_LNKCAP_MLW	0x000003f0 /* Maximum Link Width */
+ #define  PCI_EXP_LNKCAP_DLLLARC	0x00100000 /* Data Link Layer Link Active Reporting Capable */
++#define PCI_EXP_LNKCTL		16	/* Link Control */
++#define  PCI_EXP_LNKCTL_RL	0x0020	/* Retrain Link */
+ #define PCI_EXP_LNKSTA		18	/* Link Status */
+ #define  PCI_EXP_LNKSTA_CLS	0x000f	/* Current Link Speed */
+ #define  PCI_EXP_LNKSTA_CLS_2_5GB 0x0001 /* Current Link Speed 2.5GT/s */
+@@ -492,7 +501,9 @@
+ #define  PCI_EXP_LNKSTA_CLS_8_0GB 0x0003 /* Current Link Speed 8.0GT/s */
+ #define  PCI_EXP_LNKSTA_NLW	0x03f0	/* Negotiated Link Width */
+ #define  PCI_EXP_LNKSTA_NLW_SHIFT 4	/* start of NLW mask in link status */
++#define  PCI_EXP_LNKSTA_LT	0x0800	/* Link Training */
+ #define  PCI_EXP_LNKSTA_DLLLA	0x2000	/* Data Link Layer Link Active */
++#define  PCI_EXP_LNKSTA_LBMS	0x4000	/* Link Bandwidth Management Status */
+ #define PCI_EXP_SLTCAP		20	/* Slot Capabilities */
+ #define  PCI_EXP_SLTCAP_PSN	0xfff80000 /* Physical Slot Number */
+ #define PCI_EXP_RTCTL		28	/* Root Control */
+@@ -503,8 +514,14 @@
+ #define  PCI_EXP_DEVCAP2_ARI	0x00000020 /* ARI Forwarding Supported */
+ #define PCI_EXP_DEVCTL2		40	/* Device Control 2 */
+ #define  PCI_EXP_DEVCTL2_ARI	0x0020 /* Alternative Routing-ID */
+-
++#define PCI_EXP_LNKCAP2		44	/* Link Capability 2 */
++#define  PCI_EXP_LNKCAP2_SLS	0x000000fe /* Supported Link Speeds Vector */
+ #define PCI_EXP_LNKCTL2		48	/* Link Control 2 */
++#define  PCI_EXP_LNKCTL2_TLS	0x000f	/* Target Link Speed */
++#define  PCI_EXP_LNKCTL2_TLS_2_5GT 0x0001 /* Target Link Speed 2.5GT/s */
++#define  PCI_EXP_LNKCTL2_TLS_5_0GT 0x0002 /* Target Link Speed 5.0GT/s */
++#define  PCI_EXP_LNKCTL2_TLS_8_0GT 0x0003 /* Target Link Speed 8.0GT/s */
++
+ /* Single Root I/O Virtualization Registers */
+ #define PCI_SRIOV_CAP		0x04	/* SR-IOV Capabilities */
+ #define PCI_SRIOV_CTRL		0x08	/* SR-IOV Control */
+-- 
+2.27.0
+

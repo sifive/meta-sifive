@@ -1,7 +1,7 @@
-From ada11f58c54ba6d7c1f6252f404ae3fe45d62b66 Mon Sep 17 00:00:00 2001
+From 4a73eb459de92803ea2baeacf6f6ad1b702dcf9d Mon Sep 17 00:00:00 2001
 From: David Abdurachmanov <david.abdurachmanov@sifive.com>
 Date: Mon, 13 Sep 2021 03:15:35 -0700
-Subject: [PATCH 6/7] riscv: sifive: unmatched: leave 128MiB for ramdisk
+Subject: [PATCH 6/8] riscv: sifive: unmatched: leave 128MiB for ramdisk
 
 The current configuration only allows 125MiB, but the max allowed size should
 be 128MiB.
@@ -12,10 +12,10 @@ Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/include/configs/sifive-unmatched.h b/include/configs/sifive-unmatched.h
-index 3078b78e6b..d8eed92487 100644
+index 8e9b7bfc2b..4984e2cfcb 100644
 --- a/include/configs/sifive-unmatched.h
 +++ b/include/configs/sifive-unmatched.h
-@@ -70,7 +70,7 @@
+@@ -68,7 +68,7 @@
  	"scriptaddr=0x88100000\0" \
  	"pxefile_addr_r=0x88200000\0" \
  	"ramdisk_addr_r=0x88300000\0" \

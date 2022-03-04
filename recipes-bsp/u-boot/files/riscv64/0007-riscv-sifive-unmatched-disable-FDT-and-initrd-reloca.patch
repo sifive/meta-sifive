@@ -1,7 +1,7 @@
-From 63ed0a287189b2021fa19edec75615bdce1878f8 Mon Sep 17 00:00:00 2001
+From 2692c48b8c0fdc3c24a6782ef9767a6a3262619c Mon Sep 17 00:00:00 2001
 From: David Abdurachmanov <david.abdurachmanov@sifive.com>
 Date: Mon, 13 Sep 2021 03:22:32 -0700
-Subject: [PATCH 7/7] riscv: sifive: unmatched: disable FDT and initrd
+Subject: [PATCH 7/8] riscv: sifive: unmatched: disable FDT and initrd
  relocation
 
 Same as on SiFive Unleashed we need to disable fdt and initrd relocation. Tom
@@ -18,10 +18,10 @@ Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>
  1 file changed, 2 insertions(+)
 
 diff --git a/include/configs/sifive-unmatched.h b/include/configs/sifive-unmatched.h
-index d8eed92487..654a5db918 100644
+index 4984e2cfcb..61ac6b7282 100644
 --- a/include/configs/sifive-unmatched.h
 +++ b/include/configs/sifive-unmatched.h
-@@ -65,6 +65,8 @@
+@@ -63,6 +63,8 @@
  	"name=system,size=-,bootable,type=${type_guid_gpt_system};"
  
  #define CONFIG_EXTRA_ENV_SETTINGS \

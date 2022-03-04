@@ -1,7 +1,7 @@
-From 2bf71ed2234c5fbc640ae6ee424faec1272d4abf Mon Sep 17 00:00:00 2001
+From 725595e667cc4423347c255da8ca4c5b3aa0980a Mon Sep 17 00:00:00 2001
 From: Vincent Chen <vincent.chen@sifive.com>
 Date: Mon, 15 Nov 2021 03:31:04 -0800
-Subject: [PATCH 2/7] board: sifive: spl: Initialized the PWM setting in the
+Subject: [PATCH 2/8] board: sifive: spl: Initialized the PWM setting in the
  SPL stage
 
 LEDs and multiple fans can be controlled by SPL. This patch ensures
@@ -87,10 +87,10 @@ index 0000000000..e1cc02310a
 +	writel(PWM_CFG_INIT, (void *)&pwm1->cfg);
 +}
 diff --git a/board/sifive/unmatched/spl.c b/board/sifive/unmatched/spl.c
-index d5663274cd..3c3b22dea2 100644
+index 7c0beedc08..f3a661a81e 100644
 --- a/board/sifive/unmatched/spl.c
 +++ b/board/sifive/unmatched/spl.c
-@@ -89,6 +89,8 @@ int spl_board_init_f(void)
+@@ -90,6 +90,8 @@ int spl_board_init_f(void)
  		goto end;
  	}
  
