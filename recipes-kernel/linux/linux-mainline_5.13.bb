@@ -31,3 +31,10 @@ unset KBUILD_DEFCONFIG
 COMPATIBLE_MACHINE = "freedom-u540|unmatched|qemuriscv64|qemuriscv64_b|qemuriscv64_b_zfh|qemuriscv64_v"
 
 KERNEL_FEATURES:remove = "cfg/fs/vfat.scc"
+
+do_shared_workdir:append:riscv64 () {
+    if [ -e arch/${ARCH}/kernel/vdso/vdso.lds ]; then
+        mkdir -p $kerneldir/arch/${ARCH}/kernel/vdso
+        cp arch/${ARCH}/kernel/vdso/vdso.lds $kerneldir/arch/${ARCH}/kernel/vdso/vdso.lds
+    fi
+}
