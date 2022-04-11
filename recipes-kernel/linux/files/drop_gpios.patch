@@ -1,0 +1,44 @@
+From cf18fce4ed5c87def7d95554bfc864951b793e4c Mon Sep 17 00:00:00 2001
+From: Ben Dooks <ben.dooks@codethink.co.uk>
+Date: Mon, 21 Feb 2022 21:03:46 +0000
+Subject: [PATCH] PCI: fu740: Drop redundant '-gpios' from DT GPIO lookup
+
+The calls to devm_gpiod_get_optional() have the -gpios at the end of the
+name but the GPIO core code is already adding the suffix during the lookup.
+This means the PCIe driver is not finding the necessary reset or power
+lines to allow initialisation of the PCIe.
+
+Drop the redundant '-gpios' when we look up GPIOs from the DT.
+
+This bug has not been noticed because if U-Boot has setup the GPIO lines
+for the hardware when it does the PCIe initialisation (either by booting
+from PCIe or user command to access PCIe) then the PCIe will work in Linux.
+The U-Boot as supplied by SiFive does not by default initialise any PCIe
+component.
+
+Link: https://lore.kernel.org/r/20220221210347.1335004-1-ben.dooks@codethink.co.uk
+Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+---
+ drivers/pci/controller/dwc/pcie-fu740.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/pci/controller/dwc/pcie-fu740.c b/drivers/pci/controller/dwc/pcie-fu740.c
+index 00cde9a248b5a4..842b7202b96e6f 100644
+--- a/drivers/pci/controller/dwc/pcie-fu740.c
++++ b/drivers/pci/controller/dwc/pcie-fu740.c
+@@ -259,11 +259,11 @@ static int fu740_pcie_probe(struct platform_device *pdev)
+ 		return PTR_ERR(afp->mgmt_base);
+ 
+ 	/* Fetch GPIOs */
+-	afp->reset = devm_gpiod_get_optional(dev, "reset-gpios", GPIOD_OUT_LOW);
++	afp->reset = devm_gpiod_get_optional(dev, "reset", GPIOD_OUT_LOW);
+ 	if (IS_ERR(afp->reset))
+ 		return dev_err_probe(dev, PTR_ERR(afp->reset), "unable to get reset-gpios\n");
+ 
+-	afp->pwren = devm_gpiod_get_optional(dev, "pwren-gpios", GPIOD_OUT_LOW);
++	afp->pwren = devm_gpiod_get_optional(dev, "pwren", GPIOD_OUT_LOW);
+ 	if (IS_ERR(afp->pwren))
+ 		return dev_err_probe(dev, PTR_ERR(afp->pwren), "unable to get pwren-gpios\n");
+ 

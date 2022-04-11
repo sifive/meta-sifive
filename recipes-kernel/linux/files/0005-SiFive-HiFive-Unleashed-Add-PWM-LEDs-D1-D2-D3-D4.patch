@@ -1,32 +1,33 @@
-From 082e93a136eafb444e93e518115aac349304b77e Mon Sep 17 00:00:00 2001
-From: David Abdurachmanov <david.abdurachmanov@sifive.com>
-Date: Fri, 5 Jun 2020 07:02:10 +0000
-Subject: [PATCH 5/7] SiFive HiFive Unleashed: Add PWM LEDs (D1, D2, D3, D4)
+From 41cc3809a1ccabc35e236e260f0357d4da131602 Mon Sep 17 00:00:00 2001
+From: Ruinland Tsai <ruinland.tsai@sifive.com>
+Date: Mon, 11 Apr 2022 16:17:35 +0800
+Subject: [PATCH 2/2] riscv: SiFive HiFive Unleashed: Add PWM LEDs (D1, D2, D3,
+ D4)
 
 By default no functions are assigned to LEDs. It's up to user/distribution
 to provide udev rules to configure them.
 
-Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>
+Signed-off-by: Ruinland Tsai <ruinland.tsai@sifive.com>
 ---
- .../riscv/boot/dts/sifive/hifive-unleashed-a00.dts | 32 ++++++++++++++++++++++
+ arch/riscv/boot/dts/sifive/fu540-c000.dtsi | 32 ++++++++++++++++++++++
  1 file changed, 32 insertions(+)
 
-diff --git a/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts b/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts
-index 60846e8..a99aded 100644
---- a/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts
-+++ b/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts
-@@ -3,6 +3,7 @@
+diff --git a/arch/riscv/boot/dts/sifive/fu540-c000.dtsi b/arch/riscv/boot/dts/sifive/fu540-c000.dtsi
+index d8ae38ccca92..fe71eff8d47b 100644
+--- a/arch/riscv/boot/dts/sifive/fu540-c000.dtsi
++++ b/arch/riscv/boot/dts/sifive/fu540-c000.dtsi
+@@ -4,6 +4,7 @@
+ /dts-v1/;
  
- #include "fu540-c000.dtsi"
- #include <dt-bindings/gpio/gpio.h>
+ #include <dt-bindings/clock/sifive-fu540-prci.h>
 +#include <dt-bindings/pwm/pwm.h>
  
- /* Clock frequency (in Hz) of the PCB crystal for rtcclk */
- #define RTCCLK_FREQ		1000000
-@@ -27,6 +28,37 @@
- 	};
- 
- 	soc {
+ / {
+ 	#address-cells = <2>;
+@@ -289,5 +290,36 @@ gpio: gpio@10060000 {
+ 			clocks = <&prci PRCI_CLK_TLCLK>;
+ 			status = "disabled";
+ 		};
 +		pwmleds {
 +			compatible = "pwm-leds";
 +			d1 {
@@ -59,8 +60,7 @@ index 60846e8..a99aded 100644
 +			};
 +		};
  	};
- 
- 	hfclk: hfclk {
+ };
 -- 
-2.7.4
+2.35.1
 
