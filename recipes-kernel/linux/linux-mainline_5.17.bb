@@ -16,6 +16,7 @@ SRC_URI:append:riscv64 = " \
     file://drop_gpios.patch \
     file://relocate_dtb.patch \
     file://workaround_asm2824.patch \
+    file://Revert-riscv-dts-sifive-unmatched-Link-the-tmp451-wi.patch \
     file://0006-riscv-sifive-unleashed-define-opp-table-cpufreq.patch \
     "
 
