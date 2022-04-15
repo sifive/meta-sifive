@@ -16,6 +16,8 @@ SRC_URI:append:riscv64 = " \
     file://drop_gpios.patch \
     file://relocate_dtb.patch \
     file://workaround_asm2824.patch \
+    file://0003-riscv-sifive-unmatched-define-PWM-LEDs.patch \
+    file://0005-SiFive-HiFive-Unleashed-Add-PWM-LEDs-D1-D2-D3-D4.patch \
     file://Revert-riscv-dts-sifive-unmatched-Link-the-tmp451-wi.patch \
     file://0006-riscv-sifive-unleashed-define-opp-table-cpufreq.patch \
     "
