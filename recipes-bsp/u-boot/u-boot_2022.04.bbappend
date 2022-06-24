@@ -10,6 +10,7 @@ SRC_URI:append:riscv64 = " \
     file://0005-board-sifive-spl-Set-remote-thermal-of-TMP451-to-85-.patch \
     file://0006-riscv-sifive-unmatched-leave-128MiB-for-ramdisk.patch \
     file://0007-riscv-sifive-unmatched-disable-FDT-and-initrd-reloca.patch \
+    file://0008-riscv-dts-Add-few-PMU-events.patch \
     "
 
 SRC_URI:append:freedom-u540 = " \
