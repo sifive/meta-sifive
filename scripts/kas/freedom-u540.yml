@@ -1,0 +1,9 @@
+header:
+  version: 11
+  includes:
+    - scripts/kas/include/meta-sifive-common.yml
+
+target:
+ - core-image-minimal
+
+machine: freedom-u540

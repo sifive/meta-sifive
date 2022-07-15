@@ -1,0 +1,29 @@
+header:
+  version: 11
+
+build_system: oe
+
+repos:
+
+  bitbake:
+    url: https://git.openembedded.org/bitbake
+    refspec: 35167536c163eb6b7653cbcaad9f65b834d3e2f8
+    layers:
+      .: excluded
+
+  openembedded-core:
+    url: https://git.openembedded.org/openembedded-core
+    refspec: dd39446dff75c6e48f4aa44ec90087f172d717d4
+    layers:
+      meta:
+
+  meta-sifive:
+
+distro: nodistro
+
+local_conf_header:
+  standard: |
+    USER_CLASSES:append = " buildhistory buildstats buildstats-summary"
+    EXTRA_IMAGE_FEATURES ?= "debug-tweaks"
+    INHERIT:append = " rm_work"
+    RM_OLD_IMAGE = "1"

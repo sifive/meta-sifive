@@ -1,0 +1,13 @@
+header:
+  version: 11
+  includes:
+    - scripts/kas/include/meta-sifive-common.yml
+
+target:
+ - core-image-minimal
+
+machine: qemuriscv64
+
+local_conf_header:
+  qemuriscv64: |
+    PREFERRED_PROVIDER_virtual/kernel = "linux-mainline"
