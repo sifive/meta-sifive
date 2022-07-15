@@ -27,3 +27,10 @@ local_conf_header:
     EXTRA_IMAGE_FEATURES ?= "debug-tweaks"
     INHERIT:append = " rm_work"
     RM_OLD_IMAGE = "1"
+
+  testimage: |
+    DISTRO_FEATURES:append = " ptest"
+    EXTRA_IMAGE_FEATURES ?= "debug-tweaks"
+    IMAGE_CLASSES:append = " testimage"
+    IMAGE_FEATURES:append = " ptest-pkgs"
+    IMAGE_INSTALL:append = " dropbear"
