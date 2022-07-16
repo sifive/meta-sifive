@@ -13,12 +13,8 @@ SRC_URI:append:riscv64 = " \
     file://0008-riscv-dts-Add-few-PMU-events.patch \
     "
 
-SRC_URI:append:freedom-u540 = " \
-    file://mmc-boot.txt \
-"
+do_configure[depends] += "opensbi:do_deploy"
 
 do_compile:prepend:riscv64() {
     export OPENSBI=${DEPLOY_DIR_IMAGE}/fw_dynamic.bin
 }
-
-do_configure[depends] += "opensbi:do_deploy"
