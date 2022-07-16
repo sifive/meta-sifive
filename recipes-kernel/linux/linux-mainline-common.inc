@@ -10,15 +10,15 @@ LINUX_VERSION_EXTENSION = ""
 
 PV = "${LINUX_VERSION}+git${SRCPV}"
 
-KCONFIG_MODE="--alldefconfig"
+KCONFIG_MODE = "--alldefconfig"
 
-KBUILD_DEFCONFIG:qemuriscv32 = "rv32_defconfig"
-KBUILD_DEFCONFIG:qemuriscv64 = "defconfig"
+KBUILD_DEFCONFIG = ""
 KBUILD_DEFCONFIG:freedom-u540 = "defconfig"
+KBUILD_DEFCONFIG:qemuriscv64 = "defconfig"
+KBUILD_DEFCONFIG:unmatched = "defconfig"
 
-COMPATIBLE_MACHINE = "(qemuriscv32|qemuriscv64|freedom-u540)"
+COMPATIBLE_MACHINE = "(freedom-u540|qemuriscv64|unmatched)"
 
-KERNEL_DEVICETREE:freedom-u540 = "sifive/${RISCV_SBI_FDT}"
-
+KERNEL_FEATURES:remove = "cfg/fs/vfat.scc"
 KERNEL_FEATURES:remove = "features/debug/printk.scc"
 KERNEL_FEATURES:remove = "features/kernel-sample/kernel-sample.scc"

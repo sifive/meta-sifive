@@ -16,11 +16,3 @@ SRC_URI:append:riscv64 = " \
     file://Revert-riscv-dts-sifive-unmatched-Link-the-tmp451-wi.patch \
     file://0006-riscv-sifive-unleashed-define-opp-table-cpufreq.patch \
     "
-
-# Use out-of-tree defconfig
-SRC_URI:append = " file://defconfig"
-
-unset KBUILD_DEFCONFIG
-COMPATIBLE_MACHINE = "freedom-u540|unmatched|qemuriscv64|qemuriscv64_b|qemuriscv64_b_zfh|qemuriscv64_v"
-
-KERNEL_FEATURES:remove = "cfg/fs/vfat.scc"
