@@ -1,10 +1,10 @@
 require recipes-kernel/linux/linux-mainline-common.inc
 
-LINUX_VERSION ?= "5.18.6"
+LINUX_VERSION ?= "5.18.15"
 KERNEL_VERSION_SANITY_SKIP="1"
 
 BRANCH = "linux-5.18.y"
-SRCREV = "5f112b51a0a0a929874234f967b91f83689c4edb"
+SRCREV = "3740a5da82ebec7a6d8f3a6deea77b8129c8c2ee"
 SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git;branch=${BRANCH}"
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
