@@ -10,7 +10,8 @@ SRC_URI:append:riscv64 = " \
     file://0008-riscv-dts-Add-few-PMU-events.patch \
     "
 
-do_configure[depends] += "opensbi:do_deploy"
+# Only add opensbi dependency if opensbi is in image deps
+do_configure[depends] += "${@bb.utils.contains('EXTRA_IMAGEDEPENDS', 'opensbi', 'opensbi:do_deploy', '',d)}"
 
 do_compile:prepend:riscv64() {
     export OPENSBI=${DEPLOY_DIR_IMAGE}/fw_dynamic.bin
