@@ -32,5 +32,4 @@ local_conf_header:
     DISTRO_FEATURES:append = " ptest"
     EXTRA_IMAGE_FEATURES ?= "debug-tweaks"
     IMAGE_CLASSES:append = " testimage"
-    IMAGE_FEATURES:append = " ptest-pkgs"
-    IMAGE_INSTALL:append = " dropbear"
+    IMAGE_FEATURES:append = " ptest-pkgs ssh-server-openssh"

@@ -5,6 +5,7 @@ header:
 
 target:
  - core-image-minimal
+ - core-image-sato
 
 machine: qemuriscv64
 
