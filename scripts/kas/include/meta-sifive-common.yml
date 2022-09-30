@@ -30,6 +30,12 @@ local_conf_header:
 
   testimage: |
     DISTRO_FEATURES:append = " ptest"
+
     EXTRA_IMAGE_FEATURES ?= "debug-tweaks"
+
     IMAGE_CLASSES:append = " testimage"
+
     IMAGE_FEATURES:append = " ptest-pkgs ssh-server-openssh"
+
+    PACKAGECONFIG:append:pn-qemu-system-native = " sdl"
+    PACKAGECONFIG:append:pn-nativesdk-qemu = " sdl"
