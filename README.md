@@ -67,7 +67,8 @@ xzcat ../build/tmp-glibc/deploy/images/unmatched/core-image-minimal-unmatched.wi
 Run the 64-bit machine in QEMU using the following command:
 
 ```bash
-kas shell meta-sifive/scripts/kas/qemuriscv64.yml -c "runqemu nographic slirp"
+kas shell meta-sifive/scripts/kas/qemuriscv64.yml -c "runqemu slirp nographic core-image-minimal ext4"
+kas shell meta-sifive/scripts/kas/qemuriscv64.yml -c "runqemu slirp core-image-sato ext4" -E
 ```
 
 ## Execute tests
