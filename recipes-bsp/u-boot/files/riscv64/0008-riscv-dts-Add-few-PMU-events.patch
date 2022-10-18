@@ -14,13 +14,11 @@ Signed-off-by: Atish Patra <atish.patra@wdc.com>
  arch/riscv/dts/fu740-c000.dtsi | 11 +++++++++++
  1 file changed, 11 insertions(+)
 
-diff --git a/arch/riscv/dts/fu740-c000.dtsi b/arch/riscv/dts/fu740-c000.dtsi
-index 649efe400ac6..a3cf04e3f3f3 100644
 --- a/arch/riscv/dts/fu740-c000.dtsi
 +++ b/arch/riscv/dts/fu740-c000.dtsi
-@@ -141,6 +141,17 @@
+@@ -140,6 +140,17 @@
  		#size-cells = <2>;
- 		compatible = "sifive,fu740-c000", "sifive,fu740", "simple-bus";
+ 		compatible = "simple-bus";
  		ranges;
 +		pmu {
 +			compatible = "riscv,pmu";
@@ -35,7 +33,4 @@ index 649efe400ac6..a3cf04e3f3f3 100644
 +		};
  		plic0: interrupt-controller@c000000 {
  			#interrupt-cells = <1>;
- 			compatible = "sifive,plic-1.0.0";
--- 
-2.35.3
-
+ 			#address-cells = <0>;
