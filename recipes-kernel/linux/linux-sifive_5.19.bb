@@ -2,15 +2,15 @@ DESCRIPTION = "SiFive Linux Kernel"
 SECTION = "kernel"
 LICENSE = "GPL-2.0-only"
 
-KBRANCH ?= "linux-5.18.y"
-KBRANCH:freedom-u-540 ?= "linux-5.18.y"
-KBRANCH:qemuriscv64 ?= "linux-5.18.y"
-KBRANCH:unmatched ?= "linux-5.18.y"
+KBRANCH ?= "linux-5.19.y"
+KBRANCH:freedom-u-540 ?= "linux-5.19.y"
+KBRANCH:qemuriscv64 ?= "linux-5.19.y"
+KBRANCH:unmatched ?= "linux-5.19.y"
 
-SRCREV ?= "3740a5da82ebec7a6d8f3a6deea77b8129c8c2ee"
-SRCREV:freedom-u-540 ?= "3740a5da82ebec7a6d8f3a6deea77b8129c8c2ee"
-SRCREV:qemuriscv64 ?= "3740a5da82ebec7a6d8f3a6deea77b8129c8c2ee"
-SRCREV:unmatched ?= "3740a5da82ebec7a6d8f3a6deea77b8129c8c2ee"
+SRCREV ?= "30c780ac0f9fc09160790cf58f07ef3b92097ceb"
+SRCREV:freedom-u-540 ?= "30c780ac0f9fc09160790cf58f07ef3b92097ceb"
+SRCREV:qemuriscv64 ?= "30c780ac0f9fc09160790cf58f07ef3b92097ceb"
+SRCREV:unmatched ?= "30c780ac0f9fc09160790cf58f07ef3b92097ceb"
 
 KCONFIG_MODE = "--alldefconfig"
 
@@ -36,7 +36,7 @@ SRC_URI:append:riscv64 = " \
 "
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
-LINUX_VERSION ?= "5.18.15"
+LINUX_VERSION ?= "5.19.14"
 LINUX_VERSION_EXTENSION = ""
 
 PV = "${LINUX_VERSION}+git${SRCPV}"
