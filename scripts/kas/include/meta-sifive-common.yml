@@ -22,11 +22,15 @@ repos:
 distro: nodistro
 
 local_conf_header:
-  standard: |
+  meta-sifive-common: |
     USER_CLASSES:append = " buildhistory buildstats buildstats-summary"
     EXTRA_IMAGE_FEATURES ?= "debug-tweaks"
     INHERIT:append = " rm_work"
     RM_OLD_IMAGE = "1"
+
+  qemu-native: |
+    PACKAGECONFIG:append:pn-qemu-system-native = " sdl"
+    PACKAGECONFIG:append:pn-nativesdk-qemu = " sdl"
 
   testimage: |
     DISTRO_FEATURES:append = " ptest"
@@ -36,6 +40,3 @@ local_conf_header:
     IMAGE_CLASSES:append = " testimage"
 
     IMAGE_FEATURES:append = " ptest-pkgs ssh-server-openssh"
-
-    PACKAGECONFIG:append:pn-qemu-system-native = " sdl"
-    PACKAGECONFIG:append:pn-nativesdk-qemu = " sdl"

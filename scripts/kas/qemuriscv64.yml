@@ -11,4 +11,4 @@ machine: qemuriscv64
 
 local_conf_header:
   qemuriscv64: |
-    PREFERRED_PROVIDER_virtual/kernel = "linux-sifive"
+    PREFERRED_PROVIDER_virtual/kernel:qemuriscv64 = "linux-sifive"
