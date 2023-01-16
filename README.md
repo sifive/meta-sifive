@@ -59,9 +59,9 @@ Moreover, it is also possible to build other images, or SDK, or also packages,
 for example:
 
 ```bash
-kas build --update meta-sifive/scripts/kas/unmatched.yml --target core-image-weston
-kas build --update meta-sifive/scripts/kas/unmatched.yml --target buildtools-extended-tarball
-kas build --update meta-sifive/scripts/kas/unmatched.yml --target busybox
+kas build --update ./meta-sifive/scripts/kas/unmatched.yml --target core-image-weston
+kas build --update ./meta-sifive/scripts/kas/unmatched.yml --target buildtools-extended-tarball
+kas build --update ./meta-sifive/scripts/kas/unmatched.yml --target busybox
 ```
 
 ## Running in QEMU
@@ -83,7 +83,7 @@ These tests can be executed automatically, on Qemu RISC-V,  using the
 following command:
 
 ```bash
-kas shell meta-sifive/scripts/kas/qemuriscv64.yml -c "bitbake core-image-minimal -c testimage"
+kas shell ./meta-sifive/scripts/kas/qemuriscv64.yml -c "bitbake core-image-minimal -c testimage"
 ```
 
 ## Running on Hardware
@@ -96,7 +96,7 @@ You will find all available build fragments (incl. disk images) in
 
 Disk images files use `<image>-<machine>.<output_format>` format, for example,
 
-`core-image-minimal-freedom-u540.wic.xz`. We are interested in `.wic.xz` disk
+`core-image-minimal-unmatched.wic.xz`. We are interested in `.wic.xz` disk
 images for writing to uSD card.
 
 > Be very careful while picking /dev/sdX device! Look at dmesg, lsblk, blkid,
@@ -286,7 +286,7 @@ python3 python3 mnist.py
 
 If you want to file issues, send patches and make feature/enhancement requests
 use [meta-sifive](https://github.com/sifive/meta-sifive) repository on
-GitHub.
+GitHub. So that the maintainer can process your request.
 
 You are also welcome to join [SiFive Forums ](https://forums.sifive.com/)
 where we have [HiFive Unleashed](https://forums.sifive.com/c/hifive-unleashed/12)
