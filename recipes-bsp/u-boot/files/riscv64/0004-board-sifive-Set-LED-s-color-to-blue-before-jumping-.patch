@@ -14,7 +14,7 @@ from the boot partition, It means the LED's color is blue when executing
 
 --- a/include/configs/sifive-unmatched.h
 +++ b/include/configs/sifive-unmatched.h
-@@ -49,7 +49,12 @@
+@@ -49,6 +49,11 @@
  	"type_guid_gpt_system=" TYPE_GUID_SYSTEM "\0" \
  	"partitions=" PARTS_DEFAULT "\0" \
  	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
@@ -26,5 +26,4 @@ from the boot partition, It means the LED's color is blue when executing
 +		"sysboot ${devtype} ${devnum}:${distro_bootpart} any " \
 +			"${scriptaddr} ${prefix}${boot_syslinux_conf};\0"
  
- #define CONFIG_SYS_EEPROM_BUS_NUM		0
- 
+ #endif /* __SIFIVE_UNMATCHED_H */
