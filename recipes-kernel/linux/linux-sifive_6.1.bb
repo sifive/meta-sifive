@@ -36,6 +36,7 @@ SRC_URI:append:riscv64 = " \
     file://0001-riscv-sifive-fu740-cpu-1-2-3-4-set-compatible-to-sif.patch \
     file://0002-riscv-sifive-unmatched-define-PWM-LEDs.patch \
     file://0003-Revert-riscv-dts-sifive-unmatched-Link-the-tmp451-wi.patch \
+    file://0001-perf-cpumap-Make-counter-as-unsigned-ints.patch \
 "
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
