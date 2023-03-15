@@ -62,6 +62,8 @@ for example:
 kas build --update ./meta-sifive/scripts/kas/unmatched.yml --target core-image-weston
 kas build --update ./meta-sifive/scripts/kas/unmatched.yml --target buildtools-extended-tarball
 kas build --update ./meta-sifive/scripts/kas/unmatched.yml --target busybox
+kas shell --update ./meta-sifive/scripts/kas/unmatched.yml -c "bitbake core-image-minimal -c populate_sdk"
+kas shell --update ./meta-sifive/scripts/kas/unmatched.yml -c "bitbake core-image-minimal -c populate_sdk_ext"
 ```
 
 ## Running in QEMU
@@ -79,11 +81,13 @@ kas shell ./meta-sifive/scripts/kas/qemuriscv64.yml -E -c "runqemu slirp core-im
 
 The OpenEmbedded/Yocto framework provides also provides tools to implement and to run tests.
 
-These tests can be executed automatically, on Qemu RISC-V,  using the
-following command:
+These tests can be executed on all supported targets, using the following commands:
 
 ```bash
-kas shell ./meta-sifive/scripts/kas/qemuriscv64.yml -c "bitbake core-image-minimal -c testimage"
+kas build --update ./meta-sifive/scripts/kas/qemuriscv64.yml:./meta-sifive/scripts/kas/include/test.yml
+kas shell --update ./meta-sifive/scripts/kas/qemuriscv64.yml:./meta-sifive/scripts/kas/include/test.yml -c "bitbake core-image-minimal -c populate_sdk && bitbake core-image-minimal -c testsdk"
+kas shell --update ./meta-sifive/scripts/kas/qemuriscv64.yml:./meta-sifive/scripts/kas/include/test.yml -c "bitbake core-image-minimal -c populate_sdk_ext && bitbake core-image-minimal -c testsdkext"
+kas shell --update ./meta-sifive/scripts/kas/qemuriscv64.yml:./meta-sifive/scripts/kas/include/test.yml -c "resulttool report  ./tmp-glibc/log/oeqa"
 ```
 
 ## Running on Hardware
