@@ -20,14 +20,14 @@ jobs:
       #     sudo apt-get clean
       #     pip install --user kas
       - name: Checkout sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+        with:
+          path: meta-sifive
       - name: Build images
-        run: |
-          cd ../
-          kas build --update meta-sifive/scripts/kas/${{ matrix.target }}.yml
+        run: kas build --update ./meta-sifive/scripts/kas/${{ matrix.target }}.yml
       - name: Upload images
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.target }}-images
+          name: ${{ github.run_number }}-${{ matrix.target }}
           path: |
-            build/tmp-glibc/deploy/images/${{ matrix.target }}/core-image-minimal-${{ matrix.target }}.wic.*
+            ${{ github.workspace }}/build/tmp-glibc/deploy/images/${{ matrix.target }}/
