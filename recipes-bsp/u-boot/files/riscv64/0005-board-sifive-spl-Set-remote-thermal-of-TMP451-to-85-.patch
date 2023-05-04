@@ -1,8 +1,8 @@
-From 07f84ed283b913cbdf87181ae2ed65467d923df5 Mon Sep 17 00:00:00 2001
+From 25e12b623e066c2397a9ae7385d9b8384a2da050 Mon Sep 17 00:00:00 2001
 From: Vincent Chen <vincent.chen@sifive.com>
 Date: Mon, 24 Jan 2022 02:57:40 -0800
-Subject: [PATCH 2/2] board: sifive: spl: Set remote thermal of TMP451 to 85
- deg C for the unmatched board
+Subject: [PATCH] board: sifive: spl: Set remote thermal of TMP451 to 85 deg C
+ for the unmatched board
 
 For TMP451 on the unmatched board, the default value of the remote
 thermal threshold is 108 deg C. This commit initilizes it to 85 deg C at SPL.
@@ -10,9 +10,10 @@ thermal threshold is 108 deg C. This commit initilizes it to 85 deg C at SPL.
  board/sifive/unmatched/spl.c       | 29 +++++++++++++++++++++++++++++
  drivers/misc/Kconfig               | 10 ++++++++++
  include/configs/sifive-unmatched.h |  4 ++++
- scripts/config_whitelist.txt       |  1 +
- 4 files changed, 44 insertions(+)
+ 3 files changed, 43 insertions(+)
 
+diff --git a/board/sifive/unmatched/spl.c b/board/sifive/unmatched/spl.c
+index f3a661a81eb5..05ba59160a86 100644
 --- a/board/sifive/unmatched/spl.c
 +++ b/board/sifive/unmatched/spl.c
 @@ -10,6 +10,8 @@
@@ -65,9 +66,11 @@ thermal threshold is 108 deg C. This commit initilizes it to 85 deg C at SPL.
  	ret = spl_gemgxl_init();
  	if (ret) {
  		debug("Gigabit ethernet PHY (VSC8541) init failed: %d\n", ret);
+diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
+index b5707a15c504..b9807e4d8846 100644
 --- a/drivers/misc/Kconfig
 +++ b/drivers/misc/Kconfig
-@@ -536,8 +536,18 @@ config SYS_I2C_EEPROM_ADDR
+@@ -550,8 +550,18 @@ config SYS_I2C_EEPROM_ADDR
  	depends on ID_EEPROM || I2C_EEPROM || SPL_I2C_EEPROM || CMD_EEPROM || ENV_IS_IN_EEPROM
  	default 0
  
@@ -86,11 +89,13 @@ thermal threshold is 108 deg C. This commit initilizes it to 85 deg C at SPL.
  config SYS_I2C_EEPROM_ADDR_OVERFLOW
  	hex "EEPROM Address Overflow"
  	default 0x0
+diff --git a/include/configs/sifive-unmatched.h b/include/configs/sifive-unmatched.h
+index 78d83a098c06..5e8fab031ad5 100644
 --- a/include/configs/sifive-unmatched.h
 +++ b/include/configs/sifive-unmatched.h
-@@ -15,6 +15,10 @@
+@@ -13,6 +13,10 @@
  
- #define CONFIG_STANDALONE_LOAD_ADDR	0x80200000
+ #define CFG_SYS_SDRAM_BASE		0x80000000
  
 +#define CONFIG_SYS_TMP451_BUS_NUM	0
 +#define CONFIG_SYS_I2C_TMP451_ADDR	0x4c
@@ -99,13 +104,6 @@ thermal threshold is 108 deg C. This commit initilizes it to 85 deg C at SPL.
  /* Environment options */
  
  #define BOOT_TARGET_DEVICES(func) \
---- a/scripts/config_whitelist.txt
-+++ b/scripts/config_whitelist.txt
-@@ -1268,6 +1268,7 @@ CONFIG_SYS_TIMER_BASE
- CONFIG_SYS_TIMER_COUNTER
- CONFIG_SYS_TIMER_COUNTS_DOWN
- CONFIG_SYS_TIMER_RATE
-+CONFIG_SYS_TMP451_BUS_NUM
- CONFIG_SYS_TMPVIRT
- CONFIG_SYS_TSEC1_OFFSET
- CONFIG_SYS_TX_ETH_BUFFER
+-- 
+2.40.1
+

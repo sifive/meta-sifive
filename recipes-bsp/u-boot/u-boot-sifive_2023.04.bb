@@ -1,3 +1,10 @@
+require recipes-bsp/u-boot/u-boot-common.inc
+require recipes-bsp/u-boot/u-boot.inc
+
+PROVIDES += "u-boot"
+
+DEPENDS += "bc-native dtc-native"
+
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 DEPENDS:append:riscv64 = " opensbi"
@@ -11,8 +18,12 @@ SRC_URI:append:riscv64 = " \
     "
 
 # Only add opensbi dependency if opensbi is in image deps
-do_configure[depends] += "${@bb.utils.contains('EXTRA_IMAGEDEPENDS', 'opensbi', 'opensbi:do_deploy', '',d)}"
+do_compile[depends] += "opensbi:do_deploy"
 
 do_compile:prepend:riscv64() {
     export OPENSBI=${DEPLOY_DIR_IMAGE}/fw_dynamic.bin
 }
+
+PROVIDES += "u-boot"
+
+COMPATIBLE_MACHINE = "(freedom-u540|qemuriscv64|unmatched)"
