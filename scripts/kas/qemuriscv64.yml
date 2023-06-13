@@ -3,6 +3,9 @@ header:
   includes:
     - scripts/kas/include/meta-sifive-common.yml
 
+env:
+    DISPLAY: "${DISPLAY:-:0}"
+
 target:
  - core-image-minimal
  - core-image-sato
