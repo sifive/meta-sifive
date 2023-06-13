@@ -73,8 +73,8 @@ The OpenEmbedded/Yocto framework provides a wrapper for QEMU, named `runqemu` in
 Below examples to use this Qemu over a Kas shell:
 
 ```bash
-kas shell ./meta-sifive/scripts/kas/qemuriscv64.yml -E -c "runqemu slirp nographic core-image-minimal"
-kas shell ./meta-sifive/scripts/kas/qemuriscv64.yml -E -c "runqemu slirp core-image-sato"
+kas shell ./meta-sifive/scripts/kas/qemuriscv64.yml -c "runqemu slirp nographic core-image-minimal"
+kas shell ./meta-sifive/scripts/kas/qemuriscv64.yml -c "runqemu slirp serialstdio core-image-sato"
 ```
 
 ## Execute runtime tests
