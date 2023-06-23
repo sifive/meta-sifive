@@ -6,6 +6,9 @@ Subject: [PATCH] board: sifive: spl: Set remote thermal of TMP451 to 85 deg C
 
 For TMP451 on the unmatched board, the default value of the remote
 thermal threshold is 108 deg C. This commit initilizes it to 85 deg C at SPL.
+
+Upstream-Status: Pending
+Signed-off-by: Vincent Chen <vincent.chen@sifive.com>
 ---
  board/sifive/unmatched/spl.c       | 29 +++++++++++++++++++++++++++++
  drivers/misc/Kconfig               | 10 ++++++++++

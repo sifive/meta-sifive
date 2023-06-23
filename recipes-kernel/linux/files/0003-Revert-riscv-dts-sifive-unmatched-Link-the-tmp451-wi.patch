@@ -6,6 +6,7 @@ Subject: [PATCH 3/3] Revert "riscv: dts: sifive unmatched: Link the tmp451
 
 This reverts commit f6f7fbb89bf8dc9132fde55cfe67483138eea880.
 
+Upstream-Status: Pending
 Signed-off-by: Thomas Perrot <thomas.perrot@bootlin.com>
 ---
  arch/riscv/boot/dts/sifive/hifive-unmatched-a00.dts | 1 -

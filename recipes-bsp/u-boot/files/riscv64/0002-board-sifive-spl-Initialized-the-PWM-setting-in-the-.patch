@@ -7,6 +7,9 @@ Subject: [PATCH 2/8] board: sifive: spl: Initialized the PWM setting in the
 LEDs and multiple fans can be controlled by SPL. This patch ensures
 that all fans have been enabled in the SPL stage. In addition, the
 LED's color will be set to yellow.
+
+Upstream-Status: Pending
+Signed-off-by: Vincent Chen <vincent.chen@sifive.com>
 ---
  board/sifive/unmatched/Makefile |  1 +
  board/sifive/unmatched/pwm.c    | 57 +++++++++++++++++++++++++++++++++
