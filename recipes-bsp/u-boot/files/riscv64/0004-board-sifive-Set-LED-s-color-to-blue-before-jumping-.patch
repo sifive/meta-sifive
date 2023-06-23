@@ -8,6 +8,9 @@ The LED's color wil be changed from purple to blue before executing
 the sysboot command. Because the sysboot command includes the image loading
 from the boot partition, It means the LED's color is blue when executing
 "Retrieving file: /Image.gz".
+
+Upstream-Status: Pending
+Signed-off-by: Vincent Chen <vincent.chen@sifive.com>
 ---
  include/configs/sifive-unmatched.h | 7 ++++++-
  1 file changed, 6 insertions(+), 1 deletion(-)

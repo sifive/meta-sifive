@@ -8,6 +8,9 @@ Set LED's color to purple in the U-boot stage. Because there are still
 some functions to be executed before board_early_init_f(), it means
 the LED's is not changed to purple instantly when entering the U-boot
 stage.
+
+Upstream-Status: Pending
+Signed-off-by: Vincent Chen <vincent.chen@sifive.com>
 ---
  board/sifive/unmatched/pwm.c       | 7 +++++++
  board/sifive/unmatched/unmatched.c | 6 ++++++

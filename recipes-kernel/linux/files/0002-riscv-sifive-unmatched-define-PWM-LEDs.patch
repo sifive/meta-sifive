@@ -5,6 +5,7 @@ Subject: [PATCH 2/3] riscv: sifive: unmatched: define PWM LEDs
 
 Add D2 (RGB) and D12 (green) LEDs for SiFive Unmatched board.
 
+Upstream-Status: Pending
 Signed-off-by: Ruinland Tsai <ruinland.tsai@sifive.com>
 Signed-off-by: Thomas Perrot <thomas.perrot@bootlin.com>
 ---
