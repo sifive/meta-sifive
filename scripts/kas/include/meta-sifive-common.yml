@@ -7,13 +7,13 @@ repos:
 
   bitbake:
     url: https://git.openembedded.org/bitbake
-    refspec: 6abdc81dec06a362bfbcc06d69b90b96bd9bef01
+    refspec: 47ab9d21171a834cbac3d1ce368d59fd71d14452
     layers:
       .: excluded
 
   openembedded-core:
     url: https://git.openembedded.org/openembedded-core
-    refspec: 893846ead7ee54d53e9076150cd655e0c8bca5db
+    refspec: 52572a930b8c3518e07010bafc2a1920d4a11884
     layers:
       meta:
 
