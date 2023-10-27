@@ -3,7 +3,7 @@ require recipes-bsp/u-boot/u-boot.inc
 
 PROVIDES += "u-boot"
 
-DEPENDS += "bc-native dtc-native"
+DEPENDS += "bc-native dtc-native python3-setuptools-native"
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
