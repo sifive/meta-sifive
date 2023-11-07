@@ -18,3 +18,5 @@ local_conf_header:
 
     PREFERRED_PROVIDER_u-boot:qemuriscv64 = "u-boot-sifive"
     PREFERRED_PROVIDER_virtual/bootloader:qemuriscv64 = "u-boot-sifive"
+
+    PREFERRED_PROVIDER_opensbi ?= "opensbi-sifive"
