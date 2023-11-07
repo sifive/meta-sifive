@@ -1,7 +1,8 @@
-From 40441dec90c5c5152fbbd00d8e4060af2f9a1f33 Mon Sep 17 00:00:00 2001
+From 877afdf63129caa64d70d4a1252eec44778cfa0e Mon Sep 17 00:00:00 2001
 From: Vincent Chen <vincent.chen@sifive.com>
 Date: Mon, 24 Jan 2022 02:57:40 -0800
-Subject: [PATCH] board: sifive: spl: Set remote thermal of TMP451 to 85 deg C
+Subject: [PATCH 4/5] board: sifive: spl: Set remote thermal of TMP451 to 85
+ deg C
 
  for the unmatched board
 
