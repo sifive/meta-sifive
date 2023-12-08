@@ -15,6 +15,7 @@ SRC_URI:append:riscv64 = " \
     file://0003-board-sifive-Set-LED-s-color-to-blue-before-jumping-.patch \
     file://0004-board-sifive-spl-Set-remote-thermal-of-TMP451-to-85-.patch \
     file://0005-riscv-dts-Add-few-PMU-events.patch \
+    file://0006-riscv-sifive-fu740-reduce-DDR-speed-from-1866MT-s-to.patch \
     "
 
 # Only add opensbi dependency if opensbi is in image deps
