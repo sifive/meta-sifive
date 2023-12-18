@@ -6,6 +6,5 @@ header:
 target:
  - core-image-minimal
  - core-image-sato
- - buildtools-extended-tarball
 
 machine: unmatched
