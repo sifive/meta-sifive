@@ -4,16 +4,16 @@ LICENSE = "GPL-2.0-only"
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
-KBRANCH ?= "linux-6.1.y"
-KBRANCH:freedom-u-540 ?= "linux-6.1.y"
-KBRANCH:qemuriscv64 ?= "linux-6.1.y"
-KBRANCH:unmatched ?= "linux-6.1.y"
+KBRANCH ?= "linux-6.6.y"
+KBRANCH:freedom-u-540 ?= "linux-6.6.y"
+KBRANCH:qemuriscv64 ?= "linux-6.6.y"
+KBRANCH:unmatched ?= "linux-6.6.y"
 
-SRCREV_machine ?= "fb2635ac69abac0060cc2be2873dc4f524f12e66"
-SRCREV_machine:freedom-u-540 ?= "fb2635ac69abac0060cc2be2873dc4f524f12e66"
-SRCREV_machine:qemuriscv64 ?= "fb2635ac69abac0060cc2be2873dc4f524f12e66"
-SRCREV_machine:unmatched ?= "fb2635ac69abac0060cc2be2873dc4f524f12e66"
-SRCREV_meta ?= "0192a720aa74f4f3ba5de843d4c7132d678b2454"
+SRCREV_machine ?= "c9a51ebb4bac69ed3fee9c0ebe0c2b5149e80845"
+SRCREV_machine:freedom-u-540 ?= "c9a51ebb4bac69ed3fee9c0ebe0c2b5149e80845"
+SRCREV_machine:qemuriscv64 ?= "c9a51ebb4bac69ed3fee9c0ebe0c2b5149e80845"
+SRCREV_machine:unmatched ?= "c9a51ebb4bac69ed3fee9c0ebe0c2b5149e80845"
+SRCREV_meta ?= "11390e802ca72f3549b9356f036b17e54afd7a34"
 
 KCONFIG_MODE = "--alldefconfig"
 
@@ -31,16 +31,14 @@ KERNEL_FEATURES:remove = "features/kernel-sample/kernel-sample.scc"
 require recipes-kernel/linux/linux-yocto.inc
 
 SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git;name=machine;branch=${KBRANCH} \
-           git://git.yoctoproject.org/yocto-kernel-cache;type=kmeta;name=meta;branch=yocto-6.1;destsuffix=${KMETA}"
+           git://git.yoctoproject.org/yocto-kernel-cache;type=kmeta;name=meta;branch=yocto-6.6;destsuffix=${KMETA}"
 SRC_URI:append:riscv64 = " \
     file://0001-riscv-sifive-fu740-cpu-1-2-3-4-set-compatible-to-sif.patch \
     file://0002-riscv-sifive-unmatched-define-PWM-LEDs.patch \
-    file://0003-Revert-riscv-dts-sifive-unmatched-Link-the-tmp451-wi.patch \
-    file://0001-perf-cpumap-Make-counter-as-unsigned-ints.patch \
 "
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
-LINUX_VERSION ?= "6.1.62"
+LINUX_VERSION ?= "6.6.10"
 LINUX_VERSION_EXTENSION = ""
 
 PV = "${LINUX_VERSION}+git${SRCPV}"
