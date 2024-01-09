@@ -115,13 +115,13 @@ images for writing to uSD card.
 Images built can be flashed with `bmaptool` (faster), for example:
 
 ```bash
-sudo bmaptool copy ../build/tmp-glibc/deploy/images/unmatched/core-image-minimal-unmatched.wic.xz /dev/mmcblk0
+sudo bmaptool copy ../build/tmp-glibc/deploy/images/unmatched/core-image-minimal-unmatched.rootfs.wic.xz /dev/mmcblk0
 ```
 
 Otherwise, you can also use the `dd` command, for example:
 
 ```bash
-xzcat ../build/tmp-glibc/deploy/images/unmatched/core-image-minimal-unmatched.wic.xz | sudo dd of=/dev/mmcblk0 bs=512K iflag=fullblock oflag=direct conv=fsync status=progress
+xzcat ../build/tmp-glibc/deploy/images/unmatched/core-image-minimal-unmatched.rootfs.wic.xz | sudo dd of=/dev/mmcblk0 bs=512K iflag=fullblock oflag=direct conv=fsync status=progress
 ```
 
 ### MSEL for Unleashed
