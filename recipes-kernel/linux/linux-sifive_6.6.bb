@@ -9,11 +9,11 @@ KBRANCH:freedom-u-540 ?= "linux-6.6.y"
 KBRANCH:qemuriscv64 ?= "linux-6.6.y"
 KBRANCH:unmatched ?= "linux-6.6.y"
 
-SRCREV_machine ?= "c9a51ebb4bac69ed3fee9c0ebe0c2b5149e80845"
-SRCREV_machine:freedom-u-540 ?= "c9a51ebb4bac69ed3fee9c0ebe0c2b5149e80845"
-SRCREV_machine:qemuriscv64 ?= "c9a51ebb4bac69ed3fee9c0ebe0c2b5149e80845"
-SRCREV_machine:unmatched ?= "c9a51ebb4bac69ed3fee9c0ebe0c2b5149e80845"
-SRCREV_meta ?= "11390e802ca72f3549b9356f036b17e54afd7a34"
+SRCREV_machine ?= "47345b4264bc394a8d16bb16e8e7744965fa3934"
+SRCREV_machine:freedom-u-540 ?= "47345b4264bc394a8d16bb16e8e7744965fa3934"
+SRCREV_machine:qemuriscv64 ?= "47345b4264bc394a8d16bb16e8e7744965fa3934"
+SRCREV_machine:unmatched ?= "47345b4264bc394a8d16bb16e8e7744965fa3934"
+SRCREV_meta ?= "399295102a9b0db007323d12f561ecfd5782dcf0"
 
 KCONFIG_MODE = "--alldefconfig"
 
@@ -38,7 +38,7 @@ SRC_URI:append:riscv64 = " \
 "
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
-LINUX_VERSION ?= "6.6.10"
+LINUX_VERSION ?= "6.6.12"
 LINUX_VERSION_EXTENSION = ""
 
 PV = "${LINUX_VERSION}+git${SRCPV}"
