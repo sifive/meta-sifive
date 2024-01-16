@@ -10,8 +10,10 @@ require recipes-bsp/opensbi/opensbi-payloads.inc
 
 inherit autotools-brokensep deploy
 
-SRCREV = "057eb10b6d523540012e6947d5c9f63e95244e94"
-SRC_URI = "git://github.com/riscv/opensbi.git;branch=release-1.3.x;protocol=https"
+SRCREV = "a2b255b88918715173942f2c5e1f97ac9e90c877"
+SRC_URI = "git://github.com/riscv/opensbi.git;branch=master;protocol=https \
+	   file://0001-Revert-firmware-Remove-handling-of-R_RISCV_-32-64.patch \
+	  "
 
 S = "${WORKDIR}/git"
 
@@ -45,5 +47,3 @@ FILES:${PN} += "/share/opensbi/*/${RISCV_SBI_PLAT}/firmware/fw_dynamic.*"
 
 COMPATIBLE_HOST = "(riscv64|riscv32).*"
 INHIBIT_PACKAGE_STRIP = "1"
-
-SECURITY_CFLAGS = ""
