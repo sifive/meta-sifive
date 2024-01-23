@@ -11,13 +11,11 @@ require recipes-bsp/opensbi/opensbi-payloads.inc
 inherit autotools-brokensep deploy
 
 SRCREV = "a2b255b88918715173942f2c5e1f97ac9e90c877"
-SRC_URI = "git://github.com/riscv/opensbi.git;branch=master;protocol=https \
-	   file://0001-Revert-firmware-Remove-handling-of-R_RISCV_-32-64.patch \
-	  "
+SRC_URI = "git://github.com/riscv/opensbi.git;branch=master;protocol=https"
 
 S = "${WORKDIR}/git"
 
-EXTRA_OEMAKE += "PLATFORM=${RISCV_SBI_PLAT} I=${D} FW_PIC=n CLANG_TARGET= "
+EXTRA_OEMAKE += "PLATFORM=${RISCV_SBI_PLAT} I=${D} FW_PIC=y CLANG_TARGET= "
 # If RISCV_SBI_PAYLOAD is set then include it as a payload
 EXTRA_OEMAKE:append = " ${@riscv_get_extra_oemake_image(d)}"
 EXTRA_OEMAKE:append = " ${@riscv_get_extra_oemake_fdt(d)}"
@@ -47,3 +45,5 @@ FILES:${PN} += "/share/opensbi/*/${RISCV_SBI_PLAT}/firmware/fw_dynamic.*"
 
 COMPATIBLE_HOST = "(riscv64|riscv32).*"
 INHIBIT_PACKAGE_STRIP = "1"
+
+INSANE_SKIP:${PN} = "ldflags"
