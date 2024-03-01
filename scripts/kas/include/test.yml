@@ -4,9 +4,23 @@ header:
 local_conf_header:
 
   test: |
+
+    KERNEL_FEATURES:append:riscv64 = " \
+        cfg/sound.scc \
+        cfg/usb-mass-storage.scc \
+        features/bluetooth/bluetooth-usb.scc \
+        features/bluetooth/bluetooth-vhci.scc \
+        features/input/input.scc \
+        features/leds/leds.scc \
+        features/netfilter/netfilter.scc \
+        features/nfsd/nfsd-enable.scc \
+        features/rfkill/rfkill.scc \
+        features/wifi/wifi-all.scc \
+    "
+
     DISTRO_FEATURES:append = " ptest"
 
-    EXTRA_IMAGE_FEATURES:append = " debug-tweaks ptest-pkgs ssh-server-openssh"
+    EXTRA_IMAGE_FEATURES:append = " hwcodecs debug-tweaks ptest-pkgs ssh-server-openssh"
 
     IMAGE_CLASSES:append = " testimage testsdk"
     IMAGE_INSTALL:append = " linux-firmware"
