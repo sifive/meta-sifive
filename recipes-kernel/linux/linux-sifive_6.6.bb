@@ -9,11 +9,11 @@ KBRANCH:freedom-u-540 ?= "linux-6.6.y"
 KBRANCH:qemuriscv64 ?= "linux-6.6.y"
 KBRANCH:unmatched ?= "linux-6.6.y"
 
-SRCREV_machine ?= "d8a27ea2c98685cdaa5fa66c809c7069a4ff394b"
-SRCREV_machine:freedom-u-540 ?= "d8a27ea2c98685cdaa5fa66c809c7069a4ff394b"
-SRCREV_machine:qemuriscv64 ?= "d8a27ea2c98685cdaa5fa66c809c7069a4ff394b"
-SRCREV_machine:unmatched ?= "d8a27ea2c98685cdaa5fa66c809c7069a4ff394b"
-SRCREV_meta ?= "1a7881cb61f28deae2a90a93648a76fd4e1b0cc2"
+SRCREV_machine ?= "62e5ae5007ef14cf9b12da6520d50fe90079d8d4"
+SRCREV_machine:freedom-u-540 ?= "62e5ae5007ef14cf9b12da6520d50fe90079d8d4"
+SRCREV_machine:qemuriscv64 ?= "62e5ae5007ef14cf9b12da6520d50fe90079d8d4"
+SRCREV_machine:unmatched ?= "62e5ae5007ef14cf9b12da6520d50fe90079d8d4"
+SRCREV_meta ?= "f568a941bd5dd474b795b085e0faf22a83c0401a"
 
 KCONFIG_MODE = "--alldefconfig"
 
@@ -36,7 +36,7 @@ SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git;name=m
 SRC_URI:append:unmatched = " file://defconfig"
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
-LINUX_VERSION ?= "6.6.18"
+LINUX_VERSION ?= "6.6.21"
 LINUX_VERSION_EXTENSION = ""
 
 PV = "${LINUX_VERSION}+git${SRCPV}"
