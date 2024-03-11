@@ -1,7 +1,7 @@
-From 877afdf63129caa64d70d4a1252eec44778cfa0e Mon Sep 17 00:00:00 2001
+From 312c8738ced1d856ad76746d4bb91719bc79993d Mon Sep 17 00:00:00 2001
 From: Vincent Chen <vincent.chen@sifive.com>
 Date: Mon, 24 Jan 2022 02:57:40 -0800
-Subject: [PATCH 4/5] board: sifive: spl: Set remote thermal of TMP451 to 85
+Subject: [PATCH 4/6] board: sifive: spl: Set remote thermal of TMP451 to 85
  deg C
 
  for the unmatched board
@@ -68,5 +68,5 @@ index f3a661a81eb5..9660702ebf72 100644
  	if (ret) {
  		debug("Gigabit ethernet PHY (VSC8541) init failed: %d\n", ret);
 -- 
-2.41.0
+2.44.0
 

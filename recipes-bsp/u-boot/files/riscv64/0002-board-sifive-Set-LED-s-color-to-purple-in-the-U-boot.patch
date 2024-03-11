@@ -1,7 +1,7 @@
-From 0dfab8fab80107aa4ad7d41a8ff47e5ff59632f9 Mon Sep 17 00:00:00 2001
+From 670a793545e2e9adc3fcd4556409d11af524ee0b Mon Sep 17 00:00:00 2001
 From: Vincent Chen <vincent.chen@sifive.com>
 Date: Mon, 24 Jan 2022 02:42:02 -0800
-Subject: [PATCH 2/5] board: sifive: Set LED's color to purple in the U-boot
+Subject: [PATCH 2/6] board: sifive: Set LED's color to purple in the U-boot
  stage
 
 Set LED's color to purple in the U-boot stage. Because there are still
@@ -41,11 +41,11 @@ index e1cc02310aae..bd67672c22ef 100644
 +#endif
  }
 diff --git a/board/sifive/unmatched/unmatched.c b/board/sifive/unmatched/unmatched.c
-index 6295deeae234..30c082d00176 100644
+index c8696270ba27..1d50125bf2db 100644
 --- a/board/sifive/unmatched/unmatched.c
 +++ b/board/sifive/unmatched/unmatched.c
-@@ -22,6 +22,12 @@ void *board_fdt_blob_setup(int *err)
- 	return (ulong *)&_end;
+@@ -21,6 +21,12 @@ void *board_fdt_blob_setup(int *err)
+ 	return (ulong *)_end;
  }
  
 +int board_early_init_f(void)
@@ -58,14 +58,14 @@ index 6295deeae234..30c082d00176 100644
  {
  	/* enable all cache ways */
 diff --git a/configs/sifive_unmatched_defconfig b/configs/sifive_unmatched_defconfig
-index 867611b6b4ed..b566bc212a21 100644
+index 6a95ab3977a2..aec9723d951e 100644
 --- a/configs/sifive_unmatched_defconfig
 +++ b/configs/sifive_unmatched_defconfig
-@@ -63,3 +63,4 @@ CONFIG_DM_SCSI=y
+@@ -64,3 +64,4 @@ CONFIG_DM_SCSI=y
  CONFIG_USB=y
  CONFIG_USB_XHCI_HCD=y
  CONFIG_USB_XHCI_PCI=y
 +CONFIG_BOARD_EARLY_INIT_F=y
 -- 
-2.41.0
+2.44.0
 

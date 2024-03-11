@@ -1,7 +1,7 @@
-From 9b2868e9fda750c985313a40e60b67f96dc77ed1 Mon Sep 17 00:00:00 2001
+From a5b83d8c251cf73e3f5e4c5165275ac0c3bdebb2 Mon Sep 17 00:00:00 2001
 From: Atish Patra <atish.patra@wdc.com>
 Date: Mon, 25 Oct 2021 11:35:41 -0700
-Subject: [PATCH 5/5] riscv: dts: Add few PMU events
+Subject: [PATCH 5/6] riscv: dts: Add few PMU events
 
 fu740 has 2 HPM counters and many HPM events defined in the fu740 manual[1].
 This patch adds some of these events and their mapping as per the
@@ -38,5 +38,5 @@ index 7b77c13496d8..ea634a3b4cfa 100644
  			#interrupt-cells = <1>;
  			#address-cells = <0>;
 -- 
-2.41.0
+2.44.0
 

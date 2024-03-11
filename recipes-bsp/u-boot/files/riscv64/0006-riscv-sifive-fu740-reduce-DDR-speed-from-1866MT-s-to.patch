@@ -1,7 +1,7 @@
-From cb73e546aab14c353f77d4fbc87ad96fe7ba060d Mon Sep 17 00:00:00 2001
+From f2946d27e891b7f33c80816202b028a942164bb1 Mon Sep 17 00:00:00 2001
 From: Thomas Perrot <thomas.perrot@bootlin.com>
 Date: Fri, 8 Dec 2023 11:24:37 +0100
-Subject: [PATCH] riscv: sifive: fu740: reduce DDR speed from 1866MT/s to
+Subject: [PATCH 6/6] riscv: sifive: fu740: reduce DDR speed from 1866MT/s to
  1600MT/s
 
 It appears that there is some timing marginality either in the
@@ -36,5 +36,6 @@ index 706224b384d2..956237c3218e 100644
  			bootph-pre-ram;
  		};
  	};
---
-2.43.2
+-- 
+2.44.0
+
