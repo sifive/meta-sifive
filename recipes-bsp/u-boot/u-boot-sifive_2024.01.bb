@@ -9,6 +9,12 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 DEPENDS:append:riscv64 = " opensbi"
 
+# We use the revision in order to avoid having to fetch it from the
+# repo during parse
+SRCREV = "866ca972d6c3cabeaf6dbac431e8e08bb30b3c8e"
+
+SRC_URI = "git://source.denx.de/u-boot/u-boot.git;protocol=https;branch=master"
+
 SRC_URI:append:riscv64 = " \
     file://0001-board-sifive-spl-Initialized-the-PWM-setting-in-the-.patch \
     file://0002-board-sifive-Set-LED-s-color-to-purple-in-the-U-boot.patch \
