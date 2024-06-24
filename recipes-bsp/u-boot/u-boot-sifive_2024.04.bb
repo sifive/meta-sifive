@@ -9,9 +9,7 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 DEPENDS:append:riscv64 = " opensbi"
 
-# We use the revision in order to avoid having to fetch it from the
-# repo during parse
-SRCREV = "866ca972d6c3cabeaf6dbac431e8e08bb30b3c8e"
+SRCREV = "25049ad560826f7dc1c4740883b0016014a59789"
 
 SRC_URI = "git://source.denx.de/u-boot/u-boot.git;protocol=https;branch=master"
 
