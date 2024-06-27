@@ -14,12 +14,7 @@ SRCREV = "25049ad560826f7dc1c4740883b0016014a59789"
 SRC_URI = "git://source.denx.de/u-boot/u-boot.git;protocol=https;branch=master"
 
 SRC_URI:append:riscv64 = " \
-    file://0001-board-sifive-spl-Initialized-the-PWM-setting-in-the-.patch \
-    file://0002-board-sifive-Set-LED-s-color-to-purple-in-the-U-boot.patch \
-    file://0003-board-sifive-Set-LED-s-color-to-blue-before-jumping-.patch \
-    file://0004-board-sifive-spl-Set-remote-thermal-of-TMP451-to-85-.patch \
     file://0005-riscv-dts-Add-few-PMU-events.patch \
-    file://0006-riscv-sifive-fu740-reduce-DDR-speed-from-1866MT-s-to.patch \
     "
 
 # Only add opensbi dependency if opensbi is in image deps
