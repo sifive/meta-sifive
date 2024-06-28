@@ -13,7 +13,7 @@ repos:
 
   openembedded-core:
     url: https://git.openembedded.org/openembedded-core
-    refspec: bc793fa9d1fe24c102d91e97b7002b6e637cbfa5
+    refspec: 803cc32e72b4fc2fc28d92090e61f5dd288a10cb
     layers:
       meta:
 
