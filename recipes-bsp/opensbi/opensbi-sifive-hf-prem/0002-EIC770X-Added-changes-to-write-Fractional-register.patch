@@ -1,0 +1,72 @@
+From 93fe224a8b586a0d0504ff07a2197afee06d3aa3 Mon Sep 17 00:00:00 2001
+From: Darshan Prajapati <darshan.prajapati@einfochips.com>
+Date: Tue, 2 Jul 2024 17:06:23 +0530
+Subject: [PATCH 2/4] EIC770X: Added changes to write Fractional register
+
+writing fractional register to ensure correct baud rate
+
+Signed-off-by: Darshan Prajapati <darshan.prajapati@einfochips.com>
+---
+ platform/eswin/eic770x/platform.c | 35 ++++++++++++++++++++++++++++++-
+ 1 file changed, 34 insertions(+), 1 deletion(-)
+
+diff --git a/platform/eswin/eic770x/platform.c b/platform/eswin/eic770x/platform.c
+index 767b293..6d701c6 100644
+--- a/platform/eswin/eic770x/platform.c
++++ b/platform/eswin/eic770x/platform.c
+@@ -64,6 +64,26 @@
+ 
+ /* clang-format on */
+ 
++#define UART_DLF_OFFSET				48	/* I/O: Divisor Latch Fraction Register */
++
++/*
++ * Divide positive or negative dividend by positive or negative divisor
++ * and round to closest integer. Result is undefined for negative
++ * divisors if the dividend variable type is unsigned and for negative
++ * dividends if the divisor variable type is unsigned.
++ */
++#define DIV_ROUND_CLOSEST(x, divisor)(  \
++{   \
++    typeof(x) __x = x;  \
++    typeof(divisor) __d = divisor;  \
++    (((typeof(x))-1) > 0 || \
++     ((typeof(divisor))-1) > 0 ||   \
++     (((__x) > 0) == ((__d) > 0))) ?    \
++     (((__x) + ((__d) / 2)) / (__d)) :  \
++     (((__x) - ((__d) / 2)) / (__d));   \
++}   \
++)
++
+ static struct plic_data plic = {
+ 	.addr = EIC770X_PLIC_ADDR,
+ 	.size =	EIC770X_PLIC_SIZE,
+@@ -145,11 +165,24 @@ static int eic770x_final_init(bool cold_boot)
+ 
+ static int eic770x_console_init(void)
+ {
+-	return uart8250_init(EIC770X_UART0_ADDR,
++	int ret;
++	u32 bdiv_f, base_baud;
++
++	ret =  uart8250_init(EIC770X_UART0_ADDR,
+ 			     EIC770X_UART_CLK,
+ 			     EIC770X_UART_BAUDRATE,
+ 			     0x2,
+ 			     0x2,0);
++	if (ret<0)
++		return ret;
++
++	base_baud = EIC770X_UART_BAUDRATE * 16;
++	bdiv_f = EIC770X_UART_CLK % base_baud;
++	bdiv_f = DIV_ROUND_CLOSEST(bdiv_f << 0x4, base_baud);
++
++	writew(bdiv_f, ((volatile char *)EIC770X_UART0_ADDR + (UART_DLF_OFFSET << 2)));
++
++	return ret;
+ }
+ 
+ static int eic770x_irqchip_init(bool cold_boot)
+-- 
+2.25.1
+
