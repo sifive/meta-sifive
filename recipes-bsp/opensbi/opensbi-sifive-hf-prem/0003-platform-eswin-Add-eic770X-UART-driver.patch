@@ -1,0 +1,328 @@
+From f0798ccda10be7f76061527b9b36155491574362 Mon Sep 17 00:00:00 2001
+From: Darshan Prajapati <darshan.prajapati@einfochips.com>
+Date: Tue, 25 Jun 2024 15:32:46 +0530
+Subject: [PATCH 3/4] platform: eswin: Add eic770X UART driver
+
+Add UART driver for communication with MCU
+
+Upstream-Status: Pending
+
+Signed-off-by: Darshan Prajapati <darshan.prajapati@einfochips.com>
+---
+ platform/eswin/eic770x/eic770x_uart.c | 148 ++++++++++++++++++++++++++
+ platform/eswin/eic770x/eic770x_uart.h | 109 +++++++++++++++++++
+ platform/eswin/eic770x/objects.mk     |   1 +
+ platform/eswin/eic770x/platform.c     |  14 +++
+ 4 files changed, 272 insertions(+)
+ create mode 100644 platform/eswin/eic770x/eic770x_uart.c
+ create mode 100644 platform/eswin/eic770x/eic770x_uart.h
+
+diff --git a/platform/eswin/eic770x/eic770x_uart.c b/platform/eswin/eic770x/eic770x_uart.c
+new file mode 100644
+index 0000000..c93f17e
+--- /dev/null
++++ b/platform/eswin/eic770x/eic770x_uart.c
+@@ -0,0 +1,148 @@
++/*
++ * SPDX-License-Identifier: BSD-2-Clause
++ *
++ ****************************************************************
++ *
++ *  Copyright (C) 2022  Beiing Eswin Co. Ltd
++ *
++ *    This program is free software: you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License Version 2
++ *  as published by the Free Software Foundation.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
++ *
++ *  You should have received a copy of the GNU General Public License Version 2
++ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
++ *
++ *
++ ****************************************************************
++ */
++
++#include <sbi/riscv_locks.h>
++#include <sbi/riscv_io.h>
++#include "eic770x_uart.h"
++
++static volatile void *eic770x_uart8250_base;
++static u32 eic770x_uart8250_in_freq;
++static u32 eic770x_uart8250_baudrate;
++static u32 eic770x_uart8250_reg_width;
++static u32 eic770x_uart8250_reg_shift;
++
++static spinlock_t eic770x_out_lock = SPIN_LOCK_INITIALIZER;
++
++static u32 eic770x_get_reg(u32 num)
++{
++	u32 offset = num << eic770x_uart8250_reg_shift;
++
++	if (eic770x_uart8250_reg_width == 1)
++		return readb(eic770x_uart8250_base + offset);
++	else if (eic770x_uart8250_reg_width == 2)
++		return readw(eic770x_uart8250_base + offset);
++	else
++		return readl(eic770x_uart8250_base + offset);
++}
++
++static void eic770x_set_reg(u32 num, u32 val)
++{
++	u32 offset = num << eic770x_uart8250_reg_shift;
++
++	if (eic770x_uart8250_reg_width == 1)
++		writeb(val, eic770x_uart8250_base + offset);
++	else if (eic770x_uart8250_reg_width == 2)
++		writew(val, eic770x_uart8250_base + offset);
++	else
++		writel(val, eic770x_uart8250_base + offset);
++}
++
++static void eic770x_uart8250_putc(char ch)
++{
++	while ((eic770x_get_reg(EIC770X_UART_LSR_OFFSET) & EIC770X_UART_LSR_THRE) == 0)
++		;
++
++	eic770x_set_reg(EIC770X_UART_THR_OFFSET, ch);
++}
++
++extern int sbi_printf(const char *format, ...);
++
++static void eic770x_uart_snd(char *str, u32 len)
++{
++	spin_lock(&eic770x_out_lock);
++	while (len--) {
++		eic770x_uart8250_putc(*str);
++		str++;
++	}
++	spin_unlock(&eic770x_out_lock);
++}
++
++int eic770x_uart8250_init(unsigned long base, u32 in_freq, u32 baudrate, u32 reg_shift,
++		  u32 reg_width)
++{
++	u16 bdiv;
++	u32 bdiv_f, base_baud;
++
++	eic770x_uart8250_base      = (volatile void *)base;
++	eic770x_uart8250_reg_shift = reg_shift;
++	eic770x_uart8250_reg_width = reg_width;
++	eic770x_uart8250_in_freq   = in_freq;
++	eic770x_uart8250_baudrate  = baudrate;
++
++	base_baud = eic770x_uart8250_baudrate * 16;
++	bdiv = eic770x_uart8250_in_freq / base_baud;
++	bdiv_f = eic770x_uart8250_in_freq % base_baud;
++
++	bdiv_f = EIC770X_DIV_ROUND_CLOSEST(bdiv_f << 0x4, base_baud);
++
++	/* Disable all interrupts */
++	eic770x_set_reg(EIC770X_UART_IER_OFFSET, 0x00);
++	/* Enable DLAB */
++	eic770x_set_reg(EIC770X_UART_LCR_OFFSET, 0x80);
++
++	if (bdiv) {
++		/* Set divisor low byte */
++		eic770x_set_reg(EIC770X_UART_DLL_OFFSET, bdiv & 0xff);
++		/* Set divisor high byte */
++		eic770x_set_reg(EIC770X_UART_DLM_OFFSET, (bdiv >> 8) & 0xff);
++
++		eic770x_set_reg(EIC770X_UART_DLF_OFFSET, bdiv_f);
++	}
++
++	/* 8 bits, no parity, one stop bit */
++	eic770x_set_reg(EIC770X_UART_LCR_OFFSET, 0x03);
++	/* Enable FIFO */
++	eic770x_set_reg(EIC770X_UART_FCR_OFFSET, 0x01);
++	/* No modem control DTR RTS */
++	eic770x_set_reg(EIC770X_UART_MCR_OFFSET, 0x00);
++	/* Clear line status */
++	eic770x_get_reg(EIC770X_UART_LSR_OFFSET);
++	/* Read receive buffer */
++	eic770x_get_reg(EIC770X_UART_RBR_OFFSET);
++	/* Set scratchpad */
++	eic770x_set_reg(EIC770X_UART_SCR_OFFSET, 0x00);
++
++	return 0;
++}
++
++static void generate_checksum(Message *msg)
++{
++	unsigned char checksum = 0;
++	checksum ^= msg->msg_type;
++	checksum ^= msg->cmd_type;
++	checksum ^= msg->data_len;
++	for (int i = 0; i < msg->data_len; ++i) {
++		checksum ^= msg->data[i];
++	}
++	msg->checksum = checksum;
++}
++
++int eic770x_uart2_init();
++int transmit_message(Message *msg)
++{
++	eic770x_uart2_init();
++	generate_checksum(msg);
++
++	eic770x_uart_snd((char *)msg, sizeof(Message));
++
++	return 0;
++}
+diff --git a/platform/eswin/eic770x/eic770x_uart.h b/platform/eswin/eic770x/eic770x_uart.h
+new file mode 100644
+index 0000000..9dc764f
+--- /dev/null
++++ b/platform/eswin/eic770x/eic770x_uart.h
+@@ -0,0 +1,109 @@
++/*
++ * SPDX-License-Identifier: BSD-2-Clause
++ *
++ ****************************************************************
++ *
++ *  Copyright (C) 2022  Beiing Eswin Co. Ltd
++ *
++ *    This program is free software: you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License Version 2
++ *  as published by the Free Software Foundation.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
++ *
++ *  You should have received a copy of the GNU General Public License Version 2
++ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
++ *
++ *
++ ****************************************************************
++ */
++#ifndef _EIC770X_UART_H_
++#define _EIC770X_UART_H_
++
++#define EIC770X_DIV_ROUND_CLOSEST(x, divisor)(			\
++{							\
++	typeof(x) __x = x;				\
++	typeof(divisor) __d = divisor;			\
++	(((typeof(x))-1) > 0 ||				\
++	 ((typeof(divisor))-1) > 0 ||			\
++	 (((__x) > 0) == ((__d) > 0))) ?		\
++		(((__x) + ((__d) / 2)) / (__d)) :	\
++		(((__x) - ((__d) / 2)) / (__d));	\
++}							\
++)
++
++#define EIC770X_UART_RBR_OFFSET		0	/* In:  Recieve Buffer Register */
++#define EIC770X_UART_THR_OFFSET		0	/* Out: Transmitter Holding Register */
++#define EIC770X_UART_DLL_OFFSET		0	/* Out: Divisor Latch Low */
++#define EIC770X_UART_IER_OFFSET		1	/* I/O: Interrupt Enable Register */
++#define EIC770X_UART_DLM_OFFSET		1	/* Out: Divisor Latch High */
++#define EIC770X_UART_FCR_OFFSET		2	/* Out: FIFO Control Register */
++#define EIC770X_UART_IIR_OFFSET		2	/* I/O: Interrupt Identification Register */
++#define EIC770X_UART_LCR_OFFSET		3	/* Out: Line Control Register */
++#define EIC770X_UART_MCR_OFFSET		4	/* Out: Modem Control Register */
++#define EIC770X_UART_LSR_OFFSET		5	/* In:  Line Status Register */
++#define EIC770X_UART_MSR_OFFSET		6	/* In:  Modem Status Register */
++#define EIC770X_UART_SCR_OFFSET		7	/* I/O: Scratch Register */
++#define EIC770X_UART_MDR1_OFFSET		8	/* I/O:  Mode Register */
++#define EIC770X_UART_DLF_OFFSET		48	/* I/O: Divisor Latch Fraction Register */
++
++#define EIC770X_UART_LSR_FIFOE			0x80	/* Fifo error */
++#define EIC770X_UART_LSR_TEMT			0x40	/* Transmitter empty */
++#define EIC770X_UART_LSR_THRE			0x20	/* Transmit-hold-register empty */
++#define EIC770X_UART_LSR_BI			0x10	/* Break interrupt indicator */
++#define EIC770X_UART_LSR_FE			0x08	/* Frame error indicator */
++#define EIC770X_UART_LSR_PE			0x04	/* Parity error indicator */
++#define EIC770X_UART_LSR_OE			0x02	/* Overrun error indicator */
++#define EIC770X_UART_LSR_DR			0x01	/* Receiver data ready */
++#define EIC770X_UART_LSR_BRK_ERROR_BITS	0x1E	/* BI, FE, PE, OE bits */
++
++/* U84 and stm32 communication definition */
++#define FRAME_HEADER		0xA55AAA55
++#define FRAME_TAIL		0xBDBABDBA
++
++#define FRAME_DATA_MAX 250
++
++
++/* Message structure */
++typedef struct {
++	uint32_t header;	// Frame heade
++	uint32_t xTaskToNotify;	// id
++	uint8_t msg_type;	// Message type
++	uint8_t cmd_type;	// Command type
++	uint8_t cmd_result;	// command result
++	uint8_t data_len;	// Data length
++	uint8_t data[FRAME_DATA_MAX];	// Data
++	uint8_t checksum;	// Checksum
++	uint32_t tail;	// Frame tail
++} __attribute__((packed)) Message;
++
++/* Define command types */
++typedef enum {
++	MSG_REQUEST = 0x01,
++	MSG_REPLY,
++	MSG_NOTIFY,
++} MsgType;
++
++/* Define command types */
++typedef enum {
++	CMD_POWER_OFF = 0x01,
++	CMD_REBOOT,
++	CMD_READ_BOARD_INFO,
++	CMD_CONTROL_LED,
++	CMD_PVT_INFO,
++	CMD_BOARD_STATUS,
++	CMD_POWER_INFO,
++	CMD_RESTART,
++	/* cold reboot with power off/on
++	 * You can continue adding other command types
++	 */
++} CommandType;
++
++
++int eic770x_uart8250_init(unsigned long base, u32 in_freq, u32 baudrate, u32 reg_shift,
++		  u32 reg_width);
++int transmit_message(Message *msg);
++
++#endif
+diff --git a/platform/eswin/eic770x/objects.mk b/platform/eswin/eic770x/objects.mk
+index e4b476d..92aa6d4 100644
+--- a/platform/eswin/eic770x/objects.mk
++++ b/platform/eswin/eic770x/objects.mk
+@@ -21,6 +21,7 @@
+ #
+ 
+ platform-objs-$(CONFIG_PLATFORM_ESWIN) += platform.o
++platform-objs-y += eic770x_uart.o
+ 
+ # Compiler flags
+ platform-cppflags-y =
+diff --git a/platform/eswin/eic770x/platform.c b/platform/eswin/eic770x/platform.c
+index 6d701c6..c3e672a 100644
+--- a/platform/eswin/eic770x/platform.c
++++ b/platform/eswin/eic770x/platform.c
+@@ -142,6 +142,20 @@ static struct sbi_system_reset_device eic770x_reset = {
+ 	.system_reset = eic770x_system_reset
+ };
+ 
++/* UART2 is used for communication with stm32 on the carrier board of DVB */
++int eic770x_uart2_init()
++{
++	/*reset uart2*/
++	writeb(0x1B, (volatile void *)EIC770X_UART_RESET_ADDR);
++	writeb(0x1F, (volatile void *)EIC770X_UART_RESET_ADDR);
++	return eic770x_uart8250_init(EIC770X_UART2_ADDR,
++			EIC770X_UART_CLK,
++			EIC770X_UART_BAUDRATE,
++			0x2,
++			0x2);
++
++}
++
+ static int eic770x_early_init(bool cold_boot)
+ {
+ 	if (cold_boot)
+-- 
+2.25.1
+

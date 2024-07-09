@@ -1,0 +1,124 @@
+From 29539395acd7d1ed1b3f293348a14f3cf4cf2a4f Mon Sep 17 00:00:00 2001
+From: Darshan Prajapati <darshan.prajapati@einfochips.com>
+Date: Tue, 25 Jun 2024 15:17:36 +0530
+Subject: [PATCH 4/4] platform: eswin: Add shutdown and reset function
+
+Send message to MCU via UART2 for shutdown and reset function of SoC.
+
+Upstream-Status: Pending
+
+Signed-off-by: Darshan Prajapati <darshan.prajapati@einfochips.com>
+---
+ platform/eswin/eic770x/platform.c | 69 +++++++++++++++++++++++++++++--
+ 1 file changed, 65 insertions(+), 4 deletions(-)
+
+diff --git a/platform/eswin/eic770x/platform.c b/platform/eswin/eic770x/platform.c
+index c3e672a..c4d84b8 100644
+--- a/platform/eswin/eic770x/platform.c
++++ b/platform/eswin/eic770x/platform.c
+@@ -26,6 +26,7 @@
+ #include <sbi/sbi_console.h>
+ #include <sbi/sbi_platform.h>
+ #include <sbi/sbi_system.h>
++#include <sbi/sbi_timer.h>
+ #include <sbi/riscv_io.h>
+ #include <sbi_utils/irqchip/plic.h>
+ #include <sbi_utils/serial/uart8250.h>
+@@ -35,6 +36,8 @@
+ #include <sbi_utils/fdt/fdt_helper.h>
+ #include <sbi/riscv_asm.h>
+ #include <sbi_utils/fdt/fdt_fixup.h>
++#include <sbi/sbi_hart.h>
++#include "eic770x_uart.h"
+ 
+ /* clang-format off */
+ #define EIC770X_HART_COUNT				4
+@@ -50,8 +53,10 @@
+ #define EIC770X_PLIC_NUM_SOURCES			520
+ #define EIC770X_PLIC_NUM_PRIORITIES			7
+ 
+-#define EIC770X_UART0_ADDR				(0x50900000UL + DIE_REG_OFFSET)
+ #define EIC770X_UART_BAUDRATE				115200
++#define EIC770X_UART0_ADDR				(0x50900000UL + DIE_REG_OFFSET)
++#define EIC770X_UART2_ADDR				(0x50920000UL + DIE_REG_OFFSET)
++#define EIC770X_UART_RESET_ADDR			(0x51828434UL + DIE_REG_OFFSET)
+ 
+ #define EIC770X_UART_CLK				(200000000UL)
+ 
+@@ -126,14 +131,70 @@ static void eic770x_modify_dt(void *fdt)
+ 
+ static int eic770x_system_reset_check(u32 type, u32 reason)
+ {
+-	return 1;
++	switch (type) {
++	case SBI_SRST_RESET_TYPE_SHUTDOWN:
++	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
++	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
++	        return 1;
++	}
++
++	return 0;
+ }
+ 
+-static void eic770x_system_reset(u32 type, u32 reason)
++/* tell stm32 on the carrier to shut down the power */
++static int eic770x_core_shutdown(void)
+ {
++	Message shutdown_reply = {
++		.header = FRAME_HEADER,
++		.msg_type = MSG_NOTIFY,
++		.cmd_type = CMD_POWER_OFF,
++		.data_len = 0x0,
++		.tail = FRAME_TAIL,
++	};
++	sbi_printf("%s\n", __func__);
++	transmit_message(&shutdown_reply);
++	return 0;
++}
++
++static int eic770x_cold_reset(void)
++{
++	Message shutdown_reply = {
++		.header = FRAME_HEADER,
++		.msg_type = MSG_NOTIFY,
++		.cmd_type = CMD_RESTART,
++		.data_len = 0x0,
++		.tail = FRAME_TAIL,
++	};
++	sbi_printf("%s\n", __func__);
++	transmit_message(&shutdown_reply);
++	sbi_timer_mdelay(3000);
++	/*When it is not a DVB board, reboot can still be done, but there is no real power off/power on action at that time.*/
+ 	writel(EIC770X_SYS_RESET_VALUE, (volatile void *)EIC770X_SYS_RESET_ADDR);
++	return 0;
++}
++
++static int eic770x_core_reset(void)
++{
++	sbi_printf("%s\n", __func__);
++	writel(EIC770X_SYS_RESET_VALUE, (volatile void *)EIC770X_SYS_RESET_ADDR);
++	return 0;
++}
++
++static void eic770x_system_reset(u32 type, u32 reason)
++{
++	switch (type) {
++		case SBI_SRST_RESET_TYPE_SHUTDOWN:
++			eic770x_core_shutdown();
++			break;
++		case SBI_SRST_RESET_TYPE_COLD_REBOOT:
++			eic770x_cold_reset();
++			break;
++		case SBI_SRST_RESET_TYPE_WARM_REBOOT:
++			eic770x_core_reset();
++			break;
++	}
+ 
+-	while (1);
++	sbi_hart_hang();
+ }
+ 
+ static struct sbi_system_reset_device eic770x_reset = {
+-- 
+2.25.1
+
