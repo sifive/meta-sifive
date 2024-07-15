@@ -1,0 +1,148 @@
+From 730b4e56014c440f66f464e2774841a4764b4460 Mon Sep 17 00:00:00 2001
+From: Pritesh Patel <pritesh.patel@einfochips.com>
+Date: Mon, 15 Jul 2024 12:38:28 +0000
+Subject: [PATCH] perf:change relocaddr to lower 4G
+
+Changelogs:
+1. change the relocation address to 0x1_0000_0000
+2. Optimize the es_buren progress bar display
+
+BREAKING CHANGE:
+1. run usb, fastboot, dhcp case;
+2. use es_burn tools write large rootfs;
+3. use fastboot write large rootfs;
+4. Verify that the hdmi is working properly
+
+Signed-off-by: xuxiang <xuxiang@eswincomputing.com>
+---
+ arch/riscv/cpu/eic7700/dram.c | 23 ++++++++++++++++++++++-
+ cmd/eswin/es_bootloader.c     | 17 ++++++++---------
+ 2 files changed, 30 insertions(+), 10 deletions(-)
+
+diff --git a/arch/riscv/cpu/eic7700/dram.c b/arch/riscv/cpu/eic7700/dram.c
+index dc88658324f..3cf47160ee1 100644
+--- a/arch/riscv/cpu/eic7700/dram.c
++++ b/arch/riscv/cpu/eic7700/dram.c
+@@ -7,6 +7,7 @@
+ 
+ #include <fdtdec.h>
+ #include <init.h>
++#include <mapmem.h>
+ #include <asm/global_data.h>
+ #include <linux/sizes.h>
+ DECLARE_GLOBAL_DATA_PTR;
+@@ -38,4 +39,24 @@ phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
+ 		return SZ_4G;
+ #endif
+ 	return gd->ram_top;
+-}
+\ No newline at end of file
++}
++
++#if CONFIG_IS_ENABLED(EFI_LOADER)
++/**
++ * efi_add_known_memory() - add memory banks to map
++ *
++ */
++void efi_add_known_memory(void)
++{
++	int i;
++	/* Add RAM */
++	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
++		u64 ram_end, ram_start, ram_top;
++
++		ram_start = (uintptr_t)map_sysmem(gd->bd->bi_dram[i].start, 0);
++		ram_end = ram_start + gd->bd->bi_dram[i].size;
++		ram_top = ram_end;
++		efi_add_conventional_memory_map(ram_start, ram_end, ram_top);
++	}
++}
++#endif
+\ No newline at end of file
+diff --git a/cmd/eswin/es_bootloader.c b/cmd/eswin/es_bootloader.c
+index ec945418b31..7868023a836 100644
+--- a/cmd/eswin/es_bootloader.c
++++ b/cmd/eswin/es_bootloader.c
+@@ -209,7 +209,7 @@ static int es_spi_flash_erase(uint64_t offset, uint64_t size)
+ 	debug_printf("offset : %llx, size %llx\n",offset, size);
+ 
+ 	package_blk = DIV_ROUND_UP(total_size, BOOTCHAIN_PACKAGE_SIZE);  /* blkcnt */
+-	printf("Erase progress: %3d:\r", 0);
++	printf("Erase progress: %3lld%:\r", 0);
+ 	for(int i = 0;i < package_blk; i++) {
+ 		if(total_size > BOOTCHAIN_PACKAGE_SIZE)
+ 		{
+@@ -220,7 +220,7 @@ static int es_spi_flash_erase(uint64_t offset, uint64_t size)
+ 		total_size -= BOOTCHAIN_PACKAGE_SIZE;
+ 		ret = spi_flash_erase(flash, offset + i*BOOTCHAIN_PACKAGE_SIZE, erase_size);
+ 		currentIndex = (uint64_t)i * 100 / package_blk;
+-		printf("Erase progress: %3d:", currentIndex);
++		printf("Erase progress: %3lld%:", currentIndex);
+ 		for(int col = 0; col < currentIndex/2; col++) {
+ 			printf("%s","+");
+ 		}
+@@ -229,7 +229,7 @@ static int es_spi_flash_erase(uint64_t offset, uint64_t size)
+ 			break;
+ 	}
+ 	if(!ret) {
+-		printf("Erase progress: %3d :", 100);
++		printf("Erase progress: %3lld%:", 100);
+ 		for(int j = 0; j < 100/2; j ++)
+ 			printf("%s","+");
+ 		printf("\r\n");
+@@ -279,7 +279,7 @@ static int norflash_write_bootchain(uint64_t src_addr, uint64_t offset, uint64_t
+ 
+ 	package_blk = DIV_ROUND_UP(size, BOOTCHAIN_PACKAGE_SIZE); 
+ 	total_size = size;
+-	printf("Write progress: %3d:\r", 0);
++	printf("Write progress: %3lld%:\r", 0);
+ 	for(int i = 0;i < package_blk; i++) {
+ 		if(total_size > BOOTCHAIN_PACKAGE_SIZE)
+ 		{
+@@ -291,7 +291,7 @@ static int norflash_write_bootchain(uint64_t src_addr, uint64_t offset, uint64_t
+ 		ret = spi_flash_write(flash, offset + i * BOOTCHAIN_PACKAGE_SIZE, write_size,
+ 						      src_addr + i * BOOTCHAIN_PACKAGE_SIZE);
+ 		currentIndex = (uint64_t)i * 100 / package_blk;
+-		printf("Write progress: %3d:", currentIndex);
++		printf("Write progress: %3lld%:", currentIndex);
+ 		for(int col = 0; col < currentIndex/2; col++) {
+ 			printf("%s","+");
+ 		}
+@@ -301,7 +301,7 @@ static int norflash_write_bootchain(uint64_t src_addr, uint64_t offset, uint64_t
+ 	}
+ 
+ 	if(!ret) {
+-		printf("Write progress: %3d :", 100);
++		printf("Write progress: %3lld%:", 100);
+ 		for(int j = 0; j < 100/2; j ++)
+ 			printf("%s","+");
+ 		printf("\r\n");
+@@ -693,7 +693,6 @@ static int do_bootchain_erase(int argc, char *const argv[])
+ 		}
+ 		fht->num_entries = cnt;
+ 	}
+-	printf("%s len %d \n",__func__, len);
+ 	ret = es_write_bootchain((uint64_t)&fht->magic, FW_HEAD_OFFSET, len);
+ 	free(fht);
+ 
+@@ -877,7 +876,7 @@ static int do_rootfs_write(int argc, char *const argv[])
+ 	for(int i = 0;i < cycle_index; i++) {
+ 		currentIndex = i / 2;
+ 		ret = blk_dwrite(mmc_dev_desc, rootfs_part_info.start + i * package_blk, package_blk, (void __iomem *)(addr + i * package_blk * rootfs_part_info.blksz));
+-		printf("Write progress: %3d:", i);
++		printf("Write progress: %3lld%:", i);
+ 		for(int col = 0; col < currentIndex; col++) {
+ 			printf("%s","+");
+ 		}
+@@ -896,7 +895,7 @@ static int do_rootfs_write(int argc, char *const argv[])
+ 	if(last_blk)
+ 	{
+ 		ret = blk_dwrite(mmc_dev_desc, rootfs_part_info.start + cycle_index * cycle_index, last_blk, (void __iomem *)(addr + cycle_index * package_blk * rootfs_part_info.blksz));
+-		printf("Write progress: %3d :", 100);
++		printf("Write progress: %3lld%:", 100);
+ 		for(int j = 0; j < 100/2; j ++)
+ 			printf("%s","+");
+ 		printf("\r\n");
+-- 
+2.25.1
+
