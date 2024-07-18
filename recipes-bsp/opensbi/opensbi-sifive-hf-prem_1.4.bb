@@ -18,6 +18,7 @@ SRC_URI:append = " \
 	file://0002-EIC770X-Added-changes-to-write-Fractional-register.patch \
 	file://0003-platform-eswin-Add-eic770X-UART-driver.patch \
 	file://0004-platform-eswin-Add-shutdown-and-reset-function.patch \
+	file://0001-lib-sbi-Add-Function-to-configure-FSCR.patch \
 "
 
 S = "${WORKDIR}/git"
