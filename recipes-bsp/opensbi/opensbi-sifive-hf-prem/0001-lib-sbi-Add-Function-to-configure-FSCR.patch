@@ -1,0 +1,179 @@
+From a462212456ae6463a973cd78ef66b0732fd8e049 Mon Sep 17 00:00:00 2001
+From: Darshan Prajapati <darshan.prajapati@einfochips.com>
+Date: Wed, 5 Jun 2024 12:12:22 +0530
+Subject: [PATCH] lib: sbi: Add Function to configure FSCR
+
+Set hitCacheThrdL2 and numL2PFIssQEnt
+in HW prefetcher 0 and prefetcher 1 register
+
+Upstream-Status: Pending
+
+Signed-off-by: Darshan Prajapati <darshan.prajapati@einfochips.com>
+---
+ include/sbi/sbi_hart.h |  3 +++
+ lib/sbi/sbi_hart.c     | 50 ++++++++++++++++++++++++++++++++++++++++++
+ lib/sbi/sbi_init.c     | 31 ++++++++++++++++++++++++++
+ 3 files changed, 84 insertions(+)
+
+diff --git a/include/sbi/sbi_hart.h b/include/sbi/sbi_hart.h
+index 47be251..17a1256 100644
+--- a/include/sbi/sbi_hart.h
++++ b/include/sbi/sbi_hart.h
+@@ -110,6 +110,9 @@ unsigned int sbi_hart_pmp_log2gran(struct sbi_scratch *scratch);
+ unsigned int sbi_hart_pmp_addrbits(struct sbi_scratch *scratch);
+ unsigned int sbi_hart_mhpm_bits(struct sbi_scratch *scratch);
+ int sbi_hart_pmp_configure(struct sbi_scratch *scratch);
++#ifdef CONFIG_PLATFORM_ESWIN
++void sbi_hart_blocker_fscr_configure(struct sbi_scratch *scratch);
++#endif
+ int sbi_hart_map_saddr(unsigned long base, unsigned long size);
+ int sbi_hart_unmap_saddr(void);
+ int sbi_hart_priv_version(struct sbi_scratch *scratch);
+diff --git a/lib/sbi/sbi_hart.c b/lib/sbi/sbi_hart.c
+index 770fee0..3472f88 100644
+--- a/lib/sbi/sbi_hart.c
++++ b/lib/sbi/sbi_hart.c
+@@ -23,6 +23,7 @@
+ #include <sbi/sbi_string.h>
+ #include <sbi/sbi_trap.h>
+ #include <sbi/sbi_hfence.h>
++#include <sbi/riscv_io.h>
+ 
+ extern void __sbi_expected_trap(void);
+ extern void __sbi_expected_trap_hext(void);
+@@ -558,6 +559,55 @@ int sbi_hart_pmp_configure(struct sbi_scratch *scratch)
+ 	return rc;
+ }
+ 
++#ifdef CONFIG_PLATFORM_ESWIN
++static void init_bus_blocker(void)
++{
++	#define BLOCKER_TL64D2D_OUT     (void *)0x200000
++	#define BLOCKER_TL256D2D_OUT    (void *)0x202000
++	#define BLOCKER_TL256D2D_IN     (void *)0x204000
++
++	writel(1,BLOCKER_TL64D2D_OUT);
++	writel(1,BLOCKER_TL256D2D_OUT);
++	writel(1,BLOCKER_TL256D2D_IN);
++}
++
++static void init_fcsr(void)
++{
++	unsigned long hwpf;     // Hardware Prefetcher 0 : 0x104095C1BE241 | Hardware Prefetcher 1 : 0x38c84e
++
++	hwpf = 0x104095C1BE241UL;
++	__asm__ volatile("csrw 0x7c3 , %0" : : "r"(hwpf));
++	hwpf = 0x929FUL;
++
++	//cleanup fields
++	hwpf &= (~(0x1f << 5)); //[9:5]  cleanup  hitCacheThrdL2
++	hwpf &= (~(0x7  << 14)); //[16:14] cleanup numL2PFIssQEnt
++
++	//set new value
++	hwpf |= (0x1f << 5); //[9:5]    hitCacheThrdL2
++	hwpf |= (0x7  << 14); //[16:14] numL2PFIssQEnt
++
++	__asm__ volatile("csrw 0x7c4 , %0" : : "r"(hwpf));
++
++	/* enable speculative icache refill */
++	__asm__ volatile("csrw 0x7c1 , x0" : :);
++	__asm__ volatile("csrw 0x7c2 , x0" : :);
++}
++
++void sbi_hart_blocker_fscr_configure(struct sbi_scratch *scratch)
++{
++	struct sbi_domain *dom = sbi_domain_thishart_ptr();
++
++	if (dom->boot_hartid == current_hartid()) {
++		/* if only one die, need config blocker to
++		   generate fake response when access remote target */
++		init_bus_blocker();
++	}
++
++	init_fcsr();
++}
++#endif
++
+ int sbi_hart_priv_version(struct sbi_scratch *scratch)
+ {
+ 	struct sbi_hart_features *hfeatures =
+diff --git a/lib/sbi/sbi_init.c b/lib/sbi/sbi_init.c
+index 6a98e13..8752a8a 100644
+--- a/lib/sbi/sbi_init.c
++++ b/lib/sbi/sbi_init.c
+@@ -12,6 +12,7 @@
+ #include <sbi/riscv_barrier.h>
+ #include <sbi/riscv_locks.h>
+ #include <sbi/sbi_console.h>
++#include <sbi/riscv_io.h>
+ #include <sbi/sbi_cppc.h>
+ #include <sbi/sbi_domain.h>
+ #include <sbi/sbi_ecall.h>
+@@ -362,6 +363,10 @@ static void __noreturn init_coldboot(struct sbi_scratch *scratch, u32 hartid)
+ 		sbi_hart_hang();
+ 	}
+ 
++#ifdef CONFIG_PLATFORM_ESWIN
++	sbi_hart_blocker_fscr_configure(scratch);
++#endif
++
+ 	/*
+ 	 * Note: Platform final initialization should be after finalizing
+ 	 * domains so that it sees correct domain assignment and PMP
+@@ -455,6 +460,10 @@ static void __noreturn init_warm_startup(struct sbi_scratch *scratch,
+ 	if (rc)
+ 		sbi_hart_hang();
+ 
++#ifdef CONFIG_PLATFORM_ESWIN
++	sbi_hart_blocker_fscr_configure(scratch);
++#endif
++
+ 	rc = sbi_platform_final_init(plat, false);
+ 	if (rc)
+ 		sbi_hart_hang();
+@@ -488,6 +497,10 @@ static void __noreturn init_warm_resume(struct sbi_scratch *scratch,
+ 	if (rc)
+ 		sbi_hart_hang();
+ 
++#ifdef CONFIG_PLATFORM_ESWIN
++	sbi_hart_blocker_fscr_configure(scratch);
++#endif
++
+ 	sbi_hsm_hart_resume_finish(scratch, hartid);
+ }
+ 
+@@ -531,6 +544,9 @@ void __noreturn sbi_init(struct sbi_scratch *scratch)
+ 	bool coldboot			= false;
+ 	u32 hartid			= current_hartid();
+ 	const struct sbi_platform *plat = sbi_platform_ptr(scratch);
++#ifdef CONFIG_PLATFORM_ESWIN
++	unsigned long hwpf;     // Hardware Prefetcher 0 : 0x104095C1BE241 | Hardware Prefetcher 1 : 0x38c84e
++#endif
+ 
+ 	for (i = 0; i < plat->hart_count; i++) {
+ 		h = (plat->hart_index2id) ? plat->hart_index2id[i] : i;
+@@ -580,6 +596,21 @@ void __noreturn sbi_init(struct sbi_scratch *scratch)
+ 	if (sbi_platform_nascent_init(plat))
+ 		sbi_hart_hang();
+ 
++#ifdef CONFIG_PLATFORM_ESWIN
++	hwpf = 0x104095C1BE241UL;
++	__asm__ volatile("csrw 0x7c3 , %0" : : "r"(hwpf));
++	hwpf = 0x929FUL;
++	//cleanup fields
++	hwpf &= (~(0x1f << 5)); //[9:5]  cleanup  hitCacheThrdL2
++	hwpf &= (~(0x7  << 14)); //[16:14] cleanup numL2PFIssQEnt
++
++	//set new value
++	hwpf |= (0x1f << 5); //[9:5]    hitCacheThrdL2
++	hwpf |= (0x7  << 14); //[16:14] numL2PFIssQEnt
++
++	__asm__ volatile("csrw 0x7c4 , %0" : : "r"(hwpf));
++#endif
++
+ 	if (coldboot)
+ 		init_coldboot(scratch, hartid);
+ 	else
+-- 
+2.25.1
+
