@@ -1,0 +1,10 @@
+header:
+  version: 11
+  includes:
+    - scripts/kas/include/meta-sifive-common.yml
+
+target:
+ - core-image-minimal
+ - core-image-sato
+
+machine: hifive-premier-p550
