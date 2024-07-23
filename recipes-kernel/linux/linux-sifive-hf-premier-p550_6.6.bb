@@ -14,7 +14,7 @@ SRCREV_meta ?= "f568a941bd5dd474b795b085e0faf22a83c0401a"
 KCONFIG_MODE = "--alldefconfig"
 
 KBUILD_DEFCONFIG ?= ""
-KBUILD_DEFCONFIG:hifive-premier-p550 ?= "defconfig"
+KBUILD_DEFCONFIG:hifive-premier-p550 ?= ""
 
 KERNEL_EXTRA_FEATURES ?= ""
 KERNEL_FEATURES:remove = "cfg/fs/vfat.scc"
@@ -25,6 +25,7 @@ require recipes-kernel/linux/linux-yocto.inc
 
 SRC_URI = "git://git@github.com/sifive/linux-kernel-hf-prem.git;protocol=ssh;name=machine;branch=${KBRANCH} \
            git://git.yoctoproject.org/yocto-kernel-cache;type=kmeta;name=meta;branch=yocto-6.6;destsuffix=${KMETA} \
+           file://defconfig \
            file://wifi.cfg"
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
