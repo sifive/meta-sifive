@@ -17,9 +17,9 @@ INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
 do_configure[noexec] = "1"
 do_install[noexec] = "1"
 
-DEPENDS:append:hifive-premier-p550 = " ddr-fw second-boot-fw opensbi-sifive-hf-prem"
+DEPENDS:append:hifive-premier-p550 = " ddr-fw second-boot-fw opensbi-sifive-hf-prem u-boot"
 
-do_compile[depends] += " ddr-fw:do_deploy second-boot-fw:do_deploy opensbi-sifive-hf-prem:do_deploy"
+do_compile[depends] += " ddr-fw:do_deploy second-boot-fw:do_deploy opensbi-sifive-hf-prem:do_deploy u-boot:do_compile"
 
 do_compile() {
 	install -m 755 ${WORKDIR}/git/nsign/nsign ${WORKDIR}
