@@ -4,7 +4,7 @@ inherit allarch
 LICENSE = "CLOSED"
 
 BRANCH = "master"
-SRCREV = "4c8736f9be8e5cb91009ced5794584d4fb7db97f"
+SRCREV = "8f50a502929e574f39aec0640a7b346d8b34dc1a"
 SRC_URI = "git://git@github.com/sifive/hifive-premier-p550-tools.git;branch=${BRANCH};protocol=ssh"
 
 S = "${WORKDIR}/git"
