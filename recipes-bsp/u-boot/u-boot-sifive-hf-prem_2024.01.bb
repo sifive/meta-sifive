@@ -5,7 +5,7 @@ PROVIDES += "u-boot"
 
 DEPENDS += "bc-native dtc-native"
 
-SRCREV = "12b274d50870dcd5bd49c5ef3c43f3e4f26de16b"
+SRCREV = "74fba32b790cf0a38aa3d16fc2ef064ac355cabd"
 SRC_URI = "git://github.com/eswincomputing/u-boot.git;protocol=https;branch=u-boot-2024.01-EIC7X"
 
 do_deploy:append () {
