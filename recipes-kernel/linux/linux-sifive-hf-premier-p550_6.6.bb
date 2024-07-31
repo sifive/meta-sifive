@@ -4,11 +4,11 @@ LICENSE = "GPL-2.0-only"
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
-KBRANCH ?= "dev/kernel/v6.6-hifive-premier-p550"
-KBRANCH:hifive-premier-p550 = "dev/kernel/v6.6-hifive-premier-p550"
+KBRANCH ?= "dev/kernel/v6.6.21-hifive-premier-p550"
+KBRANCH:hifive-premier-p550 = "dev/kernel/v6.6.21-hifive-premier-p550"
 
-SRCREV_machine ?= "f1f149f03e47d9dbc11a8c53421de81eebb048eb"
-SRCREV_machine:hifive-premier-p550 = "f1f149f03e47d9dbc11a8c53421de81eebb048eb"
+SRCREV_machine ?= "3c682634bb78c8f60dd3bf01ff065573d103fe1c"
+SRCREV_machine:hifive-premier-p550 = "3c682634bb78c8f60dd3bf01ff065573d103fe1c"
 SRCREV_meta ?= "f568a941bd5dd474b795b085e0faf22a83c0401a"
 
 KCONFIG_MODE = "--alldefconfig"
@@ -28,7 +28,7 @@ SRC_URI = "git://git@github.com/sifive/linux-kernel-hf-prem.git;protocol=ssh;nam
            file://defconfig"
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
-LINUX_VERSION ?= "6.6.12"
+LINUX_VERSION ?= "6.6.21"
 LINUX_VERSION_EXTENSION = ""
 
 PV = "${LINUX_VERSION}+git${SRCPV}"
