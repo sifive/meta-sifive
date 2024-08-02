@@ -1,0 +1,7 @@
+# Boot
+part /boot --source bootimg-partition --sourceparams="loader=u-boot" --fstype=vfat --label boot --active --fixed-size 100M --use-uuid --align 4096
+
+# Rootfs
+part / --source rootfs --fstype=ext4 --label root --fixed-size 10G --align 4096 --uuid a2245ecc-0e5c-4571-9809-1ce15e17c7aa
+
+bootloader --ptable gpt --configfile="hifive-premier-p550-sd-extlinux.conf"
