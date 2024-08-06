@@ -6,7 +6,8 @@ PROVIDES += "u-boot"
 DEPENDS += "bc-native dtc-native"
 
 SRCREV = "d5e2187d8e0e252aece81d0dd250007761a66307"
-SRC_URI = "git://github.com/eswincomputing/u-boot.git;protocol=https;branch=u-boot-2024.01-EIC7X"
+SRC_URI = "git://github.com/eswincomputing/u-boot.git;protocol=https;branch=u-boot-2024.01-EIC7X \
+           file://0001-riscv-hifive_premier_p550-defined-boot-media-sequenc.patch"
 
 do_deploy:append () {
 	install -m 755 ${B}/u-boot.dtb ${DEPLOYDIR}
