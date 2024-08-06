@@ -23,7 +23,7 @@ KERNEL_FEATURES:remove = "features/kernel-sample/kernel-sample.scc"
 
 require recipes-kernel/linux/linux-yocto.inc
 
-SRC_URI = "git://git@github.com/sifive/linux-kernel-hf-prem.git;protocol=ssh;name=machine;branch=${KBRANCH} \
+SRC_URI = "git://git@github.com/sifive/riscv-linux.git;protocol=ssh;name=machine;branch=${KBRANCH} \
            git://git.yoctoproject.org/yocto-kernel-cache;type=kmeta;name=meta;branch=yocto-6.6;destsuffix=${KMETA} \
            file://defconfig"
 
