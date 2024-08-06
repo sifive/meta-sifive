@@ -1,0 +1,57 @@
+From 4019f0a6380e97810ac31107cde3454f1ef20b0e Mon Sep 17 00:00:00 2001
+From: Darshan Prajapati <darshan.prajapati@einfochips.com>
+Date: Fri, 2 Aug 2024 11:27:44 +0000
+Subject: [PATCH] riscv/hifive_premier_p550: defined boot media sequence
+
+prioritized boot media as below.
+    SD-CARD->USB->SATA->eMMC->DHCP
+removed unused SATA_ENV
+
+Signed-off-by: Darshan Prajapati <darshan.prajapati@einfochips.com>
+---
+ include/configs/hifive_premier_p550.h | 15 +++------------
+ 1 file changed, 3 insertions(+), 12 deletions(-)
+
+diff --git a/include/configs/hifive_premier_p550.h b/include/configs/hifive_premier_p550.h
+index 4f921c4a0a..e2650940be 100644
+--- a/include/configs/hifive_premier_p550.h
++++ b/include/configs/hifive_premier_p550.h
+@@ -11,19 +11,9 @@
+ #include <linux/sizes.h>
+ 
+ #define CFG_MALLOC_F_ADDR   0xf0000000
+-// #define CONFIG_BOOT_SATA
+-
+-/* Environment options */
+-#define BOOT_TARGET_DEVICES(func) \
+-    func(MMC, mmc, 0) \
+-    func(DHCP, dhcp, na)
+ 
+ #include <config_distro_bootcmd.h>
+ 
+-#define SATA_ENV \
+-    "sata_init=sata init\0" \
+-    "loadimage=fatload sata 0:1 0x90000000 fitimage\0"
+-
+ #define CFG_EXTRA_ENV_SETTINGS \
+     "bootdelay=2\0" \
+     "fdt_high=0xffffffffffffffff\0" \
+@@ -48,11 +38,12 @@
+     "uuid_root=80a5a8e9-c744-491a-93c1-4f4194fd690a\0" \
+     "uuid_swap=5ebcaaf0-e098-43b9-beef-1f8deedd135e\0" \
+     "partitions=name=boot,start=1MiB,size=512MiB,type=${typeid_efi};name=swap,size=4096MiB,type=${typeid_swap},uuid=${uuid_swap};name=root,size=30GiB,type=${typeid_filesystem},uuid=${uuid_root};name=userdata,type=${typeid_filesystem},size=-;\0" \
+-    "gpt_partition=gpt write mmc ${emmc_dev} $partitions\0"
++    "gpt_partition=gpt write mmc ${emmc_dev} $partitions\0" \
++    "boot_targets=mmc1 usb sata mmc0\0"
+ 
+ #undef CONFIG_BOOTCOMMAND
+ #define CONFIG_BOOTCOMMAND \
+     "bootflow scan;"
+ 
+ 
+-#endif /* __CONFIG_H */
+\ No newline at end of file
++#endif /* __CONFIG_H */
+-- 
+2.25.1
+
