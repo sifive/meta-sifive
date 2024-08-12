@@ -1,0 +1,31 @@
+From 5bd3fdbd1930f52fbeddfbe6dec9de2aea4f1b50 Mon Sep 17 00:00:00 2001
+From: Pritesh Patel <pritesh.patel@einfochips.com>
+Date: Mon, 12 Aug 2024 14:02:30 +0000
+Subject: [PATCH] Changes in CMakeLists.txt
+
+---
+ src/CMakeLists.txt | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index fc8e785..17c3835 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -1,8 +1,7 @@
+ ﻿cmake_minimum_required (VERSION 3.8)
+
+ if(CMAKE_COMPILER_IS_GNUCXX)
+-	set(CMAKE_CXX_FLAGS "-std=c++11 -g -D_DEBUG -O0" ${CMAKE_CXX_FLAGS})
+-	message(status "optional:-std=c++11")
++	add_compile_options(-std=c++11 -g -D_DEBUG -O0)
+ endif(CMAKE_COMPILER_IS_GNUCXX)
+
+
+@@ -40,3 +39,4 @@ elseif (UNIX)
+ 	endif()
+ endif ()
+
++install(TARGETS nsign DESTINATION bin)
+--
+2.25.1
+
