@@ -5,7 +5,7 @@ PROVIDES += "u-boot"
 
 DEPENDS += "bc-native dtc-native"
 
-SRCREV = "d5e2187d8e0e252aece81d0dd250007761a66307"
+SRCREV = "e54623798270b733cf97126c155260da6073a682"
 SRC_URI = "git://github.com/eswincomputing/u-boot.git;protocol=https;branch=u-boot-2024.01-EIC7X \
            file://0001-riscv-hifive_premier_p550-defined-boot-media-sequenc.patch"
 
