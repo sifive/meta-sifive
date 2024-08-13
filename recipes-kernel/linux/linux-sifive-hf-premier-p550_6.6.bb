@@ -4,8 +4,8 @@ LICENSE = "GPL-2.0-only"
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
-KBRANCH ?= "dev/kernel/v6.6.21-hifive-premier-p550"
-KBRANCH:hifive-premier-p550 = "dev/kernel/v6.6.21-hifive-premier-p550"
+KBRANCH ?= "dev/kernel/hifive-premier-p550"
+KBRANCH:hifive-premier-p550 = "dev/kernel/hifive-premier-p550"
 
 SRCREV_machine ?= "06736c00195027578977359188b53b2f41d0be80"
 SRCREV_machine:hifive-premier-p550 = "06736c00195027578977359188b53b2f41d0be80"
