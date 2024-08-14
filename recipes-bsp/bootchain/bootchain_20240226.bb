@@ -3,10 +3,6 @@ inherit allarch
 
 LICENSE = "CLOSED"
 
-BRANCH = "master"
-SRCREV = "012689c0bfd558e51cccdd6ddb7e81a517e3a5c8"
-SRC_URI = "git://git@github.com/sifive/hifive-premier-p550-tools.git;branch=${BRANCH};protocol=ssh"
-
 SRC_URI:append:hifive-premier-p550 = " file://nsign.cfg"
 
 S = "${WORKDIR}"
