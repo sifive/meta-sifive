@@ -7,8 +7,8 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 KBRANCH ?= "dev/kernel/hifive-premier-p550"
 KBRANCH:hifive-premier-p550 = "dev/kernel/hifive-premier-p550"
 
-SRCREV_machine ?= "29ac17434e527396c06a82888f837c031f749e7e"
-SRCREV_machine:hifive-premier-p550 = "29ac17434e527396c06a82888f837c031f749e7e"
+SRCREV_machine ?= "081fb3f3f593861cbb98ece130b45f7a90140b10"
+SRCREV_machine:hifive-premier-p550 = "081fb3f3f593861cbb98ece130b45f7a90140b10"
 SRCREV_meta ?= "f568a941bd5dd474b795b085e0faf22a83c0401a"
 
 KCONFIG_MODE = "--alldefconfig"
