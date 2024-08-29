@@ -1,0 +1,59 @@
+From 81f8bcdb2bb036351c99262c7c462ba12f526262 Mon Sep 17 00:00:00 2001
+From: Darshan Prajapati <darshan.prajapati@einfochips.com>
+Date: Wed, 5 Jun 2024 12:07:55 +0530
+Subject: [PATCH 3/5] lib: utils: Add argument in sbi_domain_memregion_init
+
+0 - for generic call
+1 - for TOR size
+
+Upstream-Status: Pending
+
+Signed-off-by: Darshan Prajapati <darshan.prajapati@einfochips.com>
+---
+ lib/utils/ipi/aclint_mswi.c | 2 +-
+ lib/utils/irqchip/aplic.c   | 2 +-
+ lib/utils/irqchip/imsic.c   | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/lib/utils/ipi/aclint_mswi.c b/lib/utils/ipi/aclint_mswi.c
+index 4ae6bb1..d49f491 100644
+--- a/lib/utils/ipi/aclint_mswi.c
++++ b/lib/utils/ipi/aclint_mswi.c
+@@ -121,7 +121,7 @@ int aclint_mswi_cold_init(struct aclint_mswi_data *mswi)
+ 					  (SBI_DOMAIN_MEMREGION_MMIO |
+ 					   SBI_DOMAIN_MEMREGION_M_READABLE |
+ 					   SBI_DOMAIN_MEMREGION_M_WRITABLE),
+-					  &reg);
++					  &reg,0);
+ 		rc = sbi_domain_root_add_memregion(&reg);
+ 		if (rc)
+ 			return rc;
+diff --git a/lib/utils/irqchip/aplic.c b/lib/utils/irqchip/aplic.c
+index 10236e7..78b3893 100644
+--- a/lib/utils/irqchip/aplic.c
++++ b/lib/utils/irqchip/aplic.c
+@@ -272,7 +272,7 @@ int aplic_cold_irqchip_init(struct aplic_data *aplic)
+ 					  (SBI_DOMAIN_MEMREGION_MMIO |
+ 					   SBI_DOMAIN_MEMREGION_M_READABLE |
+ 					   SBI_DOMAIN_MEMREGION_M_WRITABLE),
+-					  &reg);
++					  &reg,0);
+ 		rc = sbi_domain_root_add_memregion(&reg);
+ 		if (rc)
+ 			return rc;
+diff --git a/lib/utils/irqchip/imsic.c b/lib/utils/irqchip/imsic.c
+index 36ef66c..8ec21e7 100644
+--- a/lib/utils/irqchip/imsic.c
++++ b/lib/utils/irqchip/imsic.c
+@@ -369,7 +369,7 @@ int imsic_cold_irqchip_init(struct imsic_data *imsic)
+ 					  (SBI_DOMAIN_MEMREGION_MMIO |
+ 					   SBI_DOMAIN_MEMREGION_M_READABLE |
+ 					   SBI_DOMAIN_MEMREGION_M_WRITABLE),
+-					  &reg);
++					  &reg,0);
+ 		rc = sbi_domain_root_add_memregion(&reg);
+ 		if (rc)
+ 			return rc;
+-- 
+2.25.1
+
