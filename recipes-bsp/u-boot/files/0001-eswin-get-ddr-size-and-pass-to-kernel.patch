@@ -1,0 +1,61 @@
+From d1eb22ef919ee10b9ccc34d5594d23de3b7a0a20 Mon Sep 17 00:00:00 2001
+From: Pritesh Patel <pritesh.patel@einfochips.com>
+Date: Thu, 22 Aug 2024 06:58:56 +0000
+Subject: [PATCH] get ddr size and pass to kernel
+
+Signed-off-by: Xiang Xu <xuxiang@eswincomputing.com>
+---
+ arch/riscv/cpu/eic7700/dram.c                     | 15 ++++++++++++---
+ .../hifive_premier_p550/hifive_premier_p550.c     |  1 +
+ 2 files changed, 13 insertions(+), 3 deletions(-)
+
+diff --git a/arch/riscv/cpu/eic7700/dram.c b/arch/riscv/cpu/eic7700/dram.c
+index 23ac57ac..d5bf520e 100644
+--- a/arch/riscv/cpu/eic7700/dram.c
++++ b/arch/riscv/cpu/eic7700/dram.c
+@@ -15,9 +15,18 @@ DECLARE_GLOBAL_DATA_PTR;
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+ 
++/* 32 GB */
++#define DDR_SIZE_MAX    	0x800000000
++
++/* 128 MB offset */
++#define RAM_BASE_OFFSET 	0x8000000
++
+ int dram_init(void)
+ {
+-	return fdtdec_setup_mem_size_base();
++	int ret = fdtdec_setup_mem_size_base();
++	unsigned long base_with_offset = (gd->ram_base + RAM_BASE_OFFSET);
++	gd->ram_size = get_ram_size(base_with_offset, DDR_SIZE_MAX);
++	return ret;
+ }
+ 
+ int dram_init_banksize(void)
+@@ -54,8 +63,8 @@ void efi_add_known_memory(void)
+ 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+ 		u64 ram_end, ram_start, ram_top;
+ 
+-		ram_start = (uintptr_t)map_sysmem(gd->bd->bi_dram[i].start, 0);
+-		ram_end = ram_start + gd->bd->bi_dram[i].size;
++		ram_start = (uintptr_t)gd->ram_base;
++		ram_end = ram_start + gd->ram_size;
+ 		ram_top = ram_end;
+ 		efi_add_conventional_memory_map(ram_start, ram_end, ram_top);
+ 	}
+diff --git a/board/eswin/hifive_premier_p550/hifive_premier_p550.c b/board/eswin/hifive_premier_p550/hifive_premier_p550.c
+index 45d18fb9..297c6c33 100644
+--- a/board/eswin/hifive_premier_p550/hifive_premier_p550.c
++++ b/board/eswin/hifive_premier_p550/hifive_premier_p550.c
+@@ -133,6 +133,7 @@ int misc_init_r(void)
+ 
+ 	uclass_get_device_by_name(UCLASS_VIDEO, "display-subsystem", &dev);
+ 
++	env_set_ulong("ram_size", (gd->ram_size / 1024 / 1024 / 1024));
+ 	return 0;
+ }
+ 
+-- 
+2.17.1
+
