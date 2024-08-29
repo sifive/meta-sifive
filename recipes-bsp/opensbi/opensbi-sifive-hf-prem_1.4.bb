@@ -20,6 +20,11 @@ SRC_URI:append = " \
 	file://0004-platform-eswin-Add-shutdown-and-reset-function.patch \
 	file://0001-lib-sbi-Add-Function-to-configure-FSCR.patch \
 	file://0001-lib-sbi-Modify-CSR-values.patch \
+	file://0001-lib-sbi-eic770x-Add-PMP-for-TOR-region.patch \
+	file://0002-include-sbi_domain-Added-TOR-NAPOT-region-support.patch \
+	file://0003-lib-utils-Add-argument-in-sbi_domain_memregion_init.patch \
+	file://0004-lib-sbi-Set-tor-size.patch \
+	file://0005-lib-sbi-memregion-init-in-sbi_domain_init.patch \
 "
 
 S = "${WORKDIR}/git"

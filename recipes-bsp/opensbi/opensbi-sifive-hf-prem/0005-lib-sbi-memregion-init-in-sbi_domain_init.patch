@@ -1,0 +1,104 @@
+From 3dbe9df6a7000a68abca056ecf5e1b93da196957 Mon Sep 17 00:00:00 2001
+From: Darshan Prajapati <darshan.prajapati@einfochips.com>
+Date: Wed, 5 Jun 2024 12:22:38 +0530
+Subject: [PATCH 5/5] lib: sbi: memregion init in sbi_domain_init
+
+Init memory region for MMIO and reserve memory of 2GB for DDR ECC.
+This region will be set to PMP from init_coldboot and init_warmboot
+
+Upstream-Status: Pending
+
+Signed-off-by: Darshan Prajapati <darshan.prajapati@einfochips.com>
+---
+ lib/sbi/sbi_domain.c | 37 +++++++++++++++++++++++++++++++++----
+ 1 file changed, 33 insertions(+), 4 deletions(-)
+
+diff --git a/lib/sbi/sbi_domain.c b/lib/sbi/sbi_domain.c
+index 632c407..d4fa3ff 100644
+--- a/lib/sbi/sbi_domain.c
++++ b/lib/sbi/sbi_domain.c
+@@ -29,6 +29,10 @@ static bool domain_finalized = false;
+ #define ROOT_REGION_MAX	16
+ static u32 root_memregs_count = 0;
+ 
++#ifdef CONFIG_PLATFORM_ESWIN
++static struct sbi_domain_memregion root_hole_region;
++#endif
++
+ struct sbi_domain root = {
+ 	.name = "root",
+ 	.possible_harts = NULL,
+@@ -82,6 +86,16 @@ ulong sbi_domain_get_assigned_hartmask(const struct sbi_domain *dom,
+ 	return ret;
+ }
+ 
++#ifdef CONFIG_PLATFORM_ESWIN
++static void domain_memregion_inithole(struct sbi_domain_memregion *reg)
++{
++       if (!reg)
++               return;
++
++       sbi_memcpy(reg, &root_hole_region, sizeof(*reg));
++}
++#endif
++
+ void sbi_domain_memregion_init(unsigned long addr,
+ 				unsigned long size,
+ 				unsigned long flags,
+@@ -654,9 +668,11 @@ int sbi_domain_root_add_memregion(const struct sbi_domain_memregion *reg)
+ int sbi_domain_root_add_memrange(unsigned long addr, unsigned long size,
+ 			   unsigned long align, unsigned long region_flags)
+ {
++#ifndef CONFIG_PLATFORM_ESWIN
+ 	int rc;
+-	unsigned long pos, end, rsize;
+ 	struct sbi_domain_memregion reg;
++#endif
++	unsigned long pos, end, rsize;
+ 
+ 	pos = addr;
+ 	end = addr + size;
+@@ -668,10 +684,12 @@ int sbi_domain_root_add_memrange(unsigned long addr, unsigned long size,
+ 			rsize = ((end - pos) < align) ?
+ 				(end - pos) : align;
+ 
+-		sbi_domain_memregion_init(pos, rsize, region_flags, &reg);
++	#ifndef CONFIG_PLATFORM_ESWIN
++		sbi_domain_memregion_init(pos, rsize, region_flags, &reg,0);
+ 		rc = sbi_domain_root_add_memregion(&reg);
+ 		if (rc)
+ 			return rc;
++	#endif
+ 		pos += rsize;
+ 	}
+ 
+@@ -785,13 +803,24 @@ int sbi_domain_init(struct sbi_scratch *scratch, u32 cold_hartid)
+ 	sbi_domain_memregion_init(scratch->fw_start, scratch->fw_rw_offset,
+ 				  (SBI_DOMAIN_MEMREGION_M_READABLE |
+ 				   SBI_DOMAIN_MEMREGION_M_EXECUTABLE),
+-				  &root_memregs[root_memregs_count++]);
++				  &root_memregs[root_memregs_count++],0);
++
++#ifdef CONFIG_PLATFORM_ESWIN
++	sbi_domain_memregion_init(0x2000000UL, 0xbfffUL, SBI_DOMAIN_MEMREGION_MMIO,
++				&root_hole_region,0);
++	domain_memregion_inithole(&root_memregs[root_memregs_count++]);
+ 
++	sbi_domain_memregion_init(0x1000000000UL, 0x3fffffUL, SBI_DOMAIN_MEMREGION_ENF_PERMISSIONS,
++				&root_hole_region,0x7000000000UL);
++	domain_memregion_inithole(&root_memregs[root_memregs_count++]);
++
++#else
+ 	sbi_domain_memregion_init((scratch->fw_start + scratch->fw_rw_offset),
+ 				  (scratch->fw_size - scratch->fw_rw_offset),
+ 				  (SBI_DOMAIN_MEMREGION_M_READABLE |
+ 				   SBI_DOMAIN_MEMREGION_M_WRITABLE),
+-				  &root_memregs[root_memregs_count++]);
++				  &root_memregs[root_memregs_count++],0);
++#endif
+ 
+ 	root.fw_region_inited = true;
+ 
+-- 
+2.25.1
+
