@@ -18,7 +18,7 @@ DEPENDS:append:hifive-premier-p550 = " ddr-fw second-boot-fw opensbi-sifive-hf-p
 do_compile[depends] += " ddr-fw:do_deploy second-boot-fw:do_deploy opensbi-sifive-hf-prem:do_deploy u-boot:do_compile"
 
 do_compile() {
-	install -m 755 ${DEPLOY_DIR_IMAGE}/ddr_fw/ddr5_fw.bin ${WORKDIR}/
+	install -m 755 ${DEPLOY_DIR_IMAGE}/ddr_fw/ddr_fw.bin ${WORKDIR}/
 	install -m 755 ${DEPLOY_DIR_IMAGE}/second_boot_fw/second_boot_fw.bin ${WORKDIR}/
 	install -m 755 ${DEPLOY_DIR_IMAGE}/fw_payload.bin ${WORKDIR}/
 	cd ${WORKDIR} && nsign ./nsign.cfg
