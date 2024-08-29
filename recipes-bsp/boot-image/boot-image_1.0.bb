@@ -13,5 +13,5 @@ do_install() {
 	mformat -Fi ${DEPLOY_DIR_IMAGE}/boot.vfat ::
 	mcopy -i ${DEPLOY_DIR_IMAGE}/boot.vfat ${DEPLOY_DIR_IMAGE}/Image.gz \
 	    ${DEPLOY_DIR_IMAGE}/extlinux/ \
-	    ${DEPLOY_DIR_IMAGE}/hifive-premier-p550.dtb ::
+	    ${DEPLOY_DIR_IMAGE}/eic7700-hifive-premier-p550.dtb ::
 }
