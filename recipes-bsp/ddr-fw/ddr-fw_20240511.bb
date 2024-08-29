@@ -4,7 +4,7 @@ inherit allarch
 LICENSE = "CLOSED"
 
 BRANCH = "master"
-SRCREV = "c8f743cc28e3de85631bffd85461bd300770f4f6"
+SRCREV = "43ec142e5a9d95820b0a06e51863931229e6f71b"
 SRC_URI = "git://git@github.com/sifive/hifive-premier-p550-tools.git;branch=${BRANCH};protocol=ssh"
 
 S = "${WORKDIR}/git"
@@ -19,7 +19,7 @@ do_install[noexec] = "1"
 
 do_deploy () {
 	install -d ${DEPLOYDIR}/ddr_fw
-	install -m 755 ${S}/ddr-fw/ddr5_fw.bin ${DEPLOYDIR}/ddr_fw
+	install -m 755 ${S}/ddr-fw/ddr_fw.bin ${DEPLOYDIR}/ddr_fw/
 }
 
 addtask deploy after do_install
