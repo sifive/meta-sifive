@@ -1,7 +1,7 @@
-From 4b53df0756eb7666279b7397ff5dada1a04f406e Mon Sep 17 00:00:00 2001
+From 05f63017ab8bdab3a50fcc1dc554c37e645ab691 Mon Sep 17 00:00:00 2001
 From: Darshan Prajapati <darshan.prajapati@einfochips.com>
-Date: Tue, 13 Aug 2024 07:29:22 +0000
-Subject: [PATCH] riscv/hifive_premier_p550: defined boot media sequence
+Date: Thu, 12 Sep 2024 13:38:17 +0000
+Subject: [PATCH] riscv: hifive_premier_p550: defined boot media sequence
 
 prioritized boot media as below:
     SD-CARD->USB->SATA->eMMC->DHCP
@@ -9,14 +9,14 @@ removed unused SATA_ENV
 
 Signed-off-by: Darshan Prajapati <darshan.prajapati@einfochips.com>
 ---
- include/configs/hifive_premier_p550.h | 13 ++-----------
- 1 file changed, 2 insertions(+), 11 deletions(-)
+ include/configs/hifive_premier_p550.h | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
 diff --git a/include/configs/hifive_premier_p550.h b/include/configs/hifive_premier_p550.h
-index a2ad33dbc46..9574fcf61f8 100644
+index e655592eb9..b78f36a0db 100644
 --- a/include/configs/hifive_premier_p550.h
 +++ b/include/configs/hifive_premier_p550.h
-@@ -11,19 +11,9 @@
+@@ -11,12 +11,6 @@
  #include <linux/sizes.h>
  
  #define CFG_MALLOC_F_ADDR   0xf0000000
@@ -29,17 +29,10 @@ index a2ad33dbc46..9574fcf61f8 100644
  
  #include <config_distro_bootcmd.h>
  
--#define SATA_ENV \
--    "sata_init=sata init\0" \
--    "loadimage=fatload sata 0:1 0x90000000 fitimage\0"
--
- #define CFG_EXTRA_ENV_SETTINGS \
-     "bootdelay=2\0" \
-     "fdt_high=0xffffffffffffffff\0" \
-@@ -48,7 +38,8 @@
+@@ -45,7 +39,8 @@
      "uuid_root=80a5a8e9-c744-491a-93c1-4f4194fd690a\0" \
      "uuid_swap=5ebcaaf0-e098-43b9-beef-1f8deedd135e\0" \
-     "partitions=name=boot,start=1MiB,size=512MiB,type=${typeid_efi};name=swap,size=4096MiB,type=${typeid_swap},uuid=${uuid_swap};name=root,size=30GiB,type=${typeid_filesystem},uuid=${uuid_root};name=userdata,type=${typeid_filesystem},size=-;\0" \
+     "partitions=name=boot,start=1MiB,size=512MiB,type=${typeid_efi},uuid=${uuid_boot};name=swap,size=4096MiB,type=${typeid_swap},uuid=${uuid_swap};name=root,size=30GiB,type=${typeid_filesystem},uuid=${uuid_root};name=userdata,type=${typeid_filesystem},size=-;\0" \
 -    "gpt_partition=gpt write mmc ${emmc_dev} $partitions\0"
 +    "gpt_partition=gpt write mmc ${emmc_dev} $partitions\0" \
 +    "boot_targets=mmc1 usb sata mmc0\0"
