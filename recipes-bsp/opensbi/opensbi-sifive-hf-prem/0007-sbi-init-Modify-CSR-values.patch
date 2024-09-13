@@ -1,0 +1,63 @@
+From 28d80b3904a91af7161e82eafb3e589c5bc00577 Mon Sep 17 00:00:00 2001
+From: Pritesh Patel <pritesh.patel@einfochips.com>
+Date: Thu, 12 Sep 2024 10:30:59 +0000
+Subject: [PATCH 7/7] sbi: init: Modify CSR values
+
+Modify below CSR with new values
+0x7C1 --> 0x4000
+0x7C2 --> 0x80
+0x7C3 --> 0x5c1be649
+0x7C4 --> 0x929f
+
+Upstream-Status: Pending
+
+Signed-off-by: Pritesh Patel <pritesh.patel@einfochips.com>
+---
+ lib/sbi/sbi_init.c | 19 ++++++++-----------
+ 1 file changed, 8 insertions(+), 11 deletions(-)
+
+diff --git a/lib/sbi/sbi_init.c b/lib/sbi/sbi_init.c
+index 263ddcb..931ba7c 100644
+--- a/lib/sbi/sbi_init.c
++++ b/lib/sbi/sbi_init.c
+@@ -544,9 +544,6 @@ void __noreturn sbi_init(struct sbi_scratch *scratch)
+ 	bool coldboot			= false;
+ 	u32 hartid			= current_hartid();
+ 	const struct sbi_platform *plat = sbi_platform_ptr(scratch);
+-#ifdef CONFIG_PLATFORM_ESWIN
+-	unsigned long hwpf;     // Hardware Prefetcher 0 : 0x104095C1BE241 | Hardware Prefetcher 1 : 0x38c84e
+-#endif
+ 
+ 	for (i = 0; i < plat->hart_count; i++) {
+ 		h = (plat->hart_index2id) ? plat->hart_index2id[i] : i;
+@@ -597,19 +594,19 @@ void __noreturn sbi_init(struct sbi_scratch *scratch)
+ 		sbi_hart_hang();
+ 
+ #ifdef CONFIG_PLATFORM_ESWIN
+-	/* Set CSR 0x7C1 to 0 to enable speculative icache refill */
+-	__asm__ volatile("csrw 0x7c1 , x0" : :);
+ 
+-	/* Set CSR 0x7C2 to 0 */
+-	__asm__ volatile("csrw 0x7c2 , x0" : :);
++	/* disable indirect jump predictor and enable speculative icache refill */
++	csr_write(0x7C1, 0x4000);
++
++	/* Force noisy evict to send release message from any valid coherence permission state */
++	csr_write(0x7C2, 0x80);
+ 
+ 	/* Set CSR 0x7C3 to 0x5c1be649 */
+-	hwpf = 0x5c1be649UL;
+-	__asm__ volatile("csrw 0x7c3 , %0" : : "r"(hwpf));
++	csr_write(0x7C3, 0x5c1be649);
+ 
+ 	/* Set CSR 0x7C4 to 0x929F */
+-	hwpf = 0x929FUL;
+-	__asm__ volatile("csrw 0x7c4 , %0" : : "r"(hwpf));
++	csr_write(0x7C4, 0x929f);
++
+ #endif
+ 
+ 	if (coldboot)
+-- 
+2.25.1
+

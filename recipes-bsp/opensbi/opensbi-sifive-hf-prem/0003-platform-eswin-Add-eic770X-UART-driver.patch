@@ -1,7 +1,7 @@
-From f0798ccda10be7f76061527b9b36155491574362 Mon Sep 17 00:00:00 2001
+From 166197b02b271e575d859ff98e50e50e2b772120 Mon Sep 17 00:00:00 2001
 From: Darshan Prajapati <darshan.prajapati@einfochips.com>
 Date: Tue, 25 Jun 2024 15:32:46 +0530
-Subject: [PATCH 3/4] platform: eswin: Add eic770X UART driver
+Subject: [PATCH 3/7] platform: eswin: Add eic770X UART driver
 
 Add UART driver for communication with MCU
 
@@ -9,40 +9,30 @@ Upstream-Status: Pending
 
 Signed-off-by: Darshan Prajapati <darshan.prajapati@einfochips.com>
 ---
- platform/eswin/eic770x/eic770x_uart.c | 148 ++++++++++++++++++++++++++
- platform/eswin/eic770x/eic770x_uart.h | 109 +++++++++++++++++++
+ platform/eswin/eic770x/eic770x_uart.c | 138 ++++++++++++++++++++++++++
+ platform/eswin/eic770x/eic770x_uart.h |  98 ++++++++++++++++++
  platform/eswin/eic770x/objects.mk     |   1 +
  platform/eswin/eic770x/platform.c     |  14 +++
- 4 files changed, 272 insertions(+)
+ 4 files changed, 251 insertions(+)
  create mode 100644 platform/eswin/eic770x/eic770x_uart.c
  create mode 100644 platform/eswin/eic770x/eic770x_uart.h
 
 diff --git a/platform/eswin/eic770x/eic770x_uart.c b/platform/eswin/eic770x/eic770x_uart.c
 new file mode 100644
-index 0000000..c93f17e
+index 0000000..9fdb2ba
 --- /dev/null
 +++ b/platform/eswin/eic770x/eic770x_uart.c
-@@ -0,0 +1,148 @@
+@@ -0,0 +1,138 @@
++// SPDX-License-Identifier: BSD-2-Clause
 +/*
-+ * SPDX-License-Identifier: BSD-2-Clause
++ * eic770x_uart.c is the UART2 APIs, which is used to communicate with
++ * the BMC on HF106 board.
 + *
-+ ****************************************************************
++ * Copyright 2024 Beijing ESWIN Computing Technology Co., Ltd.
 + *
-+ *  Copyright (C) 2022  Beiing Eswin Co. Ltd
++ * Authors:
++ *   Yifeng Huang <huangyifeng@eswincomputing.com>
 + *
-+ *    This program is free software: you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License Version 2
-+ *  as published by the Free Software Foundation.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-+ *
-+ *  You should have received a copy of the GNU General Public License Version 2
-+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
-+ *
-+ *
-+ ****************************************************************
 + */
 +
 +#include <sbi/riscv_locks.h>
@@ -173,30 +163,19 @@ index 0000000..c93f17e
 +}
 diff --git a/platform/eswin/eic770x/eic770x_uart.h b/platform/eswin/eic770x/eic770x_uart.h
 new file mode 100644
-index 0000000..9dc764f
+index 0000000..de97936
 --- /dev/null
 +++ b/platform/eswin/eic770x/eic770x_uart.h
-@@ -0,0 +1,109 @@
+@@ -0,0 +1,98 @@
++// SPDX-License-Identifier: BSD-2-Clause
 +/*
-+ * SPDX-License-Identifier: BSD-2-Clause
++ * The header file of eic770x_uart.c.
 + *
-+ ****************************************************************
++ * Copyright 2024 Beijing ESWIN Computing Technology Co., Ltd.
 + *
-+ *  Copyright (C) 2022  Beiing Eswin Co. Ltd
++ * Authors:
++ *   Yifeng Huang <huangyifeng@eswincomputing.com>
 + *
-+ *    This program is free software: you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License Version 2
-+ *  as published by the Free Software Foundation.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-+ *
-+ *  You should have received a copy of the GNU General Public License Version 2
-+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
-+ *
-+ *
-+ ****************************************************************
 + */
 +#ifndef _EIC770X_UART_H_
 +#define _EIC770X_UART_H_
@@ -287,10 +266,10 @@ index 0000000..9dc764f
 +
 +#endif
 diff --git a/platform/eswin/eic770x/objects.mk b/platform/eswin/eic770x/objects.mk
-index e4b476d..92aa6d4 100644
+index f713778..8535107 100644
 --- a/platform/eswin/eic770x/objects.mk
 +++ b/platform/eswin/eic770x/objects.mk
-@@ -21,6 +21,7 @@
+@@ -9,6 +9,7 @@
  #
  
  platform-objs-$(CONFIG_PLATFORM_ESWIN) += platform.o
@@ -299,10 +278,10 @@ index e4b476d..92aa6d4 100644
  # Compiler flags
  platform-cppflags-y =
 diff --git a/platform/eswin/eic770x/platform.c b/platform/eswin/eic770x/platform.c
-index 6d701c6..c3e672a 100644
+index 713683a..f252fe4 100644
 --- a/platform/eswin/eic770x/platform.c
 +++ b/platform/eswin/eic770x/platform.c
-@@ -142,6 +142,20 @@ static struct sbi_system_reset_device eic770x_reset = {
+@@ -133,6 +133,20 @@ static struct sbi_system_reset_device eic770x_reset = {
  	.system_reset = eic770x_system_reset
  };
  

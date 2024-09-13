@@ -1,7 +1,7 @@
-From 197eee98d73ca9dea827937ccc74b6863d8623bc Mon Sep 17 00:00:00 2001
+From fca38cd3252102fdb4d7e119a2d0e2cab3806ae6 Mon Sep 17 00:00:00 2001
 From: Darshan Prajapati <darshan.prajapati@einfochips.com>
 Date: Wed, 5 Jun 2024 11:45:33 +0530
-Subject: [PATCH 1/4] platform: Add ESWIN EIC770x platform
+Subject: [PATCH 1/7] platform: Add ESWIN EIC770x platform
 
 ESWIN EIC770x is a 64-bit RISC-V core.
 
@@ -11,9 +11,9 @@ Signed-off-by: Darshan Prajapati <darshan.prajapati@einfochips.com>
 ---
  platform/eswin/eic770x/Kconfig           |  25 +++
  platform/eswin/eic770x/configs/defconfig |  35 ++++
- platform/eswin/eic770x/objects.mk        |  43 ++++
- platform/eswin/eic770x/platform.c        | 253 +++++++++++++++++++++++
- 4 files changed, 356 insertions(+)
+ platform/eswin/eic770x/objects.mk        |  31 +++
+ platform/eswin/eic770x/platform.c        | 244 +++++++++++++++++++++++
+ 4 files changed, 335 insertions(+)
  create mode 100644 platform/eswin/eic770x/Kconfig
  create mode 100644 platform/eswin/eic770x/configs/defconfig
  create mode 100644 platform/eswin/eic770x/objects.mk
@@ -93,30 +93,18 @@ index 0000000..1df8dbe
 +CONFIG_FDT_TIMER_PLMT=y
 diff --git a/platform/eswin/eic770x/objects.mk b/platform/eswin/eic770x/objects.mk
 new file mode 100644
-index 0000000..e4b476d
+index 0000000..f713778
 --- /dev/null
 +++ b/platform/eswin/eic770x/objects.mk
-@@ -0,0 +1,43 @@
+@@ -0,0 +1,31 @@
 +#
 +# SPDX-License-Identifier: BSD-2-Clause
 +#
-+#***************************************************************
++# Copyright 2024 Beijing ESWIN Computing Technology Co., Ltd.
 +#
-+#  Copyright (C) 2022  Beiing Eswin Co. Ltd
-+#
-+#    This program is free software: you can redistribute it and/or modify
-+#  it under the terms of the GNU General Public License Version 2
-+#  as published by the Free Software Foundation.
-+#
-+#  This program is distributed in the hope that it will be useful,
-+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-+#
-+#  You should have received a copy of the GNU General Public License Version 2
-+#  along with this program. If not, see <http://www.gnu.org/licenses/>.
-+#
-+#
-+#***************************************************************
++# Authors:
++#	Xiang Xu <xuxiang@eswincomputing.com>
++#	Yifeng Huang <huangyifeng@eswincomputing.com>
 +#
 +
 +platform-objs-$(CONFIG_PLATFORM_ESWIN) += platform.o
@@ -142,30 +130,21 @@ index 0000000..e4b476d
 +FW_PAYLOAD_FDT_ADDR=0xf8000000
 diff --git a/platform/eswin/eic770x/platform.c b/platform/eswin/eic770x/platform.c
 new file mode 100644
-index 0000000..767b293
+index 0000000..746f0c1
 --- /dev/null
 +++ b/platform/eswin/eic770x/platform.c
-@@ -0,0 +1,253 @@
+@@ -0,0 +1,244 @@
++// SPDX-License-Identifier: BSD-2-Clause
 +/*
-+ * SPDX-License-Identifier: BSD-2-Clause
 + *
-+ ****************************************************************
++ * Copyright 2024 Beijing ESWIN Computing Technology Co., Ltd.
 + *
-+ *  Copyright (C) 2022  Beiing Eswin Co. Ltd
++ * Authors:
++ *   Xiang Xu <xuxiang@eswincomputing.com>
++ *   Min Lin <linmin@eswincomputing.com>
++ *   Yu Ning <ningyu@eswincomputing.com>
++ *   Yifeng Huang <huangyifeng@eswincomputing.com>
 + *
-+ *    This program is free software: you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License Version 2
-+ *  as published by the Free Software Foundation.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-+ *
-+ *  You should have received a copy of the GNU General Public License Version 2
-+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
-+ *
-+ *
-+ ****************************************************************
 + */
 +
 +#include <libfdt.h>
