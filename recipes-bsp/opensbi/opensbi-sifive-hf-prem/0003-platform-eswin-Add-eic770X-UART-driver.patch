@@ -1,7 +1,7 @@
 From 166197b02b271e575d859ff98e50e50e2b772120 Mon Sep 17 00:00:00 2001
 From: Darshan Prajapati <darshan.prajapati@einfochips.com>
 Date: Tue, 25 Jun 2024 15:32:46 +0530
-Subject: [PATCH 3/7] platform: eswin: Add eic770X UART driver
+Subject: [PATCH 3/8] platform: eswin: Add eic770X UART driver
 
 Add UART driver for communication with MCU
 

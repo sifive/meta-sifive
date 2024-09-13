@@ -1,7 +1,7 @@
 From 42fdff29c165feaeedb2c0f7f80cedac4b07efca Mon Sep 17 00:00:00 2001
 From: Pinkesh Vaghela <pinkesh.vaghela@einfochips.com>
 Date: Wed, 5 Jun 2024 12:12:22 +0530
-Subject: [PATCH 5/7] lib: sbi: Configure CSR registers
+Subject: [PATCH 5/8] lib: sbi: Configure CSR registers
 
 Set HW prefetcher 0 (0x7C3) and prefetcher 1 (0x7C4) registers
 Set CSR 0x7C1 and 0x7C2 to 0

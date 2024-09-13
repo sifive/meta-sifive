@@ -1,0 +1,53 @@
+From ec2c8dfd351168e1011d7adca62b882965de5485 Mon Sep 17 00:00:00 2001
+From: Pritesh Patel <pritesh.patel@einfochips.com>
+Date: Mon, 7 Oct 2024 13:57:53 +0000
+Subject: [PATCH 8/8] lib: sbi: Add new PMP region
+
+- Removed PMP from UART driver as we are short of pmp regions and
+  use this region to mask the range 0x20000000-0x3FFFFFFF
+
+  Upstream-Status: Pending
+
+Signed-off-by: Pritesh Patel <pritesh.patel@einfochips.com>
+---
+ lib/sbi/sbi_domain.c        | 4 ++++
+ lib/utils/serial/uart8250.c | 9 +++++++--
+ 2 files changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/lib/sbi/sbi_domain.c b/lib/sbi/sbi_domain.c
+index 06c60ae..884ed85 100644
+--- a/lib/sbi/sbi_domain.c
++++ b/lib/sbi/sbi_domain.c
+@@ -808,6 +808,10 @@ int sbi_domain_init(struct sbi_scratch *scratch, u32 cold_hartid)
+ 				  &root_memregs[root_memregs_count++],0);
+ 
+ #ifdef CONFIG_PLATFORM_ESWIN
++	sbi_domain_memregion_init(0x20000000UL, 0x1fffffffUL, SBI_DOMAIN_MEMREGION_ENF_PERMISSIONS,
++				&root_hole_region,0);
++	domain_memregion_inithole(&root_memregs[root_memregs_count++]);
++
+ 	sbi_domain_memregion_init(0x1000000000UL, 0x3fffffUL, SBI_DOMAIN_MEMREGION_ENF_PERMISSIONS,
+ 				&root_hole_region,0x7000000000UL);
+ 	domain_memregion_inithole(&root_memregs[root_memregs_count++]);
+diff --git a/lib/utils/serial/uart8250.c b/lib/utils/serial/uart8250.c
+index 1fe053f..b25d374 100644
+--- a/lib/utils/serial/uart8250.c
++++ b/lib/utils/serial/uart8250.c
+@@ -135,7 +135,12 @@ int uart8250_init(unsigned long base, u32 in_freq, u32 baudrate, u32 reg_shift,
+ 
+ 	sbi_console_set_device(&uart8250_console);
+ 
++#ifdef CONFIG_PLATFORM_ESWIN
++	/* For now, not adding memrange for UART as we are short of PMP regions */
++	return 0;
++#else
+ 	return sbi_domain_root_add_memrange(base, PAGE_SIZE, PAGE_SIZE,
+-					    (SBI_DOMAIN_MEMREGION_MMIO |
+-					    SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW));
++			(SBI_DOMAIN_MEMREGION_MMIO |
++			 SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW));
++#endif
+ }
+-- 
+2.25.1
+

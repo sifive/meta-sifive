@@ -1,7 +1,7 @@
 From d7f000872d71b174a11139eea096a70b57639bf5 Mon Sep 17 00:00:00 2001
 From: Darshan Prajapati <darshan.prajapati@einfochips.com>
 Date: Wed, 5 Jun 2024 12:02:11 +0530
-Subject: [PATCH 6/7] lib: sbi: eic770x: Add PMP for TOR region
+Subject: [PATCH 6/8] lib: sbi: eic770x: Add PMP for TOR region
 
 - Modify pmpcfg csr if TOR size is defined
 - Added 'unsigned long tor' in sbi_domain_memregion_init
