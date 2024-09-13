@@ -1,0 +1,342 @@
+From 7b733e98d65ce67a7445a428e50c8e3d08b696ba Mon Sep 17 00:00:00 2001
+From: Darshan Prajapati <darshan.prajapati@einfochips.com>
+Date: Wed, 5 Jun 2024 12:02:11 +0530
+Subject: [PATCH 6/8] lib: sbi: eic770x: Add PMP for TOR region
+
+- Modify pmpcfg csr if TOR size is defined
+- Added 'unsigned long tor' in sbi_domain_memregion_init
+  to define size of TOR region.
+- Set reg field of sbi_domain_memregion to set end size of TOR region
+- Add PMP permission for memory which is of DIE1 and Reserved memory area
+  to protect those memory regions from speculative access
+- Removing PMP permission for PLIC memory regions as we are short of PMP regions
+	0x000000000c200000-0x000000000c203fff M: (I,R,W) S/U: (R,W)
+	0x000000000c000000-0x000000000c1fffff M: (I,R,W) S/U: (R,W)
+
+Signed-off-by: Darshan Prajapati <darshan.prajapati@einfochips.com>
+Signed-off-by: Pinkesh Vaghela <pinkesh.vaghela@einfochips.com>
+---
+ include/sbi/sbi_domain.h    |  7 ++-
+ lib/sbi/sbi_domain.c        | 40 ++++++++++++---
+ lib/sbi/sbi_hart.c          | 98 +++++++++++++++++++++++++++++++------
+ lib/utils/ipi/aclint_mswi.c |  2 +-
+ lib/utils/irqchip/aplic.c   |  2 +-
+ lib/utils/irqchip/imsic.c   |  2 +-
+ lib/utils/irqchip/plic.c    |  5 ++
+ 7 files changed, 131 insertions(+), 25 deletions(-)
+
+diff --git a/include/sbi/sbi_domain.h b/include/sbi/sbi_domain.h
+index c88dbac..8ff71b5 100644
+--- a/include/sbi/sbi_domain.h
++++ b/include/sbi/sbi_domain.h
+@@ -154,6 +154,9 @@ struct sbi_domain_memregion {
+ 
+ #define SBI_DOMAIN_MEMREGION_MMIO		(1UL << 31)
+ 	unsigned long flags;
++	/** region for NAPOT(0) or TOR(size) */
++	unsigned long tor;
++
+ };
+ 
+ /** Maximum number of domains */
+@@ -245,11 +248,13 @@ ulong sbi_domain_get_assigned_hartmask(const struct sbi_domain *dom,
+  * @param size physical size of memory region
+  * @param flags memory region flags
+  * @param reg pointer to memory region being initialized
++ * @param tor 0:NAPOT , other:size of TOR; if use TOR mode, @size only used for region check
+  */
+ void sbi_domain_memregion_init(unsigned long addr,
+ 				unsigned long size,
+ 				unsigned long flags,
+-				struct sbi_domain_memregion *reg);
++				struct sbi_domain_memregion *reg,
++				unsigned long tor);
+ 
+ /**
+  * Check whether we can access specified address for given mode and
+diff --git a/lib/sbi/sbi_domain.c b/lib/sbi/sbi_domain.c
+index 4e9f742..06c60ae 100644
+--- a/lib/sbi/sbi_domain.c
++++ b/lib/sbi/sbi_domain.c
+@@ -29,6 +29,10 @@ static bool domain_finalized = false;
+ #define ROOT_REGION_MAX	16
+ static u32 root_memregs_count = 0;
+ 
++#ifdef CONFIG_PLATFORM_ESWIN
++static struct sbi_domain_memregion root_hole_region;
++#endif
++
+ struct sbi_domain root = {
+ 	.name = "root",
+ 	.possible_harts = NULL,
+@@ -82,10 +86,21 @@ ulong sbi_domain_get_assigned_hartmask(const struct sbi_domain *dom,
+ 	return ret;
+ }
+ 
++#ifdef CONFIG_PLATFORM_ESWIN
++static void domain_memregion_inithole(struct sbi_domain_memregion *reg)
++{
++       if (!reg)
++               return;
++
++       sbi_memcpy(reg, &root_hole_region, sizeof(*reg));
++}
++#endif
++
+ void sbi_domain_memregion_init(unsigned long addr,
+ 				unsigned long size,
+ 				unsigned long flags,
+-				struct sbi_domain_memregion *reg)
++				struct sbi_domain_memregion *reg,
++				unsigned long tor)
+ {
+ 	unsigned long base = 0, order;
+ 
+@@ -108,6 +123,7 @@ void sbi_domain_memregion_init(unsigned long addr,
+ 		reg->base = base;
+ 		reg->order = order;
+ 		reg->flags = flags;
++		reg->tor = tor;
+ 	}
+ }
+ 
+@@ -442,8 +458,12 @@ void sbi_domain_dump(const struct sbi_domain *dom, const char *suffix)
+ 	i = 0;
+ 	sbi_domain_for_each_memregion(dom, reg) {
+ 		rstart = reg->base;
+-		rend = (reg->order < __riscv_xlen) ?
+-			rstart + ((1UL << reg->order) - 1) : -1UL;
++		if (!reg->tor) {
++			rend = (reg->order < __riscv_xlen) ?
++				rstart + ((1UL << reg->order) - 1) : -1UL;
++		}else{
++			rend = rstart + reg->tor - 1;
++		}
+ 
+ 		sbi_printf("Domain%d Region%02d    %s: 0x%" PRILX "-0x%" PRILX " ",
+ 			   dom->index, i, suffix, rstart, rend);
+@@ -662,7 +682,7 @@ int sbi_domain_root_add_memrange(unsigned long addr, unsigned long size,
+ 			rsize = ((end - pos) < align) ?
+ 				(end - pos) : align;
+ 
+-		sbi_domain_memregion_init(pos, rsize, region_flags, &reg);
++		sbi_domain_memregion_init(pos, rsize, region_flags, &reg,0);
+ 		rc = sbi_domain_root_add_memregion(&reg);
+ 		if (rc)
+ 			return rc;
+@@ -779,13 +799,19 @@ int sbi_domain_init(struct sbi_scratch *scratch, u32 cold_hartid)
+ 	sbi_domain_memregion_init(scratch->fw_start, scratch->fw_rw_offset,
+ 				  (SBI_DOMAIN_MEMREGION_M_READABLE |
+ 				   SBI_DOMAIN_MEMREGION_M_EXECUTABLE),
+-				  &root_memregs[root_memregs_count++]);
++				  &root_memregs[root_memregs_count++],0);
+ 
+ 	sbi_domain_memregion_init((scratch->fw_start + scratch->fw_rw_offset),
+ 				  (scratch->fw_size - scratch->fw_rw_offset),
+ 				  (SBI_DOMAIN_MEMREGION_M_READABLE |
+ 				   SBI_DOMAIN_MEMREGION_M_WRITABLE),
+-				  &root_memregs[root_memregs_count++]);
++				  &root_memregs[root_memregs_count++],0);
++
++#ifdef CONFIG_PLATFORM_ESWIN
++	sbi_domain_memregion_init(0x1000000000UL, 0x3fffffUL, SBI_DOMAIN_MEMREGION_ENF_PERMISSIONS,
++				&root_hole_region,0x7000000000UL);
++	domain_memregion_inithole(&root_memregs[root_memregs_count++]);
++#endif
+ 
+ 	root.fw_region_inited = true;
+ 
+@@ -800,7 +826,7 @@ int sbi_domain_init(struct sbi_scratch *scratch, u32 cold_hartid)
+ 				  (SBI_DOMAIN_MEMREGION_SU_READABLE |
+ 				   SBI_DOMAIN_MEMREGION_SU_WRITABLE |
+ 				   SBI_DOMAIN_MEMREGION_SU_EXECUTABLE),
+-				  &root_memregs[root_memregs_count++]);
++				  &root_memregs[root_memregs_count++],0);
+ 
+ 	/* Root domain memory region end */
+ 	root_memregs[root_memregs_count].order = 0;
+diff --git a/lib/sbi/sbi_hart.c b/lib/sbi/sbi_hart.c
+index 9f5d841..f621cdd 100644
+--- a/lib/sbi/sbi_hart.c
++++ b/lib/sbi/sbi_hart.c
+@@ -268,6 +268,67 @@ unsigned int sbi_hart_mhpm_bits(struct sbi_scratch *scratch)
+ 	return hfeatures->mhpm_bits;
+ }
+ 
++int pmp_set_tor(unsigned int n, unsigned long prot, unsigned long addr_start, unsigned long addr_end)
++{
++	/* PMP addresses are 4-byte aligned, drop the bottom two bits */
++	unsigned long protected_start = ((size_t) addr_start)>>2;
++	unsigned long protected_end = ((size_t) addr_end)>>2;
++	unsigned long cfgmask = 0xffff, pmpcfg;
++	int pmpcfg_csr, pmpcfg_shift, pmpaddr_csr;
++#define NAPOT_SIZE 4096
++	/* Clear the bit corresponding with alignment */
++	protected_start &= ~(NAPOT_SIZE >> 3);
++	protected_end &= ~(NAPOT_SIZE >> 3);
++
++	/* start region */
++#if __riscv_xlen == 32
++	pmpcfg_csr   = CSR_PMPCFG0 + (n >> 2);
++	pmpcfg_shift = (n & 3) << 3;
++#elif __riscv_xlen == 64
++	pmpcfg_csr   = (CSR_PMPCFG0 + (n >> 2)) & ~1;
++	pmpcfg_shift = (n & 7) << 3;
++#else
++	return SBI_ENOTSUPP;
++#endif
++	pmpaddr_csr = CSR_PMPADDR0 + n;
++
++	/* encode PMP config */
++	prot &= ~PMP_A;
++	cfgmask = ~(0xffUL << pmpcfg_shift);
++	pmpcfg  = (csr_read_num(pmpcfg_csr) & cfgmask);
++	pmpcfg |= ((prot << pmpcfg_shift) & ~cfgmask);
++
++	/* write csrs */
++	csr_write_num(pmpaddr_csr, protected_start);
++	csr_write_num(pmpcfg_csr, pmpcfg);
++
++	/* end region */
++	n++;
++#if __riscv_xlen == 32
++	pmpcfg_csr   = CSR_PMPCFG0 + (n >> 2);
++	pmpcfg_shift = (n & 3) << 3;
++#elif __riscv_xlen == 64
++	pmpcfg_csr   = (CSR_PMPCFG0 + (n >> 2)) & ~1;
++	pmpcfg_shift = (n & 7) << 3;
++#else
++	return SBI_ENOTSUPP;
++#endif
++	pmpaddr_csr = CSR_PMPADDR0 + n;
++
++	/* encode PMP config */
++	prot &= ~PMP_A;
++	prot |= PMP_A_TOR;
++	cfgmask = ~(0xffUL << pmpcfg_shift);
++	pmpcfg  = (csr_read_num(pmpcfg_csr) & cfgmask);
++	pmpcfg |= ((prot << pmpcfg_shift) & ~cfgmask);
++
++	/* write csrs */
++	csr_write_num(pmpaddr_csr, protected_end);
++	csr_write_num(pmpcfg_csr, pmpcfg);
++
++	return 0;
++}
++
+ /*
+  * Returns Smepmp flags for a given domain and region based on permissions.
+  */
+@@ -339,15 +400,19 @@ static void sbi_hart_smepmp_set(struct sbi_scratch *scratch,
+ 				unsigned int pmp_log2gran,
+ 				unsigned long pmp_addr_max)
+ {
+-	unsigned long pmp_addr = reg->base >> PMP_SHIFT;
+ 
+-	if (pmp_log2gran <= reg->order && pmp_addr < pmp_addr_max) {
+-		pmp_set(pmp_idx, pmp_flags, reg->base, reg->order);
++	if (!reg->tor) {
++		unsigned long pmp_addr = reg->base >> PMP_SHIFT;
++		if (pmp_log2gran <= reg->order && pmp_addr < pmp_addr_max)
++			pmp_set(pmp_idx++, pmp_flags, reg->base, reg->order);
++		else {
++			sbi_printf("Can not configure pmp for domain %s", dom->name);
++			sbi_printf(" because memory region address %lx or size %lx is not in range\n",
++				reg->base, reg->order);
++		}
+ 	} else {
+-		sbi_printf("Can not configure pmp for domain %s because"
+-			   " memory region address 0x%lx or size 0x%lx "
+-			   "is not in range.\n", dom->name, reg->base,
+-			   reg->order);
++		pmp_set_tor(pmp_idx, pmp_flags, reg->base, reg->base+reg->tor);
++		pmp_idx+=2;
+ 	}
+ }
+ 
+@@ -457,14 +522,19 @@ static int sbi_hart_oldpmp_configure(struct sbi_scratch *scratch,
+ 		if (reg->flags & SBI_DOMAIN_MEMREGION_SU_EXECUTABLE)
+ 			pmp_flags |= PMP_X;
+ 
+-		pmp_addr = reg->base >> PMP_SHIFT;
+-		if (pmp_log2gran <= reg->order && pmp_addr < pmp_addr_max) {
+-			pmp_set(pmp_idx++, pmp_flags, reg->base, reg->order);
++		if (!reg->tor) {
++			pmp_addr =  reg->base >> PMP_SHIFT;
++			if (pmp_log2gran <= reg->order && pmp_addr < pmp_addr_max)
++				pmp_set(pmp_idx++, pmp_flags, reg->base, reg->order);
++			else {
++				sbi_printf("Can not configure pmp for domain %s", dom->name);
++				sbi_printf(" because memory region address %lx or size %lx is not in range\n",
++					reg->base, reg->order);
++			}
+ 		} else {
+-			sbi_printf("Can not configure pmp for domain %s because"
+-				   " memory region address 0x%lx or size 0x%lx "
+-				   "is not in range.\n", dom->name, reg->base,
+-				   reg->order);
++			pmp_addr =  reg->base;
++			pmp_set_tor(pmp_idx, pmp_flags, reg->base, reg->base+reg->tor);
++			pmp_idx+=2;
+ 		}
+ 	}
+ 
+diff --git a/lib/utils/ipi/aclint_mswi.c b/lib/utils/ipi/aclint_mswi.c
+index 4ae6bb1..d49f491 100644
+--- a/lib/utils/ipi/aclint_mswi.c
++++ b/lib/utils/ipi/aclint_mswi.c
+@@ -121,7 +121,7 @@ int aclint_mswi_cold_init(struct aclint_mswi_data *mswi)
+ 					  (SBI_DOMAIN_MEMREGION_MMIO |
+ 					   SBI_DOMAIN_MEMREGION_M_READABLE |
+ 					   SBI_DOMAIN_MEMREGION_M_WRITABLE),
+-					  &reg);
++					  &reg,0);
+ 		rc = sbi_domain_root_add_memregion(&reg);
+ 		if (rc)
+ 			return rc;
+diff --git a/lib/utils/irqchip/aplic.c b/lib/utils/irqchip/aplic.c
+index 10236e7..78b3893 100644
+--- a/lib/utils/irqchip/aplic.c
++++ b/lib/utils/irqchip/aplic.c
+@@ -272,7 +272,7 @@ int aplic_cold_irqchip_init(struct aplic_data *aplic)
+ 					  (SBI_DOMAIN_MEMREGION_MMIO |
+ 					   SBI_DOMAIN_MEMREGION_M_READABLE |
+ 					   SBI_DOMAIN_MEMREGION_M_WRITABLE),
+-					  &reg);
++					  &reg,0);
+ 		rc = sbi_domain_root_add_memregion(&reg);
+ 		if (rc)
+ 			return rc;
+diff --git a/lib/utils/irqchip/imsic.c b/lib/utils/irqchip/imsic.c
+index 36ef66c..8ec21e7 100644
+--- a/lib/utils/irqchip/imsic.c
++++ b/lib/utils/irqchip/imsic.c
+@@ -369,7 +369,7 @@ int imsic_cold_irqchip_init(struct imsic_data *imsic)
+ 					  (SBI_DOMAIN_MEMREGION_MMIO |
+ 					   SBI_DOMAIN_MEMREGION_M_READABLE |
+ 					   SBI_DOMAIN_MEMREGION_M_WRITABLE),
+-					  &reg);
++					  &reg,0);
+ 		rc = sbi_domain_root_add_memregion(&reg);
+ 		if (rc)
+ 			return rc;
+diff --git a/lib/utils/irqchip/plic.c b/lib/utils/irqchip/plic.c
+index 193e320..8907cce 100644
+--- a/lib/utils/irqchip/plic.c
++++ b/lib/utils/irqchip/plic.c
+@@ -173,7 +173,12 @@ int plic_cold_irqchip_init(const struct plic_data *plic)
+ 	for (i = 1; i <= plic->num_src; i++)
+ 		plic_set_priority(plic, i, 0);
+ 
++#ifdef CONFIG_PLATFORM_ESWIN
++	/* For now, not adding memrange for PLIC as we are short of PMP regions */
++	return 0;
++#else
+ 	return sbi_domain_root_add_memrange(plic->addr, plic->size, BIT(20),
+ 					(SBI_DOMAIN_MEMREGION_MMIO |
+ 					 SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW));
++#endif
+ }
+-- 
+2.25.1
+

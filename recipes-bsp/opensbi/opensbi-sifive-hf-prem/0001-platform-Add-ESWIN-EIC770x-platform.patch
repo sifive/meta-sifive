@@ -1,7 +1,7 @@
-From 197eee98d73ca9dea827937ccc74b6863d8623bc Mon Sep 17 00:00:00 2001
+From 0fb60948109e92fbcc5ef158c8ca6c44d5f5043f Mon Sep 17 00:00:00 2001
 From: Darshan Prajapati <darshan.prajapati@einfochips.com>
 Date: Wed, 5 Jun 2024 11:45:33 +0530
-Subject: [PATCH 1/4] platform: Add ESWIN EIC770x platform
+Subject: [PATCH 1/8] platform: Add ESWIN EIC770x platform
 
 ESWIN EIC770x is a 64-bit RISC-V core.
 

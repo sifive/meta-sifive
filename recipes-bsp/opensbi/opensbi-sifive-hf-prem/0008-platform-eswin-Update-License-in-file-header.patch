@@ -1,0 +1,152 @@
+From b292bda477f64c15adbdc0b54c143eb86203aaf6 Mon Sep 17 00:00:00 2001
+From: Pritesh Patel <pritesh.patel@einfochips.com>
+Date: Fri, 13 Sep 2024 05:58:14 +0000
+Subject: [PATCH 8/8] platform: eswin: Update License in file header
+
+Updated license header in all files as per current BSD-2 Clause
+
+Signed-off-by: Pritesh Patel <pritesh.patel@einfochips.com>
+---
+ platform/eswin/eic770x/eic770x_uart.c | 22 ++++++----------------
+ platform/eswin/eic770x/eic770x_uart.h | 21 +++++----------------
+ platform/eswin/eic770x/objects.mk     | 20 ++++----------------
+ platform/eswin/eic770x/platform.c     | 23 +++++++----------------
+ 4 files changed, 22 insertions(+), 64 deletions(-)
+
+diff --git a/platform/eswin/eic770x/eic770x_uart.c b/platform/eswin/eic770x/eic770x_uart.c
+index c93f17e..00ac547 100644
+--- a/platform/eswin/eic770x/eic770x_uart.c
++++ b/platform/eswin/eic770x/eic770x_uart.c
+@@ -1,23 +1,13 @@
++// SPDX-License-Identifier: BSD-2-Clause
+ /*
+- * SPDX-License-Identifier: BSD-2-Clause
++ * eic770x_uart.c is the UART2 APIs, which is used to communicate with
++ * the BMC on HF106 board.
+  *
+- ****************************************************************
++ * Copyright 2024 Beijing ESWIN Computing Technology Co., Ltd.
+  *
+- *  Copyright (C) 2022  Beiing Eswin Co. Ltd
++ * Authors:
++ *   HuangYifeng <huangyifeng@eswincomputing.com>
+  *
+- *    This program is free software: you can redistribute it and/or modify
+- *  it under the terms of the GNU General Public License Version 2
+- *  as published by the Free Software Foundation.
+- *
+- *  This program is distributed in the hope that it will be useful,
+- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+- *
+- *  You should have received a copy of the GNU General Public License Version 2
+- *  along with this program. If not, see <http://www.gnu.org/licenses/>.
+- *
+- *
+- ****************************************************************
+  */
+ 
+ #include <sbi/riscv_locks.h>
+diff --git a/platform/eswin/eic770x/eic770x_uart.h b/platform/eswin/eic770x/eic770x_uart.h
+index 9dc764f..b60cb50 100644
+--- a/platform/eswin/eic770x/eic770x_uart.h
++++ b/platform/eswin/eic770x/eic770x_uart.h
+@@ -1,23 +1,12 @@
++// SPDX-License-Identifier: BSD-2-Clause
+ /*
+- * SPDX-License-Identifier: BSD-2-Clause
++ * The header file of eic770x_uart.c.
+  *
+- ****************************************************************
++ * Copyright 2024 Beijing ESWIN Computing Technology Co., Ltd.
+  *
+- *  Copyright (C) 2022  Beiing Eswin Co. Ltd
++ * Authors:
++ *   HuangYifeng <huangyifeng@eswincomputing.com>
+  *
+- *    This program is free software: you can redistribute it and/or modify
+- *  it under the terms of the GNU General Public License Version 2
+- *  as published by the Free Software Foundation.
+- *
+- *  This program is distributed in the hope that it will be useful,
+- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+- *
+- *  You should have received a copy of the GNU General Public License Version 2
+- *  along with this program. If not, see <http://www.gnu.org/licenses/>.
+- *
+- *
+- ****************************************************************
+  */
+ #ifndef _EIC770X_UART_H_
+ #define _EIC770X_UART_H_
+diff --git a/platform/eswin/eic770x/objects.mk b/platform/eswin/eic770x/objects.mk
+index 92aa6d4..628cb64 100644
+--- a/platform/eswin/eic770x/objects.mk
++++ b/platform/eswin/eic770x/objects.mk
+@@ -1,23 +1,11 @@
+ #
+ # SPDX-License-Identifier: BSD-2-Clause
+ #
+-#***************************************************************
++# Copyright 2024 Beijing ESWIN Computing Technology Co., Ltd.
+ #
+-#  Copyright (C) 2022  Beiing Eswin Co. Ltd
+-#
+-#    This program is free software: you can redistribute it and/or modify
+-#  it under the terms of the GNU General Public License Version 2
+-#  as published by the Free Software Foundation.
+-#
+-#  This program is distributed in the hope that it will be useful,
+-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+-#
+-#  You should have received a copy of the GNU General Public License Version 2
+-#  along with this program. If not, see <http://www.gnu.org/licenses/>.
+-#
+-#
+-#***************************************************************
++# Authors:
++#   XuXiang <xuxiang@eswincomputing.com>
++#   HuangYifeng <huangyifeng@eswincomputing.com>
+ #
+ 
+ platform-objs-$(CONFIG_PLATFORM_ESWIN) += platform.o
+diff --git a/platform/eswin/eic770x/platform.c b/platform/eswin/eic770x/platform.c
+index c4d84b8..8f9949d 100644
+--- a/platform/eswin/eic770x/platform.c
++++ b/platform/eswin/eic770x/platform.c
+@@ -1,23 +1,14 @@
++// SPDX-License-Identifier: BSD-2-Clause
+ /*
+- * SPDX-License-Identifier: BSD-2-Clause
+  *
+- ****************************************************************
++ * Copyright 2024 Beijing ESWIN Computing Technology Co., Ltd.
+  *
+- *  Copyright (C) 2022  Beiing Eswin Co. Ltd
++ * Authors:
++ *   XuXiang <xuxiang@eswincomputing.com>
++ *   LinMin <linmin@eswincomputing.com>
++ *   NingYu <ningyu@eswincomputing.com>
++ *   HuangYifeng <huangyifeng@eswincomputing.com>
+  *
+- *    This program is free software: you can redistribute it and/or modify
+- *  it under the terms of the GNU General Public License Version 2
+- *  as published by the Free Software Foundation.
+- *
+- *  This program is distributed in the hope that it will be useful,
+- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+- *
+- *  You should have received a copy of the GNU General Public License Version 2
+- *  along with this program. If not, see <http://www.gnu.org/licenses/>.
+- *
+- *
+- ****************************************************************
+  */
+ 
+ #include <libfdt.h>
+-- 
+2.25.1
+

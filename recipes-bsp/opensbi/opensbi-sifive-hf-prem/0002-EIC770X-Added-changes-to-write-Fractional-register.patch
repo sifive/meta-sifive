@@ -1,7 +1,7 @@
-From 93fe224a8b586a0d0504ff07a2197afee06d3aa3 Mon Sep 17 00:00:00 2001
+From 9281c25428630d738ae91cdae0abf92833e59af3 Mon Sep 17 00:00:00 2001
 From: Darshan Prajapati <darshan.prajapati@einfochips.com>
 Date: Tue, 2 Jul 2024 17:06:23 +0530
-Subject: [PATCH 2/4] EIC770X: Added changes to write Fractional register
+Subject: [PATCH 2/8] EIC770X: Added changes to write Fractional register
 
 writing fractional register to ensure correct baud rate
 

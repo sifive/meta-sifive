@@ -1,22 +1,23 @@
-From a462212456ae6463a973cd78ef66b0732fd8e049 Mon Sep 17 00:00:00 2001
-From: Darshan Prajapati <darshan.prajapati@einfochips.com>
+From c46ab57a5ee9ded71b1265232f36056abdd25779 Mon Sep 17 00:00:00 2001
+From: Pinkesh Vaghela <pinkesh.vaghela@einfochips.com>
 Date: Wed, 5 Jun 2024 12:12:22 +0530
-Subject: [PATCH] lib: sbi: Add Function to configure FSCR
+Subject: [PATCH 5/8] lib: sbi: Configure CSR registers
 
-Set hitCacheThrdL2 and numL2PFIssQEnt
-in HW prefetcher 0 and prefetcher 1 register
+Set HW prefetcher 0 (0x7C3) and prefetcher 1 (0x7C4) registers
+Set CSR 0x7C1 and 0x7C2 to 0
 
 Upstream-Status: Pending
 
-Signed-off-by: Darshan Prajapati <darshan.prajapati@einfochips.com>
+Signed-off-by: Pinkesh Vaghela <pinkesh.vaghela@einfochips.com>
+Signed-off-by: Pritesh Patel <pritesh.patel@einfochips.com>
 ---
  include/sbi/sbi_hart.h |  3 +++
- lib/sbi/sbi_hart.c     | 50 ++++++++++++++++++++++++++++++++++++++++++
- lib/sbi/sbi_init.c     | 31 ++++++++++++++++++++++++++
- 3 files changed, 84 insertions(+)
+ lib/sbi/sbi_hart.c     | 25 +++++++++++++++++++++++++
+ lib/sbi/sbi_init.c     | 32 ++++++++++++++++++++++++++++++++
+ 3 files changed, 60 insertions(+)
 
 diff --git a/include/sbi/sbi_hart.h b/include/sbi/sbi_hart.h
-index 47be251..17a1256 100644
+index 47be251..0d33246 100644
 --- a/include/sbi/sbi_hart.h
 +++ b/include/sbi/sbi_hart.h
 @@ -110,6 +110,9 @@ unsigned int sbi_hart_pmp_log2gran(struct sbi_scratch *scratch);
@@ -24,13 +25,13 @@ index 47be251..17a1256 100644
  unsigned int sbi_hart_mhpm_bits(struct sbi_scratch *scratch);
  int sbi_hart_pmp_configure(struct sbi_scratch *scratch);
 +#ifdef CONFIG_PLATFORM_ESWIN
-+void sbi_hart_blocker_fscr_configure(struct sbi_scratch *scratch);
++void sbi_configure_hart_blocker(struct sbi_scratch *scratch);
 +#endif
  int sbi_hart_map_saddr(unsigned long base, unsigned long size);
  int sbi_hart_unmap_saddr(void);
  int sbi_hart_priv_version(struct sbi_scratch *scratch);
 diff --git a/lib/sbi/sbi_hart.c b/lib/sbi/sbi_hart.c
-index 770fee0..3472f88 100644
+index 770fee0..9f5d841 100644
 --- a/lib/sbi/sbi_hart.c
 +++ b/lib/sbi/sbi_hart.c
 @@ -23,6 +23,7 @@
@@ -41,7 +42,7 @@ index 770fee0..3472f88 100644
  
  extern void __sbi_expected_trap(void);
  extern void __sbi_expected_trap_hext(void);
-@@ -558,6 +559,55 @@ int sbi_hart_pmp_configure(struct sbi_scratch *scratch)
+@@ -558,6 +559,30 @@ int sbi_hart_pmp_configure(struct sbi_scratch *scratch)
  	return rc;
  }
  
@@ -57,30 +58,7 @@ index 770fee0..3472f88 100644
 +	writel(1,BLOCKER_TL256D2D_IN);
 +}
 +
-+static void init_fcsr(void)
-+{
-+	unsigned long hwpf;     // Hardware Prefetcher 0 : 0x104095C1BE241 | Hardware Prefetcher 1 : 0x38c84e
-+
-+	hwpf = 0x104095C1BE241UL;
-+	__asm__ volatile("csrw 0x7c3 , %0" : : "r"(hwpf));
-+	hwpf = 0x929FUL;
-+
-+	//cleanup fields
-+	hwpf &= (~(0x1f << 5)); //[9:5]  cleanup  hitCacheThrdL2
-+	hwpf &= (~(0x7  << 14)); //[16:14] cleanup numL2PFIssQEnt
-+
-+	//set new value
-+	hwpf |= (0x1f << 5); //[9:5]    hitCacheThrdL2
-+	hwpf |= (0x7  << 14); //[16:14] numL2PFIssQEnt
-+
-+	__asm__ volatile("csrw 0x7c4 , %0" : : "r"(hwpf));
-+
-+	/* enable speculative icache refill */
-+	__asm__ volatile("csrw 0x7c1 , x0" : :);
-+	__asm__ volatile("csrw 0x7c2 , x0" : :);
-+}
-+
-+void sbi_hart_blocker_fscr_configure(struct sbi_scratch *scratch)
++void sbi_configure_hart_blocker(struct sbi_scratch *scratch)
 +{
 +	struct sbi_domain *dom = sbi_domain_thishart_ptr();
 +
@@ -89,8 +67,6 @@ index 770fee0..3472f88 100644
 +		   generate fake response when access remote target */
 +		init_bus_blocker();
 +	}
-+
-+	init_fcsr();
 +}
 +#endif
 +
@@ -98,7 +74,7 @@ index 770fee0..3472f88 100644
  {
  	struct sbi_hart_features *hfeatures =
 diff --git a/lib/sbi/sbi_init.c b/lib/sbi/sbi_init.c
-index 6a98e13..8752a8a 100644
+index 6a98e13..263ddcb 100644
 --- a/lib/sbi/sbi_init.c
 +++ b/lib/sbi/sbi_init.c
 @@ -12,6 +12,7 @@
@@ -114,7 +90,7 @@ index 6a98e13..8752a8a 100644
  	}
  
 +#ifdef CONFIG_PLATFORM_ESWIN
-+	sbi_hart_blocker_fscr_configure(scratch);
++	sbi_configure_hart_blocker(scratch);
 +#endif
 +
  	/*
@@ -125,7 +101,7 @@ index 6a98e13..8752a8a 100644
  		sbi_hart_hang();
  
 +#ifdef CONFIG_PLATFORM_ESWIN
-+	sbi_hart_blocker_fscr_configure(scratch);
++	sbi_configure_hart_blocker(scratch);
 +#endif
 +
  	rc = sbi_platform_final_init(plat, false);
@@ -136,7 +112,7 @@ index 6a98e13..8752a8a 100644
  		sbi_hart_hang();
  
 +#ifdef CONFIG_PLATFORM_ESWIN
-+	sbi_hart_blocker_fscr_configure(scratch);
++	sbi_configure_hart_blocker(scratch);
 +#endif
 +
  	sbi_hsm_hart_resume_finish(scratch, hartid);
@@ -152,22 +128,23 @@ index 6a98e13..8752a8a 100644
  
  	for (i = 0; i < plat->hart_count; i++) {
  		h = (plat->hart_index2id) ? plat->hart_index2id[i] : i;
-@@ -580,6 +596,21 @@ void __noreturn sbi_init(struct sbi_scratch *scratch)
+@@ -580,6 +596,22 @@ void __noreturn sbi_init(struct sbi_scratch *scratch)
  	if (sbi_platform_nascent_init(plat))
  		sbi_hart_hang();
  
 +#ifdef CONFIG_PLATFORM_ESWIN
-+	hwpf = 0x104095C1BE241UL;
++	/* Set CSR 0x7C1 to 0 to enable speculative icache refill */
++	__asm__ volatile("csrw 0x7c1 , x0" : :);
++
++	/* Set CSR 0x7C2 to 0 */
++	__asm__ volatile("csrw 0x7c2 , x0" : :);
++
++	/* Set CSR 0x7C3 to 0x5c1be649 */
++	hwpf = 0x5c1be649UL;
 +	__asm__ volatile("csrw 0x7c3 , %0" : : "r"(hwpf));
++
++	/* Set CSR 0x7C4 to 0x929F */
 +	hwpf = 0x929FUL;
-+	//cleanup fields
-+	hwpf &= (~(0x1f << 5)); //[9:5]  cleanup  hitCacheThrdL2
-+	hwpf &= (~(0x7  << 14)); //[16:14] cleanup numL2PFIssQEnt
-+
-+	//set new value
-+	hwpf |= (0x1f << 5); //[9:5]    hitCacheThrdL2
-+	hwpf |= (0x7  << 14); //[16:14] numL2PFIssQEnt
-+
 +	__asm__ volatile("csrw 0x7c4 , %0" : : "r"(hwpf));
 +#endif
 +

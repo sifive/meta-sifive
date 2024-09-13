@@ -18,13 +18,10 @@ SRC_URI:append = " \
 	file://0002-EIC770X-Added-changes-to-write-Fractional-register.patch \
 	file://0003-platform-eswin-Add-eic770X-UART-driver.patch \
 	file://0004-platform-eswin-Add-shutdown-and-reset-function.patch \
-	file://0001-lib-sbi-Add-Function-to-configure-FSCR.patch \
-	file://0001-lib-sbi-Modify-CSR-values.patch \
-	file://0001-lib-sbi-eic770x-Add-PMP-for-TOR-region.patch \
-	file://0002-include-sbi_domain-Added-TOR-NAPOT-region-support.patch \
-	file://0003-lib-utils-Add-argument-in-sbi_domain_memregion_init.patch \
-	file://0004-lib-sbi-Set-tor-size.patch \
-	file://0005-lib-sbi-memregion-init-in-sbi_domain_init.patch \
+	file://0005-lib-sbi-Configure-CSR-registers.patch \
+	file://0006-lib-sbi-eic770x-Add-PMP-for-TOR-region.patch \
+	file://0007-sbi-init-Modify-CSR-values.patch \
+	file://0008-platform-eswin-Update-License-in-file-header.patch \
 "
 
 S = "${WORKDIR}/git"
