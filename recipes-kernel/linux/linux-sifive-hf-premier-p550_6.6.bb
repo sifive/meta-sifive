@@ -4,11 +4,11 @@ LICENSE = "GPL-2.0-only"
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
-KBRANCH ?= "dev/kernel/hifive-premier-p550"
-KBRANCH:hifive-premier-p550 = "dev/kernel/hifive-premier-p550"
+KBRANCH ?= "rel/kernel/hifive-premier-p550"
+KBRANCH:hifive-premier-p550 = "rel/kernel/hifive-premier-p550"
 
-SRCREV_machine ?= "3e7e531d225d24c20f6e7a8bf0997d3c8b43efe2"
-SRCREV_machine:hifive-premier-p550 = "3e7e531d225d24c20f6e7a8bf0997d3c8b43efe2"
+SRCREV_machine ?= "2ea5d264bdd5c3b596a3ebb41db43ba6f208554d"
+SRCREV_machine:hifive-premier-p550 = "2ea5d264bdd5c3b596a3ebb41db43ba6f208554d"
 SRCREV_meta ?= "f568a941bd5dd474b795b085e0faf22a83c0401a"
 
 KCONFIG_MODE = "--alldefconfig"
