@@ -9,7 +9,7 @@ INHIBIT_DEFAULT_DEPS = "1"
 INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
 
 BRANCH = "master"
-SRCREV = "b115a84c772392011fba776e59d1fe8db7fb36bf"
+SRCREV = "43ec142e5a9d95820b0a06e51863931229e6f71b"
 SRC_URI = "git://git@github.com/sifive/hifive-premier-p550-tools.git;branch=${BRANCH};protocol=ssh"
 
 S = "${WORKDIR}/git"
