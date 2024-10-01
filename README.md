@@ -1,8 +1,6 @@
 # meta-sifive
 SiFive BSPs layer for OpenEmbedded/Yocto
 
-“Work in progress for HiFive Premier P550. Full support will be coming soon”
-
 ## Description
 
 This is the general hardware-specific BSP layer for the SiFive boards.
@@ -24,7 +22,7 @@ This layer depends on:
 
 ```bash
 mkdir dist && cd dist
-git clone https://github.com/sifive/meta-sifive -b dev/meta-sifive/hifive-premier-p550
+git clone https://github.com/sifive/meta-sifive -b rel/meta-sifive/hifive-premier-p550
 ```
 
 ## Available machines
