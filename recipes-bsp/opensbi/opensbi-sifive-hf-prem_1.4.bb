@@ -21,7 +21,7 @@ SRC_URI:append = " \
 	file://0005-lib-sbi-Configure-CSR-registers.patch \
 	file://0006-lib-sbi-eic770x-Add-PMP-for-TOR-region.patch \
 	file://0007-sbi-init-Modify-CSR-values.patch \
-	file://0008-platform-eswin-Update-License-in-file-header.patch \
+	file://0008-lib-sbi-Add-new-PMP-region.patch \
 "
 
 S = "${WORKDIR}/git"

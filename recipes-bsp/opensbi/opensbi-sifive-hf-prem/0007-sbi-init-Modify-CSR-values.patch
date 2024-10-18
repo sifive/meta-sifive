@@ -1,4 +1,4 @@
-From beccdf0920e9409b8b1641a6daed153cc37ce105 Mon Sep 17 00:00:00 2001
+From 28d80b3904a91af7161e82eafb3e589c5bc00577 Mon Sep 17 00:00:00 2001
 From: Pritesh Patel <pritesh.patel@einfochips.com>
 Date: Thu, 12 Sep 2024 10:30:59 +0000
 Subject: [PATCH 7/8] sbi: init: Modify CSR values

@@ -1,4 +1,4 @@
-From c46ab57a5ee9ded71b1265232f36056abdd25779 Mon Sep 17 00:00:00 2001
+From 42fdff29c165feaeedb2c0f7f80cedac4b07efca Mon Sep 17 00:00:00 2001
 From: Pinkesh Vaghela <pinkesh.vaghela@einfochips.com>
 Date: Wed, 5 Jun 2024 12:12:22 +0530
 Subject: [PATCH 5/8] lib: sbi: Configure CSR registers

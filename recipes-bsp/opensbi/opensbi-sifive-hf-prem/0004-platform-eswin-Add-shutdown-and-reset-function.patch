@@ -1,4 +1,4 @@
-From 72d5ea2a904877e6d6728ec12c07cc584c3ca45a Mon Sep 17 00:00:00 2001
+From f045ac9490eca8496416cd07f053327d4a69138e Mon Sep 17 00:00:00 2001
 From: Darshan Prajapati <darshan.prajapati@einfochips.com>
 Date: Tue, 25 Jun 2024 15:17:36 +0530
 Subject: [PATCH 4/8] platform: eswin: Add shutdown and reset function
@@ -13,10 +13,10 @@ Signed-off-by: Darshan Prajapati <darshan.prajapati@einfochips.com>
  1 file changed, 65 insertions(+), 4 deletions(-)
 
 diff --git a/platform/eswin/eic770x/platform.c b/platform/eswin/eic770x/platform.c
-index c3e672a..c4d84b8 100644
+index f252fe4..e15df16 100644
 --- a/platform/eswin/eic770x/platform.c
 +++ b/platform/eswin/eic770x/platform.c
-@@ -26,6 +26,7 @@
+@@ -17,6 +17,7 @@
  #include <sbi/sbi_console.h>
  #include <sbi/sbi_platform.h>
  #include <sbi/sbi_system.h>
@@ -24,7 +24,7 @@ index c3e672a..c4d84b8 100644
  #include <sbi/riscv_io.h>
  #include <sbi_utils/irqchip/plic.h>
  #include <sbi_utils/serial/uart8250.h>
-@@ -35,6 +36,8 @@
+@@ -26,6 +27,8 @@
  #include <sbi_utils/fdt/fdt_helper.h>
  #include <sbi/riscv_asm.h>
  #include <sbi_utils/fdt/fdt_fixup.h>
@@ -33,7 +33,7 @@ index c3e672a..c4d84b8 100644
  
  /* clang-format off */
  #define EIC770X_HART_COUNT				4
-@@ -50,8 +53,10 @@
+@@ -41,8 +44,10 @@
  #define EIC770X_PLIC_NUM_SOURCES			520
  #define EIC770X_PLIC_NUM_PRIORITIES			7
  
@@ -45,7 +45,7 @@ index c3e672a..c4d84b8 100644
  
  #define EIC770X_UART_CLK				(200000000UL)
  
-@@ -126,14 +131,70 @@ static void eic770x_modify_dt(void *fdt)
+@@ -117,14 +122,70 @@ static void eic770x_modify_dt(void *fdt)
  
  static int eic770x_system_reset_check(u32 type, u32 reason)
  {
