@@ -1,4 +1,4 @@
-From 05f63017ab8bdab3a50fcc1dc554c37e645ab691 Mon Sep 17 00:00:00 2001
+From ec8a0dbb5e0404b80dc960b84117e171af95bf8c Mon Sep 17 00:00:00 2001
 From: Darshan Prajapati <darshan.prajapati@einfochips.com>
 Date: Thu, 12 Sep 2024 13:38:17 +0000
 Subject: [PATCH] riscv: hifive_premier_p550: defined boot media sequence
@@ -13,7 +13,7 @@ Signed-off-by: Darshan Prajapati <darshan.prajapati@einfochips.com>
  1 file changed, 2 insertions(+), 7 deletions(-)
 
 diff --git a/include/configs/hifive_premier_p550.h b/include/configs/hifive_premier_p550.h
-index e655592eb9..b78f36a0db 100644
+index c50fe54c4a3..0c7c132aa5b 100644
 --- a/include/configs/hifive_premier_p550.h
 +++ b/include/configs/hifive_premier_p550.h
 @@ -11,12 +11,6 @@
@@ -30,7 +30,7 @@ index e655592eb9..b78f36a0db 100644
  #include <config_distro_bootcmd.h>
  
 @@ -45,7 +39,8 @@
-     "uuid_root=80a5a8e9-c744-491a-93c1-4f4194fd690a\0" \
+     "uuid_root=b0f77ad6-36cd-4a99-a8c0-31d73649aa08\0" \
      "uuid_swap=5ebcaaf0-e098-43b9-beef-1f8deedd135e\0" \
      "partitions=name=boot,start=1MiB,size=512MiB,type=${typeid_efi},uuid=${uuid_boot};name=swap,size=4096MiB,type=${typeid_swap},uuid=${uuid_swap};name=root,size=30GiB,type=${typeid_filesystem},uuid=${uuid_root};name=userdata,type=${typeid_filesystem},size=-;\0" \
 -    "gpt_partition=gpt write mmc ${emmc_dev} $partitions\0"
