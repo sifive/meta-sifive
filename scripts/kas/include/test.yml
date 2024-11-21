@@ -20,7 +20,10 @@ local_conf_header:
 
     DISTRO_FEATURES:append = " ptest"
 
-    EXTRA_IMAGE_FEATURES:append = " hwcodecs debug-tweaks ptest-pkgs ssh-server-openssh"
+    EXTRA_IMAGE_FEATURES:append = " \
+        hwcodecs \
+        ptest-pkgs \
+        ssh-server-openssh"
 
     IMAGE_CLASSES:append = " testimage testsdk"
     IMAGE_INSTALL:append = " linux-firmware"
