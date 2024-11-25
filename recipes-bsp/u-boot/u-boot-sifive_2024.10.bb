@@ -3,15 +3,9 @@ require recipes-bsp/u-boot/u-boot.inc
 
 PROVIDES += "u-boot"
 
-DEPENDS += "bc-native dtc-native"
-
-FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
+DEPENDS += "bc-native dtc-native gnutls-native python3-pyelftools-native"
 
 DEPENDS:append:riscv64 = " opensbi"
-
-SRCREV = "25049ad560826f7dc1c4740883b0016014a59789"
-
-SRC_URI = "git://source.denx.de/u-boot/u-boot.git;protocol=https;branch=master"
 
 SRC_URI:append:riscv64 = " \
     file://0005-riscv-dts-Add-few-PMU-events.patch \
