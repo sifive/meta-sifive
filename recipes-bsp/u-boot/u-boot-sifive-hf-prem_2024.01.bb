@@ -5,12 +5,10 @@ PROVIDES += "u-boot"
 
 DEPENDS += "bc-native dtc-native"
 
-SRCREV = "47cc6eedb7df5cd88477836250548560e8bf043f"
+SRCREV = "eab538b697011b866aba64938ef045e67fa08dc2"
 PATCHTOOL = "git"
 
-SRC_URI = "git://github.com/eswincomputing/u-boot.git;protocol=https;branch=u-boot-2024.01-EIC7X \
-           file://0001-riscv-hifive_premier_p550-defined-boot-media-sequenc.patch \
-           file://0001-hifive-premier-p550-drivers-video-update-logo.patch"
+SRC_URI = "git://github.com/eswincomputing/u-boot.git;protocol=https;branch=u-boot-2024.01-EIC7X"
 
 do_deploy:append () {
 	install -m 755 ${B}/u-boot.dtb ${DEPLOYDIR}
