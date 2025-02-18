@@ -1,5 +1,5 @@
 header:
-  version: 11
+  version: 14
 
 build_system: oe
 
@@ -7,13 +7,13 @@ repos:
 
   bitbake:
     url: https://git.openembedded.org/bitbake
-    refspec: c9906bb289dcfd9ae41f10bd5399ccc17a4cc437
+    commit: ff8cae735cf489373af1aac7ee233d7b82d483d3
     layers:
       .: excluded
 
   openembedded-core:
     url: https://git.openembedded.org/openembedded-core
-    refspec: ba94110d70ebfb1b4798ecf05389f7ea602b1f55
+    commit: 4bea64347407dfb1eb46dacffd05af3bd200b419
     layers:
       meta:
 
