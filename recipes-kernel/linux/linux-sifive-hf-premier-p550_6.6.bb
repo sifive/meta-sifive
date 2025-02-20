@@ -4,12 +4,12 @@ LICENSE = "GPL-2.0-only"
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
-KBRANCH ?= "rel/kernel/hifive-premier-p550"
-KBRANCH:hifive-premier-p550 = "rel/kernel/hifive-premier-p550"
+KBRANCH ?= "dev/kernel/6.6.77"
+KBRANCH:hifive-premier-p550 = "dev/kernel/6.6.77"
 
-SRCREV_machine ?= "022315aa62e5160face9de04d895090794d088b2"
-SRCREV_machine:hifive-premier-p550 = "022315aa62e5160face9de04d895090794d088b2"
-SRCREV_meta ?= "f568a941bd5dd474b795b085e0faf22a83c0401a"
+SRCREV_machine ?= "cca7663437bb1aaa87e03e0d673aedb7297d47e4"
+SRCREV_machine:hifive-premier-p550 = "cca7663437bb1aaa87e03e0d673aedb7297d47e4"
+SRCREV_meta ?= "078f986aa4c328285abd0181cc21724d832a3ae0"
 
 KCONFIG_MODE = "--alldefconfig"
 
@@ -27,7 +27,7 @@ SRC_URI = "git://git@github.com/sifive/riscv-linux.git;protocol=ssh;name=machine
            git://git.yoctoproject.org/yocto-kernel-cache;type=kmeta;name=meta;branch=yocto-6.6;destsuffix=${KMETA}"
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
-LINUX_VERSION ?= "6.6.21"
+LINUX_VERSION ?= "6.6.77"
 LINUX_VERSION_EXTENSION = ""
 
 PV = "${LINUX_VERSION}+git${SRCPV}"
