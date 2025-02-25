@@ -1,0 +1,26 @@
+header:
+  version: 14
+
+repos:
+
+  meta-clang:
+    url: https://github.com/kraj/meta-clang.git
+    commit: 93dec321980091b8abfa1f7d72c50b844c63167c
+    layers:
+      .:
+
+local_conf_header:
+
+  clang: |
+
+    PREFERRED_PROVIDER_llvm = "clang"
+    PREFERRED_PROVIDER_llvm-native = "clang-native"
+    PREFERRED_PROVIDER_nativesdk-llvm = "nativesdk-clang"
+    PROVIDES:pn-clang = "llvm"
+    PROVIDES:pn-clang-native = "llvm-native"
+    PROVIDES:pn-nativesdk-clang = "nativesdk-llvm"
+
+    TOOLCHAIN = "clang"
+    TOOLCHAIN:pn-opensbi-sifive = "gcc"
+
+    CLANGSDK = "1"
